@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UltraFly</title>
+    <link rel="icon" type="image/png" th:href="@{/image/logo.png}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <!-- Background Elements -->
+        <div class="bg-element bg-element-1"></div>
+        <div class="bg-element bg-element-2"></div>
+
+        <!-- Logo -->
+        <div class="logo-container">
+            <h1 class="logo">
+                <span class="logo-ultra">Ultra</span><span class="logo-fly">Fly</span>
+            </h1>
+        </div>
+
+        <!-- Subtitle -->
+        <p class="subtitle">VOTRE SI DE GESTION DE COMPAGNIE AÉRIENNE</p>
+
+        <!-- Navigation Cards -->
+        <div class="nav-cards">
+            <a th:href="@{/aeroport}" class="card">
+                <div class="card-icon">✈️</div>
+                <h3 class="card-title">Aéroports</h3>
+            </a>
+
+            <a th:href="@{/vol}" class="card">
+                <div class="card-icon">🛫</div>
+                <h3 class="card-title">Vols</h3>
+            </a>
+
+            <a th:href="@{/billet}" class="card">
+                <div class="card-icon">🎫</div>
+                <h3 class="card-title">Billets</h3>
+            </a>
+
+            <a th:href="@{/client}" class="card">
+                <div class="card-icon">👥</div>
+                <h3 class="card-title">Clients</h3>
+            </a>
+
+            <a th:href="@{/equipage}" class="card">
+                <div class="card-icon">👨‍✈️</div>
+                <h3 class="card-title">Équipage</h3>
+            </a>
+
+            <a th:href="@{/dashboard}" class="card">
+                <div class="card-icon">📊</div>
+                <h3 class="card-title">Dashboard</h3>
+            </a>
+        </div>
+    </section>
+
+    <script th:src="@{/js/index.js}"></script>
+</body>
+</html>
