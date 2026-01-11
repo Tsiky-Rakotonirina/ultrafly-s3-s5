@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UltraFly</title>
+    <link rel="icon" type="image/png" th:href="@{/image/logo.png}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" href="../css/index.css">
+    <link rel="stylesheet" href="../css/template.css">
+    <link rel="stylesheet" th:href="@{/css/template.css}">
+</head>
+<body>
+
+    <div class="uf-component-fiche">
+
+        <h1 class="uf-subtitle">Fiche ---</h1>
+        <div class="uf-fiche">
+            
+            <!-- Section 1: Sous-Fiche (Mini div interne) -->
+            <div class="uf-fiche-section">
+                <div class="uf-fiche-mini">
+                    <div class="uf-fiche-mini-title">Sous-Fiche</div>
+                    <p><strong>Info 1:</strong> ------</p>
+                    <p><strong>Info 2:</strong> ------</p>
+                    <p><strong>Info 3:</strong> ------</p>
+                </div>
+            </div>
+            
+            <!-- Section 2: Attributs en P -->
+            <div class="uf-fiche-section">
+                <div class="uf-fiche-attrs">
+                    <div class="uf-fiche-attr">
+                        <div class="uf-fiche-attr-label">Attribut 1</div>
+                        <div class="uf-fiche-attr-value">------</div>
+                    </div>
+                    <div class="uf-fiche-attr">
+                        <div class="uf-fiche-attr-label">Attribut 2</div>
+                        <div class="uf-fiche-attr-value">------</div>
+                    </div>
+                    <div class="uf-fiche-attr">
+                        <div class="uf-fiche-attr-label">Attribut 3</div>
+                        <div class="uf-fiche-attr-value">------</div>
+                    </div>
+                    <div class="uf-fiche-attr">
+                        <div class="uf-fiche-attr-label">Attribut 4</div>
+                        <div class="uf-fiche-attr-value">------</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Section 3: Liste UL -->
+            <div class="uf-fiche-section">
+                <ul class="uf-fiche-list">
+                    <li>------</li>
+                    <li>------</li>
+                    <li>------</li>
+                    <li>------</li>
+                </ul>
+            </div>
+            
+            <!-- Section 4: Table Simple (Non triable) -->
+            <div class="uf-fiche-section" style="flex: 2;">
+                <table class="uf-fiche-table">
+                    <thead>
+                        <tr>
+                            <th>Colonne 1</th>
+                            <th>Colonne 2</th>
+                            <th>Colonne 3</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>------</td>
+                            <td>------</td>
+                            <td>------</td>
+                        </tr>
+                        <tr>
+                            <td>------</td>
+                            <td>------</td>
+                            <td>------</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+        </div>   
+
+    </div>
+     
+    <script th:src="@{/js/template.js}"></script>
+    <script src="../js/template.js"></script>
+</body>
+</html>

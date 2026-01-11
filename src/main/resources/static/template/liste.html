@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UltraFly</title>
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" href="../css/index.css">
+    <link rel="stylesheet" href="../css/template.css">
+    <link rel="stylesheet" th:href="@{/css/template.css}">
+</head>
+<body>
+
+    <div class="uf-component-liste">
+    
+        <h1 class="uf-subtitle">Liste --- </h1>
+        
+        <!-- Container de Liste (peut contenir plusieurs boxes) -->
+        <div class="uf-list-container">
+            
+            <!-- Box Unique Exemple -->
+            <div class="uf-box">
+                <!-- Header avec Numéro Bold -->
+                <div class="uf-box-header">
+                    <span class="uf-box-number">------</span>
+                    <span class="uf-box-title">------</span>
+                </div>
+                
+                <!-- Contenu Principal - Plusieurs Attributs en P -->
+                <div class="uf-box-content">
+                    <p class="uf-box-attr"><strong>Attribut 1:</strong> ------</p>
+                    <p class="uf-box-attr"><strong>Attribut 2:</strong> ------</p>
+                    <p class="uf-box-attr"><strong>Attribut 3:</strong> ------</p>
+                </div>
+                
+                <!-- Liste UL -->
+                <ul class="uf-box-list">
+                    <li>------</li>
+                    <li>------</li>
+                    <li>------</li>
+                </ul>
+                
+                <!-- Section Interne (div avec sous-attributs) -->
+                <div class="uf-box-section">
+                    <div class="uf-box-section-title">Sous-Section</div>
+                    <p class="uf-box-section-attr">Sous-attribut 1: ------</p>
+                    <p class="uf-box-section-attr">Sous-attribut 2: ------</p>
+                    <p class="uf-box-section-attr">Sous-attribut 3: ------</p>
+                </div>
+            </div>
+            
+            <!-- Ajouter d'autres boxes ici avec th:each pour itérer -->
+            
+        </div>  
+
+    </div>
+
+    <script th:src="@{/js/template.js}"></script>
+    <script src="../js/template.js"></script>
+</body>
+</html>

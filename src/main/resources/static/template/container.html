@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UltraFly</title>
+    <link rel="icon" type="image/png" th:href="@{/image/logo.png}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" href="../css/index.css">
+    <link rel="stylesheet" href="../css/template.css">
+    <link rel="stylesheet" th:href="@{/css/template.css}">
+</head>
+<body>
+    <!-- Background Elements -->
+    <div class="bg-element bg-element-1"></div>
+    <div class="bg-element bg-element-2"></div>
+    
+    <div class="uf-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="uf-sidebar">
+            <!-- Sidebar Header avec Logo -->
+            <div class="uf-sidebar-header">
+                <div class="uf-sidebar-logo">
+                    <span class="logo-ultra">Ultra</span><span class="logo-fly">Fly</span>
+                </div>
+                <button class="uf-sidebar-toggle">
+                    <span>←</span>
+                </button>
+            </div>
+            
+            <!-- Navigation Menu -->
+            <nav class="uf-sidebar-nav">
+                <ul class="uf-sidebar-menu">
+                    <!-- Avion -->
+                    <li class="uf-sidebar-item">
+                        <a th:href="@{/avion}" class="uf-sidebar-link">
+                            <span class="uf-sidebar-icon">✈️</span>
+                            <span class="uf-sidebar-text">Avion</span>
+                        </a>
+                    </li>
+                    
+                    <!-- Vol -->
+                    <li class="uf-sidebar-item">
+                        <a th:href="@{/vol}" class="uf-sidebar-link">
+                            <span class="uf-sidebar-icon">🛫</span>
+                            <span class="uf-sidebar-text">Vol</span>
+                        </a>
+                    </li>
+                    
+                    <!-- Reservation -->
+                    <li class="uf-sidebar-item">
+                        <a th:href="@{/reservation}" class="uf-sidebar-link">
+                            <span class="uf-sidebar-icon">🎫</span>
+                            <span class="uf-sidebar-text">Réservation</span>
+                        </a>
+                    </li>
+                    
+                    <!-- Personne -->
+                    <li class="uf-sidebar-item">
+                        <a th:href="@{/personne}" class="uf-sidebar-link">
+                            <span class="uf-sidebar-icon">👥</span>
+                            <span class="uf-sidebar-text">Personne</span>
+                        </a>
+                    </li>
+                    
+                    <!-- Enregistrement -->
+                    <li class="uf-sidebar-item">
+                        <a th:href="@{/enregistrement}" class="uf-sidebar-link">
+                            <span class="uf-sidebar-icon">👨‍✈️</span>
+                            <span class="uf-sidebar-text">Enregistrement</span>
+                        </a>
+                    </li>
+                    
+                    <!-- Dashboard -->
+                    <li class="uf-sidebar-item">
+                        <a th:href="@{/dashboard}" class="uf-sidebar-link">
+                            <span class="uf-sidebar-icon">📊</span>
+                            <span class="uf-sidebar-text">Dashboard</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <!-- Main Content Area -->
+        <main class="uf-main">
+
+            <!-- Votre contenu ici -->
+            
+        </main>
+    </div>
+
+    <script th:src="@{/js/template.js}"></script>
+    <script src="../js/template.js"></script>
+</body>
+</html>

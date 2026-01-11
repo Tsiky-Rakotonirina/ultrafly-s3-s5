@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UltraFly</title>
+    <link rel="icon" type="image/png" th:href="@{/image/logo.png}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" href="../css/index.css">
+    <link rel="stylesheet" href="../css/template.css">
+    <link rel="stylesheet" th:href="@{/css/template.css}">
+</head>
+<body>
+
+    <div class="uf-component-form">
+    
+        <h1 class="uf-subtitle">Filtre ----</h1>
+        
+        <form th:action="@{/submit}" method="post" class="uf-filtre">
+            
+            <!-- Input Hidden -->
+            <input type="hidden" name="hiddenField" value="------" class="uf-form-hidden">
+            
+            <!-- Input Text -->
+            <div class="uf-form-group">
+                <label class="uf-form-label">Champ Texte</label>
+                <input type="text" name="textField" placeholder="------" class="uf-form-input">
+            </div>
+            
+            <!-- Input Date -->
+            <div class="uf-form-group">
+                <label class="uf-form-label">Date</label>
+                <input type="date" name="dateField" class="uf-form-input">
+            </div>
+            
+            <!-- Input Datetime -->
+            <div class="uf-form-group">
+                <label class="uf-form-label">Date et Heure</label>
+                <input type="datetime-local" name="datetimeField" class="uf-form-input">
+            </div>
+            
+            <!-- Dropdown / Select -->
+            <div class="uf-form-group">
+                <label class="uf-form-label">Sélection</label>
+                <select name="selectField" class="uf-form-select">
+                    <option value="">-- Choisir --</option>
+                    <option value="option1">------</option>
+                    <option value="option2">------</option>
+                    <option value="option3">------</option>
+                    <option value="option4">------</option>
+                </select>
+            </div>
+            
+            <!-- Radio Buttons -->
+            <div class="uf-form-group">
+                <label class="uf-form-label">Options Radio</label>
+                <div class="uf-form-radio-group">
+                    <label class="uf-form-radio">
+                        <input type="radio" name="radioField" value="radio1">
+                        <span class="uf-form-radio-custom"></span>
+                        <span class="uf-form-radio-label">------</span>
+                    </label>
+                    <label class="uf-form-radio">
+                        <input type="radio" name="radioField" value="radio2">
+                        <span class="uf-form-radio-custom"></span>
+                        <span class="uf-form-radio-label">------</span>
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Checkbox Style Divs (Cliquables) -->
+            <div class="uf-form-group">
+                <label class="uf-form-label">Sélection Multiple (Cliquer pour sélectionner)</label>
+                <div class="uf-form-checkbox-group">
+                    <div class="uf-form-checkbox-item" data-value="check1">
+                        <span class="uf-form-checkbox-icon"></span>
+                        <span class="uf-form-checkbox-text">------</span>
+                        <input type="hidden" name="checkbox1" value="false">
+                    </div>
+                    <div class="uf-form-checkbox-item" data-value="check2">
+                        <span class="uf-form-checkbox-icon"></span>
+                        <span class="uf-form-checkbox-text">------</span>
+                        <input type="hidden" name="checkbox2" value="false">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="uf-separator" style="flex: 1 1 100%;"></div>
+            
+            <!-- Submit Button -->
+            <div class="uf-form-group uf-form-group-full">
+                <button type="submit" class="uf-form-submit">Soumettre</button>
+            </div>
+            
+        </form>   
+
+    </div>
+
+    <script th:src="@{/js/template.js}"></script>
+    <script src="../js/template.js"></script>
+</body>
+</html>

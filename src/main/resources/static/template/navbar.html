@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UltraFly</title>
+    <link rel="icon" type="image/png" th:href="@{/image/logo.png}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" href="../css/index.css">
+    <link rel="stylesheet" href="../css/template.css">
+    <link rel="stylesheet" th:href="@{/css/template.css}">
+</head>
+<body>
+
+    <div class="uf-component-navbar">
+
+        <nav class="uf-navbar">
+            <!-- Brand Left - Logo + Image -->
+            <a th:href="@{/}" class="uf-navbar-brand">
+                <img th:src="@{/image/logo.png}" alt="UltraFly Logo" class="uf-navbar-logo-img">
+                <div class="uf-navbar-logo-text">
+                    <span class="logo-ultra">Ultra</span><span class="logo-fly">Fly</span>
+                </div>
+            </a>
+            
+            <!-- Navigation Menu Centré -->
+            <ul class="uf-navbar-menu">
+                <li class="uf-navbar-item">
+                    <a th:href="@{/avion}" class="uf-navbar-link">Avion</a>
+                </li>
+                <li class="uf-navbar-item">
+                    <a th:href="@{/vol}" class="uf-navbar-link">Vol</a>
+                </li>
+                <li class="uf-navbar-item">
+                    <a th:href="@{/reservation}" class="uf-navbar-link">Réservation</a>
+                </li>
+                <li class="uf-navbar-item">
+                    <a th:href="@{/personne}" class="uf-navbar-link">Personne</a>
+                </li>
+                <li class="uf-navbar-item">
+                    <a th:href="@{/enregistrement}" class="uf-navbar-link">Enregistrement</a>
+                </li>
+                <li class="uf-navbar-item">
+                    <a th:href="@{/dashboard}" class="uf-navbar-link">Dashboard</a>
+                </li>
+            </ul>
+            
+            <!-- Brand Right - UltraFly Text -->
+            <a th:href="@{/}" class="uf-navbar-brand-right">UltraFly</a>
+        </nav>
+        
+        <!-- Contenu après navbar -->
+        <div style="padding: var(--spacing-xl);">
+            <p>------</p>
+        </div>   
+
+    </div>
+
+    <script th:src="@{/js/template.js}"></script>
+    <script src="../js/template.js"></script>
+</body>
+</html>

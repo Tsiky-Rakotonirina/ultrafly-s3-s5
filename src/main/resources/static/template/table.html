@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UltraFly</title>
+    <link rel="icon" type="image/png" th:href="@{/image/logo.png}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" href="../css/index.css">
+    <link rel="stylesheet" href="../css/template.css">
+    <link rel="stylesheet" th:href="@{/css/template.css}">
+</head>
+<body>
+
+    <div class="uf-component-table">
+
+        <h1 class="uf-subtitle">Table ---</h1>
+        
+        <div class="uf-table-container">
+            <table class="uf-table">
+                <thead>
+                    <tr>
+                        <!-- Colonne Numérique Triable -->
+                        <th class="sortable sortable-numeric">N° ID</th>
+                        
+                        <!-- Colonne Date Triable -->
+                        <th class="sortable sortable-date">Date</th>
+                        
+                        <!-- Colonne Alphabétique -->
+                        <th>Nom</th>
+                        
+                        <!-- Colonne Bouton/Lien -->
+                        <th>Action</th>
+                        
+                        <!-- Colonne Bold -->
+                        <th>Statut</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Ligne de données exemple -->
+                    <tr>
+                        <!-- Cellule Numérique -->
+                        <td class="uf-table-cell-numeric">------</td>
+                        
+                        <!-- Cellule Date -->
+                        <td class="uf-table-cell-date">------</td>
+                        
+                        <!-- Cellule Alpha -->
+                        <td>------</td>
+                        
+                        <!-- Cellule Bouton/Lien -->
+                        <td>
+                            <a th:href="@{/detail}" class="uf-table-btn">Voir Détails</a>
+                        </td>
+                        
+                        <!-- Cellule Bold -->
+                        <td class="uf-table-cell-bold">------</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <script th:src="@{/js/template.js}"></script>
+    <script src="../js/template.js"></script>
+</body>
+</html>
