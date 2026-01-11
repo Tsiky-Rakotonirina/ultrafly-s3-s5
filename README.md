@@ -2,7 +2,7 @@
 
 Theme : Compagnie aerienne
 Application : UltraFly
-Description : Application Web de Gestion d'une compagnie aerienne 
+Description : Application Web de Gestion d'une compagnie aerienne
 Debut : Jeudi 8 janvier 2026
 Fin : Vendredi 30 janvier 2026
 Examens : 9-1; 15-1; 16-1; 22-1; 23-1; 29-1; 30-1
@@ -11,16 +11,16 @@ Examens : 9-1; 15-1; 16-1; 22-1; 23-1; 29-1; 30-1
 
 ## Fonctionnalités
 
-Entites a gerer : Aeroport, Equipage, Client, Vol et Billet
+Entites a gerer : Avion, Vol, Personne, Reservation, Enregistrement, Dashboard
 
 ---
 
 ## Technologies utilisées
 
 Persistance : Base de donnees avec SGBD PostgreSQL 16.2
-Backend : Framework Web de Java : SpringBoot 4.0.1 
+Backend : Framework Web de Java : SpringBoot 4.0.1
 Frontend : Html, css et js avec thymeleaf pour le dynamisme
-Maven : Outil de gestion de dependances, de compilation, de lancement de Java 
+Maven : Outil de gestion de dependances, de compilation, de lancement de Java
 Git et gihub : Outil de gestion version et de collaboration
 Pour plus d'informations, consulter le fichier HELP.md
 
@@ -29,7 +29,8 @@ Pour plus d'informations, consulter le fichier HELP.md
 ## Architecture
 
 Architecture 3-tiers avec Pattern Model-ViewController
-- model : les classes mappent les tables ou les vues de la base de donnees 
+
+- model : les classes mappent les tables ou les vues de la base de donnees
 - repository : gere l'interaction avec la base, fournit les methodes
 - service : pont entre repository et controller pour les regles metiers : controle -  traitement - persistance
 - controller : gere les requetes http, appelle service, prepare les donnees des templates
@@ -78,11 +79,11 @@ Architecture 3-tiers avec Pattern Model-ViewController
 │   │       │   ├── 📁 js/
 │   │       │   └── 📁 template/
 │   │       ├── 📁 templates/
-│   │       │   ├── 📁 aeroport/
-│   │       │   ├── 📁 billet/
-│   │       │   ├── 📁 client/
+│   │       │   ├── 📁 avion/
+│   │       │   ├── 📁 reservation/
+│   │       │   ├── 📁 enregistrement/
 │   │       │   ├── 📁 dashboard/
-│   │       │   ├── 📁 equipage/
+│   │       │   ├── 📁 personne/
 │   │       │   ├── 📁 vol/
 │   │       │   └── 📄 index.html (0.0 B)
 │   │       └── 📄 application.properties (585.0 B)
@@ -158,17 +159,17 @@ Classe
             - si table : NomDeTable; si vue : VNomDeVue
             - annote : @Entity, @NoArgsConstructor, @AllArgsConstructor, @Data
         - le reste terminer par : Repository, Controller, Service, Dto
-    - nom de variable/attribut : camelCase 
+    - nom de variable/attribut : camelCase
         - array / list : nom de classe avec s
-        - object : nom de classe 
+        - object : nom de classe
     - nom de fonction : camelCase
-        - dans {Repository, Service} :  
-            - return result 
-            - throws Exception 
+        - dans {Repository, Service} :
+    - return result
+            - throws Exception
         - dans {Controller} :
             - si dans try : envoyer les reponses vers la page desiree
             - si catch exception : envoyer objet Type ErrorDto nomme erreur dans page precedente a gerer dans les vues
-            
+
 /src/main/java/com/gestioncafe/database
     - cheatsheet.sql : cheatsheet sur postgresql
     - methods.md : liste des methodes fournis par JpaRepository
@@ -182,42 +183,42 @@ Classe
     - view.sql : liste des views crees
     - si changement de base nommer un nouveau fichier avec la date du jour (ex : 2026_01_15.sql) et utiliser drop, alter etc
 
-View 
-    - nom de page : kebab-case 
+View
+    - nom de page : kebab-case
     - valeur de objet : th:text="${}"
     - if : th:if="${ a==b and c!=d or !e.isEmpty() }" th:unless="${ a==c }"
     - foreach : th:each="user, ${users}"
     - lien : th:href="@{/(id=${id})}" th:src="@{/}" th:action="@{/}"
     - pour integrer les fichiers dans static : passer direct au nom du sous dossier
 
-
-
 ## Recuperer le projet
 
 - Github : [https://github.com/Tsiky-Rakotonirina/ultrafly-s3-s5](https://github.com/Tsiky-Rakotonirina/ultrafly-s3-s5)
-
 - code -> copier URL
 - GitHub desktop : menu -> file -> clone repository -> url :
-    - url : coller le lien 
-    - local path : choisir le dossier pour mettre le dossier du projet
+
+  - url : coller le lien
+  - local path : choisir le dossier pour mettre le dossier du projet
 - ouvrir le code dans vscode ou IntelliJIdea
 - aller dans /src/main/resources/application.properties :  changer les parametres de la base de donnees
-    - spring.datasource.url=jdbc:postgresql://localhost:5432/nom_de_votre_base
-    - spring.datasource.username=nom_utilisateur_postgresql
-    - spring.datasource.password=mot_de_passe_postgresql
+
+  - spring.datasource.url=jdbc:postgresql://localhost:5432/nom_de_votre_base
+  - spring.datasource.username=nom_utilisateur_postgresql
+  - spring.datasource.password=mot_de_passe_postgresql
 
 ---
 
-## Executer et lancer le projet 
+## Executer et lancer le projet
+
 executer a la racine du projet :
 mvn spring-boot:run
 verifier : /target/compagnie_aerienne.war
 
---- 
+---
 
 ## Tester du projet
 
 - Ouvrir le navigateur et aller sur l'URL
-http://localhost:8080
+  http://localhost:8080
 
 ---
