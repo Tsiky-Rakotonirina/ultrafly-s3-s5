@@ -133,3 +133,5 @@ CREATE TABLE change (
     CONSTRAINT uq_devise_date
         UNIQUE (devise_id, date_change)
 );
+
+-- 19

@@ -99,3 +99,5 @@ CREATE TABLE paiement_detail (
         FOREIGN KEY (paiement_id)
         REFERENCES paiement(id_paiement)
 );
+
+--6

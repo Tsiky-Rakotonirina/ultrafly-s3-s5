@@ -585,3 +585,5 @@ CREATE TRIGGER trg_numero_paiement
 BEFORE INSERT ON paiement
 FOR EACH ROW
 EXECUTE FUNCTION fn_numero_paiement();
+
+--19
