@@ -46,6 +46,21 @@ CREATE TABLE role (
     description TEXT
 );
 
+CREATE TABLE poste_role (
+    id_poste_role SERIAL PRIMARY KEY,
+    poste_id INTEGER NOT NULL,
+    role_id  INTEGER NOT NULL,
+
+    CONSTRAINT fk_poste_role_poste
+        FOREIGN KEY (poste_id)
+        REFERENCES poste(id_poste),
+
+    CONSTRAINT fk_poste_role_role
+        FOREIGN KEY (role_id)
+        REFERENCES role(id_role)
+);
+
+
 CREATE TABLE client_type (
     id_client_type SERIAL PRIMARY KEY,
     libelle        VARCHAR(100) NOT NULL,

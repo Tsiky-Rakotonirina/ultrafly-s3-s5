@@ -55,6 +55,27 @@ INSERT INTO role (libelle, description) VALUES ('Agent de sécurité de bord', '
 INSERT INTO role (libelle, description) VALUES ('Instructeur en vol', 'Formation pratique à bord');
 INSERT INTO role (libelle, description) VALUES ('Pilote de relève', 'Pilote supplémentaire pour vols longs');
 
+-- Table poste_role
+-- Pilotes
+INSERT INTO poste_role (poste_id, role_id) VALUES (1, 1); 
+INSERT INTO poste_role (poste_id, role_id) VALUES (1, 10);
+INSERT INTO poste_role (poste_id, role_id) VALUES (2, 2); 
+INSERT INTO poste_role (poste_id, role_id) VALUES (2, 10); 
+-- Cabine
+INSERT INTO poste_role (poste_id, role_id) VALUES (3, 3); 
+INSERT INTO poste_role (poste_id, role_id) VALUES (3, 4);
+INSERT INTO poste_role (poste_id, role_id) VALUES (3, 5); 
+INSERT INTO poste_role (poste_id, role_id) VALUES (4, 3); 
+INSERT INTO poste_role (poste_id, role_id) VALUES (4, 4);
+INSERT INTO poste_role (poste_id, role_id) VALUES (4, 5);
+-- Technique & sécurité
+INSERT INTO poste_role (poste_id, role_id) VALUES (5, 6); 
+INSERT INTO poste_role (poste_id, role_id) VALUES (6, 7); 
+INSERT INTO poste_role (poste_id, role_id) VALUES (7, 8); 
+-- Supervision
+INSERT INTO poste_role (poste_id, role_id) VALUES (8, 3); 
+INSERT INTO poste_role (poste_id, role_id) VALUES (9, 3); 
+
 -- Table client_type
 INSERT INTO client_type (libelle, description) VALUES ('Bebe', 'Passager de 0 à 1 an');
 INSERT INTO client_type (libelle, description) VALUES ('Enfant', 'Passager de 2 à 11 ans');

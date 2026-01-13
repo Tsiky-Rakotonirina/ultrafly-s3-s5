@@ -12,6 +12,7 @@ Examens : 9-1; 15-1; 16-1; 22-1; 23-1; 29-1; 30-1
 ## Fonctionnalités
 
 Entites a gerer : Avion, Vol, Personne, Reservation, Enregistrement, Dashboard
+Voir FEATURES.json pour les details
 
 ---
 

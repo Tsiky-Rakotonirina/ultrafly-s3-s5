@@ -46,6 +46,20 @@ CREATE TABLE role (
     description TEXT
 );
 
+CREATE TABLE poste_role (
+    id_poste_role SERIAL PRIMARY KEY,
+    poste_id INTEGER NOT NULL,
+    role_id  INTEGER NOT NULL,
+
+    CONSTRAINT fk_poste_role_poste
+        FOREIGN KEY (poste_id)
+        REFERENCES poste(id_poste),
+
+    CONSTRAINT fk_poste_role_role
+        FOREIGN KEY (role_id)
+        REFERENCES role(id_role)
+);
+
 CREATE TABLE client_type (
     id_client_type SERIAL PRIMARY KEY,
     libelle        VARCHAR(100) NOT NULL,
@@ -455,9 +469,9 @@ CREATE TABLE vol_detail (
     id_vol_detail        INTEGER       PRIMARY KEY DEFAULT nextval('seq_vol_detail'),
     heure                TIMESTAMP     NOT NULL,
     vol_id               INTEGER       NOT NULL,
-    itineraire_escale_id INTEGER,
-    avion_id             INTEGER,
-    equipage_id          INTEGER,
+    itineraire_escale_id INTEGER       NOT NULL,
+    avion_id             INTEGER       NOT NULL,
+    equipage_id          INTEGER       NOT NULL,
 
     CONSTRAINT fk_vol_detail_vol
         FOREIGN KEY (vol_id)
@@ -707,7 +721,12 @@ CREATE TABLE paiement (
         REFERENCES reservation(id_reservation),
     CONSTRAINT fk_paiement_enregistrement
         FOREIGN KEY (enregistrement_id)
-        REFERENCES enregistrement(id_enregistrement)
+        REFERENCES enregistrement(id_enregistrement),
+    CONSTRAINT chk_paiement_cible
+        CHECK (
+            (reservation_id IS NOT NULL AND enregistrement_id IS NULL)
+         OR (reservation_id IS NULL AND enregistrement_id IS NOT NULL)
+        )
 );
 
 CREATE OR REPLACE FUNCTION fn_numero_paiement() RETURNS TRIGGER AS $$

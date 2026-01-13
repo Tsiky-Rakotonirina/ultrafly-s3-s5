@@ -1,0 +1,290 @@
+{
+  "module_avion": {
+    "entites_et_filtres": {
+      "avion": [
+        "statut",
+        "constructeur",
+        "modele",
+        "capacite (min / max)",
+        "consommation (min / max)",
+        "date_possession (intervalle)",
+        "carburant_id",
+        "aeroport_base",
+        "taux_utilisation (min / max)",
+        "disponibilite (disponible / maintenance / hors service)"
+      ]
+    },
+    "processus_creation": {
+      "tables_a_recuperer": [
+        "siege_categorie",
+        "carburant",
+        "avion_statut",
+        "aeroport (base)"
+      ],
+      "tables_impactees": [
+        "avion",
+        "avion_siege",
+        "avion_historique",
+        "avion_carburant"
+      ]
+    },
+    "features_annexes": [
+      "Ravitaillement carburant (création ligne avion_carburant)",
+      "Historique ravitaillements et consommation par vol",
+      "Planification maintenance (création avion_historique statut 'En maintenance')",
+      "Changement de statut avion",
+      "Reconfiguration cabine (mise à jour avion_siege)"
+    ]
+  },
+
+  "module_vol": {
+    "entites_et_filtres": {
+      "vol": [
+        "date / heure (intervalle)",
+        "statut_vol_id",
+        "vol_type_id",
+        "itineraire_id",
+        "aeroport_depart",
+        "aeroport_arrivee",
+        "avec_escale (oui/non)",
+        "nombre_escales (min / max)",
+        "avion_id[]",
+        "equipage_id[]",
+        "nombre_reservations (min / max)",
+        "taux_remplissage (min / max)",
+        "retarde (oui/non)",
+        "reporte (oui/non)",
+        "annule (oui/non)",
+        "tarrif_moyen (min / max)"
+      ],
+      "itineraire": [
+        "aeroport_depart",
+        "aeroport_arrivee",
+        "distance (min / max)",
+        "duree (min / max)",
+        "nombre_escales",
+        "frequence_utilisation (min / max)"
+      ],
+      "vol_tarrif": [
+        "vol_id",
+        "siege_categorie_id",
+        "prix (min / max)"
+      ],
+      "vol_report": [
+        "vol_detail_id",
+        "vol_report_type_id",
+        "heure (intervalle)"
+      ],
+      "vol_arret": [
+        "vol_id",
+        "aeroport_id",
+        "heure (intervalle)"
+      ]
+    },
+    "processus_creation": {
+      "tables_a_recuperer": [
+        "itineraire",
+        "itineraire_escale",
+        "aeroport",
+        "vol_type",
+        "vol_statut",
+        "avion",
+        "equipage",
+        "siege_categorie",
+        "vol_report_type"
+      ],
+      "tables_impactees": [
+        "vol",
+        "vol_detail",
+        "vol_tarrif",
+        "vol_report",
+        "vol_arret",
+        "vol_historique",
+        "reservation (blocage/creation éventuelle de lignes)"
+      ]
+    },
+    "features_annexes": [
+      "Annulation de vol (création vol_historique + notification clients)",
+      "Report/replanification (création vol_historique + vol_report)",
+      "Changement d'itinéraire (mise à jour itineraire / itineraire_escale)",
+      "Ajout / suppression d'escale (mise à jour itineraire_escale)",
+      "Changement avion (création vol_detail historisé)",
+      "Changement équipage (création vol_detail historisé)"
+    ]
+  },
+
+  "module_personne": {
+    "entites_et_filtres": {
+      "client": [
+        "numero (CLI)",
+        "personne_id",
+        "passeport (num)",
+        "email",
+        "date_creation (intervalle)",
+        "ville / pays",
+        "statut (bloqué / actif)",
+        "historique_reservations (min / max)"
+      ],
+      "employe": [
+        "numero (EMP)",
+        "poste_id",
+        "personne_id",
+        "date_embauche (si disponible)",
+        "aeroport_affectation",
+        "statut (actif / inactif)"
+      ],
+      "equipage": [
+        "numero (EQP)",
+        "nom",
+        "date_equipage (intervalle)",
+        "membres (liste employe_id)",
+        "vol_affectes (liste vol_id)",
+        "itineraire_courant (via vol_id)",
+        "avion_courant (via vol_id)"
+      ]
+    },
+    "processus_creation": {
+      "tables_a_recuperer": [
+        "personne",
+        "pays",
+        "poste",
+        "role"
+      ],
+      "tables_impactees": [
+        "personne",
+        "client",
+        "employe",
+        "equipage",
+        "equipage_membre",
+        "reservation (si création liée)",
+        "enregistrement (si création liée)"
+      ]
+    },
+    "features_annexes": [
+      "Gestion disponibilités employés / équipages (plannings)",
+      "Update poste employé (vols, affectations)"
+    ]
+  },
+
+  "module_reservation": {
+    "entites_et_filtres": {
+      "reservation": [
+        "numero (RES)",
+        "date_reservation (intervalle)",
+        "statut_reservation_id",
+        "client_id",
+        "vol_id",
+        "montant_total (min / max)",
+        "paiement_status (complet / partiel / aucun)"
+      ]
+    },
+    "processus_creation": {
+      "tables_a_recuperer": [
+        "client",
+        "personne",
+        "vol",
+        "vol_tarrif",
+        "siege_categorie",
+        "reservation_statut",
+        "billet_statut",
+        "avion_siege"
+      ],
+      "tables_impactees": [
+        "reservation",
+        "reservation_historique",
+        "reservation_billet",
+        "reservation_billet_historique",
+        "paiement (si paiement initial)",
+        "vol_tarrif (consultation)",
+        "avion_siege (allocation temporaire si réservation tenue)"
+      ]
+    },
+    "features_annexes": [
+      "Modification réservation (mise à jour reservation + historique)",
+      "Annulation réservation & billetterie (création historiques + remboursement)"
+    ]
+  },
+
+  "module_enregistrement": {
+    "entites_et_filtres": {
+      "enregistrement": [
+        "numero (ERG)",
+        "heure (intervalle)",
+        "reservation_billet_id",
+        "client_type_id (qui s'assoit réellement)",
+        "vol_id (via reservation_billet → vol)",
+        "status_checkin (ouvert / clos)"
+      ],
+      "enregistrement_bagage": [
+        "enregistrement_id",
+        "numero (BAG)",
+        "bagage_type_id",
+        "poids (min / max)",
+        "excédent_bagage (oui/non)"
+      ]
+    },
+    "processus_creation": {
+      "tables_a_recuperer": [
+        "reservation_billet",
+        "client_type",
+        "avion_siege",
+        "bagage_type",
+        "reservation",
+        "vol"
+      ],
+      "tables_impactees": [
+        "enregistrement",
+        "enregistrement_bagage",
+        "paiement (si surpoids ou frais de dernière minute)",
+        "reservation_billet_historique (statut embarqué)"
+      ]
+    },
+    "features_annexes": [
+      "Calcul excédent bagage et facturation (création paiement / paiement_detail)",
+      "Impression / envoi carte embarquement",
+      "Marquage client comme 'embarqué' (mise à jour billet statut)"
+    ]
+  },
+
+  "module_dashboard_paiement": {
+    "entites_et_filtres": {
+      "paiement": [
+        "numero (PAI)",
+        "date (intervalle)",
+        "montant_total (min / max)",
+        "reste_payer (min / max)",
+        "reservation_id (nullable)",
+        "enregistrement_id (nullable)",
+        "paiement_mode_id",
+        "devise_id"
+      ]
+    },
+    "processus_creation": {
+      "tables_a_recuperer": [
+        "reservation",
+        "enregistrement",
+        "paiement_mode",
+        "devise",
+        "change",
+        "reservation_billet"
+      ],
+      "tables_impactees": [
+        "paiement",
+        "paiement_detail",
+        "reservation (mise à jour statut paiement)",
+        "enregistrement (mise à jour statut paiement)",
+        "rapports_financiers",
+        "caisse_journaliere"
+      ]
+    },
+    "features_annexes": [
+      "Calcul Chiffre d'Affaires (par période / vol / avion / aéroport)",
+      "Calcul Bénéfice (revenus - coûts carburant - coûts équipage - autres coûts)",
+      "Suivi paiements partiels et solde",
+      "Gestion multi-devises et conversion via table change",
+      "Analyse vol perdiodique (ponctualité, remplissage, revenu par siège)",
+      "Analyse avion perdiodique (utilisation, coûts maintenance, revenus générés)",
+      "Paramétrage référentiels (CRUD simple)"
+      ]
+  }
+}
