@@ -108,10 +108,10 @@ CREATE TABLE aeroport (
 );
 
 CREATE TABLE carburant_tarif (
-    id_carburant_tarif   SERIAL PRIMARY KEY,
-    carburant_id   INTEGER       NOT NULL,
-    prix                NUMERIC(10,2) NOT NULL,
-    date_tarif          DATE          NOT NULL,
+    id_carburant_tarif SERIAL PRIMARY KEY,
+    carburant_id       INTEGER       NOT NULL,
+    prix               NUMERIC(10,2) NOT NULL,
+    date_tarif         DATE          NOT NULL,
 
     CONSTRAINT fk_tarif_carburant
         FOREIGN KEY (carburant_id)
@@ -124,8 +124,8 @@ CREATE TABLE carburant_tarif (
 
 CREATE TABLE change (
     id_change   SERIAL PRIMARY KEY,
-    devise_id   INTEGER NOT NULL,
-    date_change DATE NOT NULL,
+    devise_id   INTEGER       NOT NULL,
+    date_change DATE          NOT NULL,
     cours       NUMERIC(10,4) NOT NULL,
     CONSTRAINT fk_change_devise
         FOREIGN KEY (devise_id)
@@ -139,15 +139,15 @@ CREATE SEQUENCE seq_avion START 1;
 
 -- Table
 CREATE TABLE avion (
-    id_avion          INTEGER PRIMARY KEY DEFAULT nextval('seq_avion'),
-    numero            VARCHAR(10) UNIQUE,
-    modele            VARCHAR(100) NOT NULL,
-    constructeur      VARCHAR(100),
-    consommation      NUMERIC(10,2),
-    vitesse           NUMERIC(10,2),
-    capacite          INTEGER,
-    date_possession   DATE,
-    carburant_id      INTEGER,
+    id_avion        INTEGER       PRIMARY KEY DEFAULT nextval('seq_avion'),
+    numero          VARCHAR(10)   UNIQUE,
+    modele          VARCHAR(100)  NOT NULL,
+    constructeur    VARCHAR(100),
+    consommation    NUMERIC(10,2),
+    vitesse         NUMERIC(10,2),
+    capacite        INTEGER,
+    date_possession DATE,
+    carburant_id    INTEGER,
 
     CONSTRAINT fk_avion_carburant
         FOREIGN KEY (carburant_id)
@@ -172,12 +172,12 @@ EXECUTE FUNCTION fn_numero_avion();
 CREATE SEQUENCE seq_avion_siege START 1;
 
 CREATE TABLE avion_siege (
-    id_avion_siege       INTEGER PRIMARY KEY DEFAULT nextval('seq_avion_siege'),
-    numero               VARCHAR(10) UNIQUE,
-    colonne              CHAR(1) NOT NULL,
-    rangee               INTEGER NOT NULL,
-    siege_categorie_id   INTEGER NOT NULL,
-    avion_id             INTEGER NOT NULL,
+    id_avion_siege     INTEGER       PRIMARY KEY DEFAULT nextval('seq_avion_siege'),
+    numero             VARCHAR(10)   UNIQUE,
+    colonne            CHAR(1)       NOT NULL,
+    rangee             INTEGER       NOT NULL,
+    siege_categorie_id INTEGER       NOT NULL,
+    avion_id           INTEGER       NOT NULL,
 
     CONSTRAINT fk_siege_categorie
         FOREIGN KEY (siege_categorie_id)
@@ -205,12 +205,12 @@ CREATE SEQUENCE seq_itineraire START 1;
 
 -- Table
 CREATE TABLE itineraire (
-    id_itineraire       INTEGER PRIMARY KEY DEFAULT nextval('seq_itineraire'),
-    numero              VARCHAR(10) UNIQUE,
-    duree               INTERVAL,
-    distance            NUMERIC(10,2),
-    aeroport_depart_id  INTEGER NOT NULL,
-    aeroport_arrive_id  INTEGER NOT NULL,
+    id_itineraire      INTEGER       PRIMARY KEY DEFAULT nextval('seq_itineraire'),
+    numero             VARCHAR(10)   UNIQUE,
+    duree              INTERVAL,
+    distance           NUMERIC(10,2),
+    aeroport_depart_id INTEGER       NOT NULL,
+    aeroport_arrive_id INTEGER       NOT NULL,
 
     CONSTRAINT fk_itineraire_aeroport_depart
         FOREIGN KEY (aeroport_depart_id)
@@ -240,13 +240,13 @@ CREATE SEQUENCE seq_itineraire_escale START 1;
 
 -- Table
 CREATE TABLE itineraire_escale (
-    id_itineraire_escale   INTEGER PRIMARY KEY DEFAULT nextval('seq_itineraire_escale'),
-    numero                 VARCHAR(10) UNIQUE,
-    duree                  INTERVAL,
-    distance               NUMERIC(10,2),
-    aeroport_depart_id     INTEGER NOT NULL,
-    aeroport_arrive_id     INTEGER NOT NULL,
-    itineraire_id          INTEGER NOT NULL,
+    id_itineraire_escale INTEGER       PRIMARY KEY DEFAULT nextval('seq_itineraire_escale'),
+    numero               VARCHAR(10)   UNIQUE,
+    duree                INTERVAL,
+    distance             NUMERIC(10,2),
+    aeroport_depart_id   INTEGER       NOT NULL,
+    aeroport_arrive_id   INTEGER       NOT NULL,
+    itineraire_id        INTEGER       NOT NULL,
 
     CONSTRAINT fk_escale_aeroport_depart
         FOREIGN KEY (aeroport_depart_id)
@@ -277,13 +277,13 @@ EXECUTE FUNCTION fn_numero_itineraire_escale();
 CREATE SEQUENCE seq_personne START 1;
 
 CREATE TABLE personne (
-    id_personne      INTEGER PRIMARY KEY DEFAULT nextval('seq_personne'),
-    numero           VARCHAR(10) UNIQUE,
-    nom              VARCHAR(150) NOT NULL,
-    email            VARCHAR(150),
-    date_naissance   DATE,
-    date_personne    DATE,
-    pays_id          INTEGER,
+    id_personne    INTEGER       PRIMARY KEY DEFAULT nextval('seq_personne'),
+    numero         VARCHAR(10)   UNIQUE,
+    nom            VARCHAR(150)  NOT NULL,
+    email          VARCHAR(150),
+    date_naissance DATE,
+    date_personne  DATE,
+    pays_id        INTEGER,
 
     CONSTRAINT fk_personne_pays
         FOREIGN KEY (pays_id)
@@ -306,10 +306,10 @@ EXECUTE FUNCTION fn_numero_personne();
 CREATE SEQUENCE seq_client START 1;
 
 CREATE TABLE client (
-    id_client       INTEGER PRIMARY KEY DEFAULT nextval('seq_client'),
-    numero          VARCHAR(10) UNIQUE,
-    passeport       VARCHAR(50),
-    personne_id     INTEGER NOT NULL,
+    id_client   INTEGER       PRIMARY KEY DEFAULT nextval('seq_client'),
+    numero      VARCHAR(10)   UNIQUE,
+    passeport   VARCHAR(50),
+    personne_id INTEGER       NOT NULL,
 
     CONSTRAINT fk_client_personne
         FOREIGN KEY (personne_id)
@@ -332,10 +332,10 @@ EXECUTE FUNCTION fn_numero_client();
 CREATE SEQUENCE seq_employe START 1;
 
 CREATE TABLE employe (
-    id_employe      INTEGER PRIMARY KEY DEFAULT nextval('seq_employe'),
-    numero          VARCHAR(10) UNIQUE,
-    poste_id        INTEGER NOT NULL,
-    personne_id     INTEGER NOT NULL,
+    id_employe  INTEGER       PRIMARY KEY DEFAULT nextval('seq_employe'),
+    numero      VARCHAR(10)   UNIQUE,
+    poste_id    INTEGER       NOT NULL,
+    personne_id INTEGER       NOT NULL,
 
     CONSTRAINT fk_employe_poste
         FOREIGN KEY (poste_id)
@@ -361,10 +361,10 @@ EXECUTE FUNCTION fn_numero_employe();
 CREATE SEQUENCE seq_equipage START 1;
 
 CREATE TABLE equipage (
-    id_equipage     INTEGER PRIMARY KEY DEFAULT nextval('seq_equipage'),
-    numero          VARCHAR(10) UNIQUE,
-    nom             VARCHAR(150) NOT NULL,
-    date_equipage   DATE
+    id_equipage   INTEGER       PRIMARY KEY DEFAULT nextval('seq_equipage'),
+    numero        VARCHAR(10)   UNIQUE,
+    nom           VARCHAR(150)  NOT NULL,
+    date_equipage DATE
 );
 
 CREATE OR REPLACE FUNCTION fn_numero_equipage() RETURNS TRIGGER AS $$
@@ -383,12 +383,16 @@ EXECUTE FUNCTION fn_numero_equipage();
 CREATE SEQUENCE seq_equipage_membre START 1;
 
 CREATE TABLE equipage_membre (
-    id_equipage_membre INTEGER PRIMARY KEY DEFAULT nextval('seq_equipage_membre'),
-    numero             VARCHAR(10) UNIQUE,
-    ordre              INTEGER NOT NULL,
-    employe_id         INTEGER NOT NULL,
-    role_id            INTEGER NOT NULL,
+    id_equipage_membre INTEGER       PRIMARY KEY DEFAULT nextval('seq_equipage_membre'),
+    numero             VARCHAR(10)   UNIQUE,
+    ordre              INTEGER       NOT NULL,
+    equipage_id        INTEGER       NOT NULL,
+    employe_id         INTEGER       NOT NULL,
+    role_id            INTEGER       NOT NULL,
 
+    CONSTRAINT fk_membre_equipage
+        FOREIGN KEY (equipage_id)
+        REFERENCES equipage(id_equipage),
     CONSTRAINT fk_membre_employe
         FOREIGN KEY (employe_id)
         REFERENCES employe(id_employe),
@@ -414,12 +418,12 @@ EXECUTE FUNCTION fn_numero_equipage_membre();
 CREATE SEQUENCE seq_vol START 1;
 
 CREATE TABLE vol (
-    id_vol             INTEGER PRIMARY KEY DEFAULT nextval('seq_vol'),
-    numero             VARCHAR(10) UNIQUE,
-    heure              TIMESTAMP NOT NULL,
-    vol_type_id        INTEGER NOT NULL,
-    itineraire_id      INTEGER NOT NULL,
-    statut_vol_id      INTEGER NOT NULL,
+    id_vol        INTEGER       PRIMARY KEY DEFAULT nextval('seq_vol'),
+    numero        VARCHAR(10)   UNIQUE,
+    heure         TIMESTAMP     NOT NULL,
+    vol_type_id   INTEGER       NOT NULL,
+    itineraire_id INTEGER       NOT NULL,
+    statut_vol_id INTEGER       NOT NULL,
 
     CONSTRAINT fk_vol_type
         FOREIGN KEY (vol_type_id)
@@ -448,12 +452,12 @@ EXECUTE FUNCTION fn_numero_vol();
 CREATE SEQUENCE seq_vol_detail START 1;
 
 CREATE TABLE vol_detail (
-    id_vol_detail       INTEGER PRIMARY KEY DEFAULT nextval('seq_vol_detail'),
-    heure               TIMESTAMP NOT NULL,
-    vol_id              INTEGER NOT NULL,
+    id_vol_detail        INTEGER       PRIMARY KEY DEFAULT nextval('seq_vol_detail'),
+    heure                TIMESTAMP     NOT NULL,
+    vol_id               INTEGER       NOT NULL,
     itineraire_escale_id INTEGER,
-    avion_id            INTEGER,
-    equipage_id         INTEGER,
+    avion_id             INTEGER,
+    equipage_id          INTEGER,
 
     CONSTRAINT fk_vol_detail_vol
         FOREIGN KEY (vol_id)
@@ -473,11 +477,11 @@ CREATE TABLE vol_detail (
 CREATE SEQUENCE seq_vol_tarrif START 1;
 
 CREATE TABLE vol_tarrif (
-    id_vol_tarrif       INTEGER PRIMARY KEY DEFAULT nextval('seq_vol_tarrif'),
-    numero              VARCHAR(10) UNIQUE,
-    prix                NUMERIC(10,2) NOT NULL,
-    siege_categorie_id  INTEGER NOT NULL,
-    vol_id              INTEGER NOT NULL,
+    id_vol_tarrif      INTEGER       PRIMARY KEY DEFAULT nextval('seq_vol_tarrif'),
+    numero             VARCHAR(10)   UNIQUE,
+    prix               NUMERIC(10,2) NOT NULL,
+    siege_categorie_id INTEGER       NOT NULL,
+    vol_id             INTEGER       NOT NULL,
 
     CONSTRAINT fk_tarrif_siege
         FOREIGN KEY (siege_categorie_id)
@@ -503,11 +507,11 @@ EXECUTE FUNCTION fn_numero_vol_tarrif();
 CREATE SEQUENCE seq_vol_report START 1;
 
 CREATE TABLE vol_report (
-    id_vol_report       INTEGER PRIMARY KEY DEFAULT nextval('seq_vol_report'),
-    numero              VARCHAR(10) UNIQUE,
-    heure               TIMESTAMP NOT NULL,
-    vol_report_type_id  INTEGER NOT NULL,
-    vol_detail_id       INTEGER NOT NULL,
+    id_vol_report      INTEGER     PRIMARY KEY DEFAULT nextval('seq_vol_report'),
+    numero             VARCHAR(10) UNIQUE,
+    heure              TIMESTAMP   NOT NULL,
+    vol_report_type_id INTEGER     NOT NULL,
+    vol_detail_id      INTEGER     NOT NULL,
 
     CONSTRAINT fk_vol_report_type
         FOREIGN KEY (vol_report_type_id)
@@ -533,11 +537,11 @@ EXECUTE FUNCTION fn_numero_vol_report();
 CREATE SEQUENCE seq_vol_arret START 1;
 
 CREATE TABLE vol_arret (
-    id_vol_arret        INTEGER PRIMARY KEY DEFAULT nextval('seq_vol_arret'),
-    numero              VARCHAR(10) UNIQUE,
-    heure               TIMESTAMP NOT NULL,
-    aeroport_id         INTEGER NOT NULL,
-    vol_id              INTEGER NOT NULL,
+    id_vol_arret INTEGER     PRIMARY KEY DEFAULT nextval('seq_vol_arret'),
+    numero       VARCHAR(10) UNIQUE,
+    heure        TIMESTAMP   NOT NULL,
+    aeroport_id  INTEGER     NOT NULL,
+    vol_id       INTEGER     NOT NULL,
 
     CONSTRAINT fk_arret_aeroport
         FOREIGN KEY (aeroport_id)
@@ -563,12 +567,12 @@ EXECUTE FUNCTION fn_numero_vol_arret();
 CREATE SEQUENCE seq_reservation START 1;
 
 CREATE TABLE reservation (
-    id_reservation           INTEGER PRIMARY KEY DEFAULT nextval('seq_reservation'),
-    numero                   VARCHAR(10) UNIQUE,
-    date_reservation         DATE NOT NULL,
-    client_id                INTEGER NOT NULL,
-    vol_id                   INTEGER NOT NULL,
-    reservation_statut_id    INTEGER NOT NULL,
+    id_reservation        INTEGER       PRIMARY KEY DEFAULT nextval('seq_reservation'),
+    numero                VARCHAR(10)   UNIQUE,
+    date_reservation      DATE          NOT NULL,
+    client_id             INTEGER       NOT NULL,
+    vol_id                INTEGER       NOT NULL,
+    reservation_statut_id INTEGER       NOT NULL,
 
     CONSTRAINT fk_reservation_client
         FOREIGN KEY (client_id)
@@ -597,12 +601,12 @@ EXECUTE FUNCTION fn_numero_reservation();
 CREATE SEQUENCE seq_reservation_billet START 1;
 
 CREATE TABLE reservation_billet (
-    id_reservation_billet    INTEGER PRIMARY KEY DEFAULT nextval('seq_reservation_billet'),
-    numero                   VARCHAR(10) UNIQUE,
-    prix                     NUMERIC(10,2) NOT NULL,
-    avion_siege_id           INTEGER NOT NULL,
-    reservation_id           INTEGER NOT NULL,
-    billet_statut_id         INTEGER NOT NULL,
+    id_reservation_billet INTEGER       PRIMARY KEY DEFAULT nextval('seq_reservation_billet'),
+    numero                VARCHAR(10)   UNIQUE,
+    prix                  NUMERIC(10,2) NOT NULL,
+    avion_siege_id        INTEGER       NOT NULL,
+    reservation_id        INTEGER       NOT NULL,
+    billet_statut_id      INTEGER       NOT NULL,
 
     CONSTRAINT fk_billet_siege
         FOREIGN KEY (avion_siege_id)
@@ -631,11 +635,11 @@ EXECUTE FUNCTION fn_numero_reservation_billet();
 CREATE SEQUENCE seq_enregistrement START 1;
 
 CREATE TABLE enregistrement (
-    id_enregistrement       INTEGER PRIMARY KEY DEFAULT nextval('seq_enregistrement'),
-    numero                  VARCHAR(10) UNIQUE,
-    heure                   TIMESTAMP NOT NULL,
-    client_type_id          INTEGER NOT NULL,
-    reservation_billet_id   INTEGER NOT NULL,
+    id_enregistrement     INTEGER     PRIMARY KEY DEFAULT nextval('seq_enregistrement'),
+    numero                VARCHAR(10) UNIQUE,
+    heure                 TIMESTAMP   NOT NULL,
+    client_type_id        INTEGER     NOT NULL,
+    reservation_billet_id INTEGER     NOT NULL,
 
     CONSTRAINT fk_enregistrement_client_type
         FOREIGN KEY (client_type_id)
@@ -661,11 +665,11 @@ EXECUTE FUNCTION fn_numero_enregistrement();
 CREATE SEQUENCE seq_enregistrement_bagage START 1;
 
 CREATE TABLE enregistrement_bagage (
-    id_enregistrement_bagage   INTEGER PRIMARY KEY DEFAULT nextval('seq_enregistrement_bagage'),
-    numero                     VARCHAR(10) UNIQUE,
-    poids                      NUMERIC(10,2) NOT NULL,
-    bagage_type_id             INTEGER NOT NULL,
-    enregistrement_id          INTEGER NOT NULL,
+    id_enregistrement_bagage INTEGER       PRIMARY KEY DEFAULT nextval('seq_enregistrement_bagage'),
+    numero                   VARCHAR(10)   UNIQUE,
+    poids                    NUMERIC(10,2) NOT NULL,
+    bagage_type_id           INTEGER       NOT NULL,
+    enregistrement_id        INTEGER       NOT NULL,
 
     CONSTRAINT fk_bagage_type
         FOREIGN KEY (bagage_type_id)
@@ -691,12 +695,12 @@ EXECUTE FUNCTION fn_numero_enregistrement_bagage();
 CREATE SEQUENCE seq_paiement START 1;
 
 CREATE TABLE paiement (
-    id_paiement           INTEGER PRIMARY KEY DEFAULT nextval('seq_paiement'),
-    numero                VARCHAR(10) UNIQUE,
-    montant_total         NUMERIC(10,2) NOT NULL,
-    reste_payer           NUMERIC(10,2) NOT NULL,
-    reservation_id        INTEGER,
-    enregistrement_id     INTEGER,
+    id_paiement       INTEGER       PRIMARY KEY DEFAULT nextval('seq_paiement'),
+    numero            VARCHAR(10)   UNIQUE,
+    montant_total     NUMERIC(10,2) NOT NULL,
+    reste_payer       NUMERIC(10,2) NOT NULL,
+    reservation_id    INTEGER,
+    enregistrement_id INTEGER,
 
     CONSTRAINT fk_paiement_reservation
         FOREIGN KEY (reservation_id)
@@ -721,10 +725,10 @@ EXECUTE FUNCTION fn_numero_paiement();
 CREATE SEQUENCE seq_avion_historique START 1;
 
 CREATE TABLE avion_historique (
-    id_avion_historique  INTEGER PRIMARY KEY DEFAULT nextval('seq_avion_historique'),
-    date_statut          DATE NOT NULL,
-    avion_id             INTEGER NOT NULL,
-    avion_statut_id      INTEGER NOT NULL,
+    id_avion_historique INTEGER PRIMARY KEY DEFAULT nextval('seq_avion_historique'),
+    date_statut         DATE    NOT NULL,
+    avion_id            INTEGER NOT NULL,
+    avion_statut_id     INTEGER NOT NULL,
 
     CONSTRAINT fk_historique_avion
         FOREIGN KEY (avion_id)
@@ -737,11 +741,11 @@ CREATE TABLE avion_historique (
 CREATE SEQUENCE seq_avion_carburant START 1;
 
 CREATE TABLE avion_carburant (
-    id_avion_carburant  INTEGER PRIMARY KEY DEFAULT nextval('seq_avion_carburant'),
-    quantite            NUMERIC(10,2) NOT NULL,
-    date_carburant      DATE NOT NULL,
-    avion_id            INTEGER NOT NULL,
-    carburant_id        INTEGER NOT NULL,
+    id_avion_carburant INTEGER       PRIMARY KEY DEFAULT nextval('seq_avion_carburant'),
+    quantite           NUMERIC(10,2) NOT NULL,
+    date_carburant     DATE          NOT NULL,
+    avion_id           INTEGER       NOT NULL,
+    carburant_id       INTEGER       NOT NULL,
 
     CONSTRAINT fk_carburant_avion
         FOREIGN KEY (avion_id)
@@ -754,10 +758,10 @@ CREATE TABLE avion_carburant (
 CREATE SEQUENCE seq_vol_historique START 1;
 
 CREATE TABLE vol_historique (
-    id_vol_historique   INTEGER PRIMARY KEY DEFAULT nextval('seq_vol_historique'),
-    date_statut         DATE NOT NULL,
-    vol_id              INTEGER NOT NULL,
-    statut_vol_id       INTEGER NOT NULL,
+    id_vol_historique INTEGER PRIMARY KEY DEFAULT nextval('seq_vol_historique'),
+    date_statut       DATE    NOT NULL,
+    vol_id            INTEGER NOT NULL,
+    statut_vol_id     INTEGER NOT NULL,
 
     CONSTRAINT fk_vol_historique_vol
         FOREIGN KEY (vol_id)
@@ -770,10 +774,10 @@ CREATE TABLE vol_historique (
 CREATE SEQUENCE seq_reservation_historique START 1;
 
 CREATE TABLE reservation_historique (
-    id_reservation_historique  INTEGER PRIMARY KEY DEFAULT nextval('seq_reservation_historique'),
-    date_statut                DATE NOT NULL,
-    reservation_id             INTEGER NOT NULL,
-    reservation_statut_id      INTEGER NOT NULL,
+    id_reservation_historique INTEGER PRIMARY KEY DEFAULT nextval('seq_reservation_historique'),
+    date_statut               DATE    NOT NULL,
+    reservation_id            INTEGER NOT NULL,
+    reservation_statut_id     INTEGER NOT NULL,
 
     CONSTRAINT fk_reservation_historique_reservation
         FOREIGN KEY (reservation_id)
@@ -787,9 +791,9 @@ CREATE SEQUENCE seq_reservation_billet_historique START 1;
 
 CREATE TABLE reservation_billet_historique (
     id_reservation_billet_historique INTEGER PRIMARY KEY DEFAULT nextval('seq_reservation_billet_historique'),
-    date_statut                      DATE NOT NULL,
-    reservation_billet_id             INTEGER NOT NULL,
-    billet_statut_id                  INTEGER NOT NULL,
+    date_statut                      DATE    NOT NULL,
+    reservation_billet_id            INTEGER NOT NULL,
+    billet_statut_id                 INTEGER NOT NULL,
 
     CONSTRAINT fk_billet_historique_billet
         FOREIGN KEY (reservation_billet_id)
@@ -802,12 +806,12 @@ CREATE TABLE reservation_billet_historique (
 CREATE SEQUENCE seq_paiement_detail START 1;
 
 CREATE TABLE paiement_detail (
-    id_paiement_detail   INTEGER PRIMARY KEY DEFAULT nextval('seq_paiement_detail'),
-    montant              NUMERIC(10,2) NOT NULL,
-    date_paiement        DATE NOT NULL,
-    paiement_mode_id     INTEGER NOT NULL,
-    devise_id            INTEGER NOT NULL,
-    paiement_id          INTEGER NOT NULL,
+    id_paiement_detail INTEGER       PRIMARY KEY DEFAULT nextval('seq_paiement_detail'),
+    montant            NUMERIC(10,2) NOT NULL,
+    date_paiement      DATE          NOT NULL,
+    paiement_mode_id   INTEGER       NOT NULL,
+    devise_id          INTEGER       NOT NULL,
+    paiement_id        INTEGER       NOT NULL,
 
     CONSTRAINT fk_paiement_detail_mode
         FOREIGN KEY (paiement_mode_id)

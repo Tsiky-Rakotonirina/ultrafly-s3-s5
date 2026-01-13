@@ -1,10 +1,10 @@
 CREATE SEQUENCE seq_avion_historique START 1;
 
 CREATE TABLE avion_historique (
-    id_avion_historique  INTEGER PRIMARY KEY DEFAULT nextval('seq_avion_historique'),
-    date_statut          DATE NOT NULL,
-    avion_id             INTEGER NOT NULL,
-    avion_statut_id      INTEGER NOT NULL,
+    id_avion_historique INTEGER PRIMARY KEY DEFAULT nextval('seq_avion_historique'),
+    date_statut         DATE    NOT NULL,
+    avion_id            INTEGER NOT NULL,
+    avion_statut_id     INTEGER NOT NULL,
 
     CONSTRAINT fk_historique_avion
         FOREIGN KEY (avion_id)
@@ -17,11 +17,11 @@ CREATE TABLE avion_historique (
 CREATE SEQUENCE seq_avion_carburant START 1;
 
 CREATE TABLE avion_carburant (
-    id_avion_carburant  INTEGER PRIMARY KEY DEFAULT nextval('seq_avion_carburant'),
-    quantite            NUMERIC(10,2) NOT NULL,
-    date_carburant      DATE NOT NULL,
-    avion_id            INTEGER NOT NULL,
-    carburant_id        INTEGER NOT NULL,
+    id_avion_carburant INTEGER       PRIMARY KEY DEFAULT nextval('seq_avion_carburant'),
+    quantite           NUMERIC(10,2) NOT NULL,
+    date_carburant     DATE          NOT NULL,
+    avion_id           INTEGER       NOT NULL,
+    carburant_id       INTEGER       NOT NULL,
 
     CONSTRAINT fk_carburant_avion
         FOREIGN KEY (avion_id)
@@ -34,10 +34,10 @@ CREATE TABLE avion_carburant (
 CREATE SEQUENCE seq_vol_historique START 1;
 
 CREATE TABLE vol_historique (
-    id_vol_historique   INTEGER PRIMARY KEY DEFAULT nextval('seq_vol_historique'),
-    date_statut         DATE NOT NULL,
-    vol_id              INTEGER NOT NULL,
-    statut_vol_id       INTEGER NOT NULL,
+    id_vol_historique INTEGER PRIMARY KEY DEFAULT nextval('seq_vol_historique'),
+    date_statut       DATE    NOT NULL,
+    vol_id            INTEGER NOT NULL,
+    statut_vol_id     INTEGER NOT NULL,
 
     CONSTRAINT fk_vol_historique_vol
         FOREIGN KEY (vol_id)
@@ -50,10 +50,10 @@ CREATE TABLE vol_historique (
 CREATE SEQUENCE seq_reservation_historique START 1;
 
 CREATE TABLE reservation_historique (
-    id_reservation_historique  INTEGER PRIMARY KEY DEFAULT nextval('seq_reservation_historique'),
-    date_statut                DATE NOT NULL,
-    reservation_id             INTEGER NOT NULL,
-    reservation_statut_id      INTEGER NOT NULL,
+    id_reservation_historique INTEGER PRIMARY KEY DEFAULT nextval('seq_reservation_historique'),
+    date_statut               DATE    NOT NULL,
+    reservation_id            INTEGER NOT NULL,
+    reservation_statut_id     INTEGER NOT NULL,
 
     CONSTRAINT fk_reservation_historique_reservation
         FOREIGN KEY (reservation_id)
@@ -67,9 +67,9 @@ CREATE SEQUENCE seq_reservation_billet_historique START 1;
 
 CREATE TABLE reservation_billet_historique (
     id_reservation_billet_historique INTEGER PRIMARY KEY DEFAULT nextval('seq_reservation_billet_historique'),
-    date_statut                      DATE NOT NULL,
-    reservation_billet_id             INTEGER NOT NULL,
-    billet_statut_id                  INTEGER NOT NULL,
+    date_statut                      DATE    NOT NULL,
+    reservation_billet_id            INTEGER NOT NULL,
+    billet_statut_id                 INTEGER NOT NULL,
 
     CONSTRAINT fk_billet_historique_billet
         FOREIGN KEY (reservation_billet_id)
@@ -82,12 +82,12 @@ CREATE TABLE reservation_billet_historique (
 CREATE SEQUENCE seq_paiement_detail START 1;
 
 CREATE TABLE paiement_detail (
-    id_paiement_detail   INTEGER PRIMARY KEY DEFAULT nextval('seq_paiement_detail'),
-    montant              NUMERIC(10,2) NOT NULL,
-    date_paiement        DATE NOT NULL,
-    paiement_mode_id     INTEGER NOT NULL,
-    devise_id            INTEGER NOT NULL,
-    paiement_id          INTEGER NOT NULL,
+    id_paiement_detail INTEGER       PRIMARY KEY DEFAULT nextval('seq_paiement_detail'),
+    montant            NUMERIC(10,2) NOT NULL,
+    date_paiement      DATE          NOT NULL,
+    paiement_mode_id   INTEGER       NOT NULL,
+    devise_id          INTEGER       NOT NULL,
+    paiement_id        INTEGER       NOT NULL,
 
     CONSTRAINT fk_paiement_detail_mode
         FOREIGN KEY (paiement_mode_id)
