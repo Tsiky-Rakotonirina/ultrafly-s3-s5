@@ -1,0 +1,23 @@
+"vol": [
+        "date / heure (intervalle)",
+        "statut_vol_id",
+        "vol_type_id",
+        "itineraire_id",
+        "aeroport_depart",
+        "aeroport_arrivee",
+        "avec_escale (oui/non)",
+        "nombre_escales (min / max)",
+        "avion_id[]",
+        "equipage_id[]",
+        "nombre_reservations (min / max)",
+        "taux_remplissage (min / max)",
+        "retarde (oui/non)",
+        "reporte (oui/non)",
+        "annule (oui/non)",
+        "tarrif_moyen (min / max)"
+      ],
+
+
+      pour lister et filtrer les vols dans un table avec tous les necessaires dedans (vol_type, itineraire, heure depart)
+      puis mettre les boutons suivants  :  voir_details, reporter, 
+      
