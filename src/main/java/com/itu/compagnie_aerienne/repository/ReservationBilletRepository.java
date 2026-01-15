@@ -15,6 +15,8 @@ public interface ReservationBilletRepository extends JpaRepository<ReservationBi
     
     List<ReservationBillet> findByReservationIdReservationOrderByIdReservationBilletAsc(Integer reservationId);
     
+    List<ReservationBillet> findByReservationVolIdVol(Integer volId);
+    
     @Query("SELECT CASE WHEN COUNT(rb) > 0 THEN true ELSE false END FROM ReservationBillet rb " +
            "WHERE rb.avionSiege.idAvionSiege = :siegeId " +
            "AND rb.reservation.vol.idVol = :volId " +

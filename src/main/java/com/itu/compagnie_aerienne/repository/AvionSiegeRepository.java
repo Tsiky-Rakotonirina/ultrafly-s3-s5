@@ -20,6 +20,9 @@ public interface AvionSiegeRepository extends JpaRepository<AvionSiege, Integer>
     @Query("SELECT s FROM AvionSiege s WHERE s.avion.idAvion = :avionId ORDER BY s.rangee, s.colonne")
     List<AvionSiege> findSiegesOrderedByPosition(@Param("avionId") Integer avionId);
     
+    @Query("SELECT s FROM AvionSiege s WHERE s.avion.idAvion = :avionId ORDER BY s.siegeCategorie.idSiegeCategorie, s.rangee, s.colonne")
+    List<AvionSiege> findByAvionIdAvionOrderBySiegeCategorieIdSiegeCategorieAscRangeeAscColonneAsc(@Param("avionId") Integer avionId);
+    
     @Query("SELECT MAX(s.rangee) FROM AvionSiege s WHERE s.avion.idAvion = :avionId")
     Integer getMaxRangee(@Param("avionId") Integer avionId);
     

@@ -21,8 +21,11 @@ public class Enregistrement {
     @Column(name = "numero", unique = true, length = 10)
     private String numero;
     
-    @Column(name = "heure", nullable = false)
-    private LocalDateTime heure;
+    @Column(name = "heure_enregistrement", nullable = false)
+    private LocalDateTime heureEnregistrement;
+    
+    @Column(name = "statut_enregistrement", nullable = false, length = 50)
+    private String statutEnregistrement;
     
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "client_type_id", nullable = false)

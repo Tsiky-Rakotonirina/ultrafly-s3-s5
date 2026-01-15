@@ -17,6 +17,9 @@ public class Devise {
     @Column(name = "id_devise")
     private Integer idDevise;
     
+    @Column(name = "code", nullable = false, length = 3)
+    private String code;
+    
     @Column(name = "libelle", nullable = false, length = 100)
     private String libelle;
     

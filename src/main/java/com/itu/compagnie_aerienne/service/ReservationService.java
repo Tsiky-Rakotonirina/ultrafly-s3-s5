@@ -84,7 +84,7 @@ public class ReservationService {
         for (Integer siegeId : siegeIds) {
             if (isSiegeReserve(volId, siegeId)) {
                 AvionSiege siege = avionSiegeRepository.findById(siegeId).orElse(null);
-                throw new RuntimeException("Le siège " + (siege != null ? siege.getPosition() : siegeId) + " est déjà réservé");
+                throw new RuntimeException("Le siège " + (siege != null ? siege.getNumero() : siegeId) + " est déjà réservé");
             }
         }
         
@@ -392,7 +392,7 @@ public class ReservationService {
     }
     
     public List<SiegeInfo> getSiegesAvecDisponibilite(Integer volId, Integer avionId) {
-        List<AvionSiege> sieges = avionSiegeRepository.findByAvionIdAvionOrderBySiegeCategorieIdSiegeCategorieAscPositionAsc(avionId);
+        List<AvionSiege> sieges = avionSiegeRepository.findByAvionIdAvionOrderBySiegeCategorieIdSiegeCategorieAscRangeeAscColonneAsc(avionId);
         List<Integer> siegesReserves = getSiegesReserves(volId);
         
         // Récupérer les tarifs pour ce vol

@@ -245,4 +245,16 @@ public class VolService {
     public List<ItineraireEscale> getEscalesByItineraire(Integer itineraireId) {
         return itineraireEscaleRepository.findByItineraireIdItineraireOrderByIdItineraireEscaleAsc(itineraireId);
     }
+    
+    // ==================== BILLETS ====================
+    
+    public List<ReservationBillet> getAllBillets() {
+        return volDetailRepository.findAll().stream()
+            .flatMap(d -> reservationBilletRepository.findByReservationVolIdVol(d.getVol().getIdVol()).stream())
+            .distinct()
+            .toList();
+    }
+    
+    @Autowired
+    private ReservationBilletRepository reservationBilletRepository;
 }
