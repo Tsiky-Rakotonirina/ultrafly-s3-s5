@@ -14,7 +14,8 @@ import java.time.LocalDate;
 public class Personne {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "personne_generator")
+    @SequenceGenerator(name = "personne_generator", sequenceName = "seq_personne", allocationSize = 1)
     @Column(name = "id_personne")
     private Integer idPersonne;
     

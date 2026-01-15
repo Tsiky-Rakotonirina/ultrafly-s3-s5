@@ -14,7 +14,8 @@ import java.time.LocalDateTime;
 public class VolArret {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "vol_arret_generator")
+    @SequenceGenerator(name = "vol_arret_generator", sequenceName = "seq_vol_arret", allocationSize = 1)
     @Column(name = "id_vol_arret")
     private Integer idVolArret;
     

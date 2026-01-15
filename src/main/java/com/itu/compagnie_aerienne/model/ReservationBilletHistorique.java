@@ -14,7 +14,8 @@ import java.time.LocalDate;
 public class ReservationBilletHistorique {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "reservation_billet_historique_generator")
+    @SequenceGenerator(name = "reservation_billet_historique_generator", sequenceName = "seq_reservation_billet_historique", allocationSize = 1)
     @Column(name = "id_reservation_billet_historique")
     private Integer idReservationBilletHistorique;
     

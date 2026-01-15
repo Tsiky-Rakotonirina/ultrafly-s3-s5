@@ -14,7 +14,8 @@ import java.time.LocalDateTime;
 public class VolReport {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "vol_report_generator")
+    @SequenceGenerator(name = "vol_report_generator", sequenceName = "seq_vol_report", allocationSize = 1)
     @Column(name = "id_vol_report")
     private Integer idVolReport;
     

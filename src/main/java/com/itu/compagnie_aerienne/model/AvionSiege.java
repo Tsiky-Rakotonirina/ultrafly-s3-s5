@@ -13,7 +13,8 @@ import lombok.NoArgsConstructor;
 public class AvionSiege {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "avion_siege_generator")
+    @SequenceGenerator(name = "avion_siege_generator", sequenceName = "seq_avion_siege", allocationSize = 1)
     @Column(name = "id_avion_siege")
     private Integer idAvionSiege;
     

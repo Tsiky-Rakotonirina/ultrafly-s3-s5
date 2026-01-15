@@ -14,7 +14,8 @@ import java.math.BigDecimal;
 public class ItineraireEscale {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "itineraire_escale_generator")
+    @SequenceGenerator(name = "itineraire_escale_generator", sequenceName = "seq_itineraire_escale", allocationSize = 1)
     @Column(name = "id_itineraire_escale")
     private Integer idItineraireEscale;
     

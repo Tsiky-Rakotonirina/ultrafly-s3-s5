@@ -8,7 +8,7 @@ public class AvionController {
 
     @GetMapping("/avion")
     public String avion() {
-        return "The features for avion are waiting to be implemented ! "; 
+        return "index"; 
     }
     
 }

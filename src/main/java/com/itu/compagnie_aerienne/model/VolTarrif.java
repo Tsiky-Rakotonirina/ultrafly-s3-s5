@@ -14,7 +14,8 @@ import java.math.BigDecimal;
 public class VolTarrif {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "vol_tarrif_generator")
+    @SequenceGenerator(name = "vol_tarrif_generator", sequenceName = "seq_vol_tarrif", allocationSize = 1)
     @Column(name = "id_vol_tarrif")
     private Integer idVolTarrif;
     

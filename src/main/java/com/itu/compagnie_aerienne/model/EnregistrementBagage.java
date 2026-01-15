@@ -14,7 +14,8 @@ import java.math.BigDecimal;
 public class EnregistrementBagage {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "enregistrement_bagage_generator")
+    @SequenceGenerator(name = "enregistrement_bagage_generator", sequenceName = "seq_enregistrement_bagage", allocationSize = 1)
     @Column(name = "id_enregistrement_bagage")
     private Integer idEnregistrementBagage;
     

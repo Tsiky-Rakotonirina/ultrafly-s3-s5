@@ -15,7 +15,8 @@ import java.time.LocalDate;
 public class PaiementDetail {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "paiement_detail_generator")
+    @SequenceGenerator(name = "paiement_detail_generator", sequenceName = "seq_paiement_detail", allocationSize = 1)
     @Column(name = "id_paiement_detail")
     private Integer idPaiementDetail;
     

@@ -13,7 +13,8 @@ import lombok.NoArgsConstructor;
 public class Client {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "client_generator")
+    @SequenceGenerator(name = "client_generator", sequenceName = "seq_client", allocationSize = 1)
     @Column(name = "id_client")
     private Integer idClient;
     

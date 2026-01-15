@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paiement - UltraFly</title>
+    <link rel="icon" type="image/png" th:href="@{/image/logo.png}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" th:href="@{/css/template.css}">
+    <style>
+        .paiement-summary {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .summary-row:last-child {
+            border-bottom: none;
+        }
+        .summary-label {
+            color: #888;
+        }
+        .summary-value {
+            color: #fff;
+            font-weight: bold;
+        }
+        .summary-total {
+            font-size: 1.3em;
+            color: #28a745;
+        }
+        .billets-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        .billets-table th, .billets-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .billets-table th {
+            background: rgba(102, 126, 234, 0.2);
+            color: #667eea;
+        }
+        .billets-table td {
+            color: #fff;
+        }
+        .paiement-history {
+            background: rgba(40, 167, 69, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+        .paiement-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .paiement-item-info {
+            color: #888;
+        }
+        .paiement-item-amount {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .reste-badge {
+            background: linear-gradient(135deg, #ffc107, #fd7e14);
+            color: #000;
+            padding: 10px 25px;
+            border-radius: 25px;
+            font-size: 1.2em;
+            font-weight: bold;
+            display: inline-block;
+            margin: 10px 0;
+        }
+        .paiement-complet-badge {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: #fff;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.3em;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .alert-success {
+            background: rgba(40, 167, 69, 0.2);
+            border: 1px solid #28a745;
+            color: #28a745;
+        }
+        .alert-error {
+            background: rgba(220, 53, 69, 0.2);
+            border: 1px solid #dc3545;
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Elements -->
+    <div class="bg-element bg-element-1"></div>
+    <div class="bg-element bg-element-2"></div>
+    
+    <div class="uf-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="uf-sidebar">
+            <div class="uf-sidebar-header">
+                <div class="uf-sidebar-logo">
+                    <span class="logo-ultra">Ultra</span><span class="logo-fly">Fly</span>
+                </div>
+                <button class="uf-sidebar-toggle">
+                    <span>←</span>
+                </button>
+            </div>
+            
+            <nav class="uf-sidebar-nav">
+                <a th:href="@{/vol-list}" class="uf-sidebar-item">
+                    <span class="uf-sidebar-icon">✈️</span>
+                    <span class="uf-sidebar-text">Vols</span>
+                </a>
+                <a href="#" class="uf-sidebar-item active">
+                    <span class="uf-sidebar-icon">💳</span>
+                    <span class="uf-sidebar-text">Paiement</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="uf-main">
+            <div class="uf-content">
+                
+                <!-- Messages d'alerte -->
+                <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+                <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+                
+                <div class="uf-component-form">
+                    <h1 class="uf-subtitle">
+                        Paiement - Réservation <span th:text="${reservation.numero}"></span>
+                    </h1>
+                    
+                    <!-- Résumé de la réservation -->
+                    <div class="paiement-summary">
+                        <h3 style="color: #667eea; margin-bottom: 15px;">📋 Résumé de la réservation</h3>
+                        <div class="summary-row">
+                            <span class="summary-label">Vol</span>
+                            <span class="summary-value" th:text="${reservation.vol.numero}"></span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Itinéraire</span>
+                            <span class="summary-value">
+                                <span th:text="${reservation.vol.itineraire.aeroportDepart.nom}"></span> → 
+                                <span th:text="${reservation.vol.itineraire.aeroportArrive.nom}"></span>
+                            </span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Date du vol</span>
+                            <span class="summary-value" th:text="${#temporals.format(reservation.vol.heure, 'dd/MM/yyyy HH:mm')}"></span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Client</span>
+                            <span class="summary-value" th:text="${reservation.client.personne.nom}"></span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Date réservation</span>
+                            <span class="summary-value" th:text="${reservation.dateReservation}"></span>
+                        </div>
+                    </div>
+                    
+                    <!-- Détail des billets -->
+                    <div class="paiement-summary">
+                        <h3 style="color: #667eea; margin-bottom: 15px;">🎫 Billets réservés</h3>
+                        <table class="billets-table">
+                            <thead>
+                                <tr>
+                                    <th>Numéro</th>
+                                    <th>Siège</th>
+                                    <th>Catégorie</th>
+                                    <th>Prix</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="billet : ${billets}">
+                                    <td th:text="${billet.numero}"></td>
+                                    <td th:text="${billet.avionSiege.rangee + billet.avionSiege.colonne}"></td>
+                                    <td th:text="${billet.avionSiege.siegeCategorie.libelle}"></td>
+                                    <td style="color: #28a745;" th:text="${billet.prix + ' €'}"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="summary-row" style="margin-top: 15px;">
+                            <span class="summary-label" style="font-size: 1.1em;">Montant Total</span>
+                            <span class="summary-value summary-total" th:text="${paiement.montantTotal + ' €'}"></span>
+                        </div>
+                    </div>
+                    
+                    <!-- Historique des paiements -->
+                    <div th:if="${!paiementsEffectues.isEmpty()}" class="paiement-history">
+                        <h3 style="color: #28a745; margin-bottom: 15px;">✅ Paiements effectués</h3>
+                        <div th:each="detail : ${paiementsEffectues}" class="paiement-item">
+                            <div class="paiement-item-info">
+                                <span th:text="${detail.paiementMode.libelle}"></span> - 
+                                <span th:text="${detail.devise.libelle}"></span> | 
+                                <span th:text="${detail.datePaiement}"></span>
+                            </div>
+                            <span class="paiement-item-amount" th:text="${detail.montant + ' €'}"></span>
+                        </div>
+                    </div>
+                    
+                    <!-- Statut du paiement -->
+                    <div th:if="${paiementComplet}" class="paiement-complet-badge">
+                        ✅ Paiement Complet - Réservation Confirmée
+                    </div>
+                    
+                    <div th:unless="${paiementComplet}">
+                        <div style="text-align: center; margin: 20px 0;">
+                            <span style="color: #888;">Reste à payer:</span>
+                            <div class="reste-badge" th:text="${resteAPayer + ' €'}"></div>
+                        </div>
+                        
+                        <!-- Formulaire de paiement -->
+                        <form th:action="@{/paiement-saisie}" method="post" class="uf-form">
+                            <input type="hidden" name="reservationId" th:value="${reservation.idReservation}">
+                            <input type="hidden" name="paiementId" th:value="${paiement.idPaiement}">
+                            
+                            <h3 style="color: #fff; margin-bottom: 20px;">💳 Effectuer un paiement</h3>
+                            
+                            <!-- Mode de paiement -->
+                            <div class="uf-form-group">
+                                <label class="uf-form-label">Mode de paiement</label>
+                                <select name="modeId" class="uf-form-select" required>
+                                    <option value="">-- Sélectionner --</option>
+                                    <option th:each="mode : ${modes}" 
+                                            th:value="${mode.idPaiementMode}" 
+                                            th:text="${mode.libelle}">
+                                    </option>
+                                </select>
+                            </div>
+                            
+                            <!-- Devise -->
+                            <div class="uf-form-group">
+                                <label class="uf-form-label">Devise</label>
+                                <select name="deviseId" class="uf-form-select" required>
+                                    <option value="">-- Sélectionner --</option>
+                                    <option th:each="devise : ${devises}" 
+                                            th:value="${devise.idDevise}" 
+                                            th:text="${devise.libelle}">
+                                    </option>
+                                </select>
+                            </div>
+                            
+                            <!-- Montant -->
+                            <div class="uf-form-group">
+                                <label class="uf-form-label">Montant</label>
+                                <input type="number" name="montant" step="0.01" min="0.01" 
+                                       th:max="${resteAPayer}" th:value="${resteAPayer}"
+                                       class="uf-form-input" required>
+                                <small style="color: #888;">Maximum: <span th:text="${resteAPayer}"></span> €</small>
+                            </div>
+                            
+                            <div class="uf-separator"></div>
+                            
+                            <!-- Boutons -->
+                            <div class="uf-form-group" style="display: flex; gap: 15px;">
+                                <a th:href="@{/vol-list}" class="uf-form-submit" style="background: #6c757d; text-decoration: none; text-align: center;">Retour aux vols</a>
+                                <button type="submit" class="uf-form-submit">Valider le paiement</button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- Bouton retour si paiement complet -->
+                    <div th:if="${paiementComplet}" style="text-align: center; margin-top: 30px;">
+                        <a th:href="@{/vol-list}" class="uf-form-submit" style="display: inline-block; text-decoration: none;">
+                            Retour à la liste des vols
+                        </a>
+                    </div>
+                    
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script th:src="@{/js/template.js}"></script>
+</body>
+</html>

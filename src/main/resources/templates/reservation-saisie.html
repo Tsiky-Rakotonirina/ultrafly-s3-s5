@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Réservation - UltraFly</title>
+    <link rel="icon" type="image/png" th:href="@{/image/logo.png}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" th:href="@{/css/template.css}">
+    <style>
+        .siege-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .siege-item {
+            padding: 10px;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .siege-item.disponible {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+        .siege-item.disponible:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+        }
+        .siege-item.reserve {
+            background: #dc3545;
+            color: white;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        .siege-item.selected {
+            border-color: #ffc107;
+            box-shadow: 0 0 15px rgba(255, 193, 7, 0.6);
+            transform: scale(1.1);
+        }
+        .siege-item input[type="checkbox"] {
+            display: none;
+        }
+        .categorie-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .categorie-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .prix-badge {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        .total-section {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: right;
+        }
+        .total-amount {
+            font-size: 1.5em;
+            color: #28a745;
+            font-weight: bold;
+        }
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .alert-success {
+            background: rgba(40, 167, 69, 0.2);
+            border: 1px solid #28a745;
+            color: #28a745;
+        }
+        .alert-error {
+            background: rgba(220, 53, 69, 0.2);
+            border: 1px solid #dc3545;
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Elements -->
+    <div class="bg-element bg-element-1"></div>
+    <div class="bg-element bg-element-2"></div>
+    
+    <div class="uf-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="uf-sidebar">
+            <div class="uf-sidebar-header">
+                <div class="uf-sidebar-logo">
+                    <span class="logo-ultra">Ultra</span><span class="logo-fly">Fly</span>
+                </div>
+                <button class="uf-sidebar-toggle">
+                    <span>←</span>
+                </button>
+            </div>
+            
+            <nav class="uf-sidebar-nav">
+                <a th:href="@{/vol-list}" class="uf-sidebar-item">
+                    <span class="uf-sidebar-icon">✈️</span>
+                    <span class="uf-sidebar-text">Vols</span>
+                </a>
+                <a href="#" class="uf-sidebar-item active">
+                    <span class="uf-sidebar-icon">🎫</span>
+                    <span class="uf-sidebar-text">Réservation</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="uf-main">
+            <div class="uf-content">
+                
+                <!-- Messages d'alerte -->
+                <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+                <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+                
+                <div class="uf-component-form">
+                    <h1 class="uf-subtitle">
+                        Réservation - Vol <span th:text="${vol.numero}"></span>
+                    </h1>
+                    <p style="color: #888; margin-bottom: 20px;">
+                        <span th:text="${vol.itineraire.aeroportDepart.nom}"></span> → 
+                        <span th:text="${vol.itineraire.aeroportArrive.nom}"></span> | 
+                        <span th:text="${#temporals.format(vol.heure, 'dd/MM/yyyy HH:mm')}"></span>
+                    </p>
+                    
+                    <form th:action="@{/reservation-saisie}" method="post" class="uf-form" id="reservationForm">
+                        <input type="hidden" name="volId" th:value="${vol.idVol}">
+                        
+                        <!-- Sélection du client -->
+                        <div class="uf-form-group">
+                            <label class="uf-form-label">Client</label>
+                            <select name="clientId" class="uf-form-select" required>
+                                <option value="">-- Sélectionner un client --</option>
+                                <option th:each="client : ${clients}" 
+                                        th:value="${client.idClient}" 
+                                        th:text="${client.personne.nom + ' (' + client.numero + ')'}">
+                                </option>
+                            </select>
+                        </div>
+                        
+                        <div class="uf-separator"></div>
+                        
+                        <!-- Sélection des sièges par catégorie -->
+                        <h3 style="color: #fff; margin-bottom: 20px;">Sélection des Sièges</h3>
+                        <p style="color: #888; margin-bottom: 20px;">
+                            <span style="display: inline-block; width: 20px; height: 20px; background: #28a745; border-radius: 4px; vertical-align: middle;"></span> Disponible
+                            <span style="display: inline-block; width: 20px; height: 20px; background: #dc3545; border-radius: 4px; vertical-align: middle; margin-left: 20px;"></span> Réservé
+                            <span style="display: inline-block; width: 20px; height: 20px; background: #28a745; border: 3px solid #ffc107; border-radius: 4px; vertical-align: middle; margin-left: 20px;"></span> Sélectionné
+                        </p>
+                        
+                        <div th:each="entry : ${siegesParCategorie.entrySet()}" class="categorie-section">
+                            <div class="categorie-header">
+                                <h4 th:text="${entry.key.libelle}" style="color: #fff; margin: 0;"></h4>
+                                <span class="prix-badge">
+                                    <span th:text="${tarifs.get(entry.key.idSiegeCategorie) != null ? tarifs.get(entry.key.idSiegeCategorie) : 0}"></span> €
+                                </span>
+                            </div>
+                            
+                            <div class="siege-grid">
+                                <div th:each="siegeInfo : ${entry.value}" 
+                                     th:class="${siegeInfo.reserve} ? 'siege-item reserve' : 'siege-item disponible'"
+                                     th:data-prix="${siegeInfo.prix}"
+                                     onclick="toggleSiege(this)">
+                                    
+                                    <input type="checkbox" 
+                                           th:name="'siege_' + ${siegeInfo.siege.idAvionSiege}"
+                                           th:disabled="${siegeInfo.reserve}"
+                                           class="siege-checkbox">
+                                    
+                                    <div th:text="${siegeInfo.siege.rangee + siegeInfo.siege.colonne}"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Total -->
+                        <div class="total-section">
+                            <span style="color: #888;">Total estimé:</span>
+                            <span class="total-amount" id="totalAmount">0 €</span>
+                        </div>
+                        
+                        <!-- Boutons -->
+                        <div class="uf-form-group" style="display: flex; gap: 15px;">
+                            <a th:href="@{/vol-list}" class="uf-form-submit" style="background: #6c757d; text-decoration: none; text-align: center;">Annuler</a>
+                            <button type="submit" class="uf-form-submit">Réserver et Payer</button>
+                        </div>
+                    </form>
+                </div>
+                
+            </div>
+        </main>
+    </div>
+
+    <script th:src="@{/js/template.js}"></script>
+    <script>
+        function toggleSiege(element) {
+            if (element.classList.contains('reserve')) return;
+            
+            const checkbox = element.querySelector('.siege-checkbox');
+            checkbox.checked = !checkbox.checked;
+            element.classList.toggle('selected', checkbox.checked);
+            
+            updateTotal();
+        }
+        
+        function updateTotal() {
+            let total = 0;
+            document.querySelectorAll('.siege-item.selected').forEach(function(el) {
+                total += parseFloat(el.dataset.prix) || 0;
+            });
+            document.getElementById('totalAmount').textContent = total.toFixed(2) + ' €';
+        }
+    </script>
+</body>
+</html>

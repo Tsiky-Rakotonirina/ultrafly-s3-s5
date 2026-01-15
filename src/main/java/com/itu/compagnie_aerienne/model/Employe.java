@@ -13,7 +13,8 @@ import lombok.NoArgsConstructor;
 public class Employe {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "employe_generator")
+    @SequenceGenerator(name = "employe_generator", sequenceName = "seq_employe", allocationSize = 1)
     @Column(name = "id_employe")
     private Integer idEmploye;
     

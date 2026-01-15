@@ -15,7 +15,8 @@ import java.time.LocalDate;
 public class Avion {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "avion_generator")
+    @SequenceGenerator(name = "avion_generator", sequenceName = "seq_avion", allocationSize = 1)
     @Column(name = "id_avion")
     private Integer idAvion;
     

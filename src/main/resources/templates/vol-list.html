@@ -76,8 +76,7 @@
                                         <span th:text="${volData.chiffreAffaire}"></span> €
                                     </td>
                                     <td>
-                                        <a th:href="@{/reservation-list(volId=${volData.vol.idVol})}" class="uf-table-btn" style="margin-right: 10px;">Liste Réservations</a>
-                                        <a th:href="@{/reserver(volId=${volData.vol.idVol})}" class="uf-table-btn">Réserver</a>
+                                        <a th:href="@{/reservation-saisie(volId=${volData.vol.idVol})}" class="uf-table-btn">Réserver</a>
                                     </td>
                                 </tr>
                             </tbody>

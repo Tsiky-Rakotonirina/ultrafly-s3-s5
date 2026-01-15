@@ -14,7 +14,8 @@ import java.math.BigDecimal;
 public class ReservationBillet {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "reservation_billet_generator")
+    @SequenceGenerator(name = "reservation_billet_generator", sequenceName = "seq_reservation_billet", allocationSize = 1)
     @Column(name = "id_reservation_billet")
     private Integer idReservationBillet;
     
