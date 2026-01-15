@@ -8,6 +8,7 @@ INSERT INTO avion_siege (id_avion_siege, colonne, rangee, siege_categorie_id, av
 INSERT INTO avion_siege (id_avion_siege, colonne, rangee, siege_categorie_id, avion_id) VALUES (4, 'D', 2, 1, 1);
 INSERT INTO avion_siege (id_avion_siege, colonne, rangee, siege_categorie_id, avion_id) VALUES (5, 'E', 2, 1, 1);
 INSERT INTO avion_siege (id_avion_siege, colonne, rangee, siege_categorie_id, avion_id) VALUES (6, 'F', 2, 1, 1);
+INSERT INTO avion_siege (id_avion_siege, colonne, rangee, siege_categorie_id, avion_id) VALUES (7, 'G', 2, 3, 1);
 
 -- itineraire
 INSERT INTO itineraire (id_itineraire, duree, distance, aeroport_depart_id, aeroport_arrive_id) VALUES (1, '02:30:00', 450.00, 1, 3);
@@ -60,32 +61,11 @@ INSERT INTO vol_detail (id_vol_detail, heure, vol_id, itineraire_escale_id, avio
 
 
 -- vol_tarrif
-INSERT INTO vol_tarrif (id_vol_tarrif, prix, siege_categorie_id, vol_id) VALUES (1, 1200000.00, 2, 1);
-INSERT INTO vol_tarrif (id_vol_tarrif, prix, siege_categorie_id, vol_id) VALUES (2, 700000.00, 1, 1);
+INSERT INTO vol_tarrif (id_vol_tarrif, prix, siege_categorie_id, vol_id) VALUES (1, 1200000.00, 3, 1);
+INSERT INTO vol_tarrif (id_vol_tarrif, prix, siege_categorie_id, vol_id) VALUES (2, 1000000.00, 2, 1);
+INSERT INTO vol_tarrif (id_vol_tarrif, prix, siege_categorie_id, vol_id) VALUES (3, 700000.00, 1, 1);
 
 -- reservation
-INSERT INTO reservation (id_reservation, date_reservation, client_id, vol_id, reservation_statut_id) VALUES (1, '2025-01-08', 1, 1, 2);
-INSERT INTO reservation (id_reservation, date_reservation, client_id, vol_id, reservation_statut_id) VALUES (2, '2025-01-09', 2, 1, 2);
-
-
--- reservation_billet
-INSERT INTO reservation_billet (id_reservation_billet, prix, avion_siege_id, reservation_id, billet_statut_id) VALUES (1, 120000.00, 4, 1, 2);
-INSERT INTO reservation_billet (id_reservation_billet, prix, avion_siege_id, reservation_id, billet_statut_id) VALUES (2, 200000.00, 1, 2, 2);
-
--- enregistrement
-
-
--- enregistrement_bagage
-
--- paiement
-INSERT INTO paiement (id_paiement, montant_total, reste_payer, reservation_id, enregistrement_id) VALUES (1, 120000.00, 0.00, 1, NULL);
-INSERT INTO paiement (id_paiement, montant_total, reste_payer, reservation_id, enregistrement_id) VALUES (2, 200000.00, 0.00, 2, NULL);
-
-
--- paiement_detail
-INSERT INTO paiement_detail (id_paiement_detail, montant, date_paiement, paiement_mode_id, devise_id, paiement_id) VALUES (1, 120000.00, '2025-01-08', 2, 1, 1);
-INSERT INTO paiement_detail (id_paiement_detail, montant, date_paiement, paiement_mode_id, devise_id, paiement_id) VALUES (2, 200000.00, '2025-01-09', 3, 1, 2);
-
 
 -- avion_historique
 

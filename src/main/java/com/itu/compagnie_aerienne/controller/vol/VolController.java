@@ -43,17 +43,27 @@ public class VolController {
                 // Informations de base du vol
                 volData.put("vol", vol);
                 
-                // Nombre de sièges pris par catégorie
-                HashMap<SiegeCategorie, BigDecimal> siegesPris = volService.getSiegesPrisParCategorie(vol.getIdVol());
-                volData.put("siegesPris", siegesPris);
-                
-                // Nombre de sièges total par catégorie
+                // Nombre de sièges total par catégorie (référence pour toutes les catégories)
                 HashMap<SiegeCategorie, BigDecimal> siegesTotal = volService.getNbrAvionSiegeOrderBySiegeCategorie(avionId);
                 volData.put("siegesTotal", siegesTotal);
                 
+                // Nombre de sièges pris par catégorie
+                HashMap<SiegeCategorie, BigDecimal> siegesPris = volService.getSiegesPrisParCategorie(vol.getIdVol());
+                // S'assurer que toutes les catégories sont présentes (avec 0 si pas de sièges pris)
+                HashMap<SiegeCategorie, BigDecimal> siegesPrisComplete = new HashMap<>();
+                for (SiegeCategorie categorie : siegesTotal.keySet()) {
+                    siegesPrisComplete.put(categorie, siegesPris.getOrDefault(categorie, BigDecimal.ZERO));
+                }
+                volData.put("siegesPris", siegesPrisComplete);
+                
                 // Tarif par catégorie de siège
                 HashMap<SiegeCategorie, BigDecimal> tarrifs = volService.getTarrifBySiegeCategorie(vol.getIdVol());
-                volData.put("tarrifs", tarrifs);
+                // S'assurer que toutes les catégories sont présentes (avec null si pas de tarif)
+                HashMap<SiegeCategorie, BigDecimal> tarrifsComplete = new HashMap<>();
+                for (SiegeCategorie categorie : siegesTotal.keySet()) {
+                    tarrifsComplete.put(categorie, tarrifs.get(categorie));
+                }
+                volData.put("tarrifs", tarrifsComplete);
                 
                 // Recette max par catégorie de siège
                 HashMap<SiegeCategorie, BigDecimal> recetteMax = volService.getRecetteMaxBySiegeCategorie(vol.getIdVol(), avionId);
@@ -62,7 +72,9 @@ public class VolController {
                 // Recette max totale
                 BigDecimal recetteMaxTotal = BigDecimal.ZERO;
                 for (BigDecimal recette : recetteMax.values()) {
-                    recetteMaxTotal = recetteMaxTotal.add(recette);
+                    if (recette != null) {
+                        recetteMaxTotal = recetteMaxTotal.add(recette);
+                    }
                 }
                 volData.put("recetteMaxTotal", recetteMaxTotal);
                 
