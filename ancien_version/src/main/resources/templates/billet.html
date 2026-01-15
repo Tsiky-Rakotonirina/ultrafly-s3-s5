@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Détails des sièges du vol</title>
+</head>
+
+<body>
+    <div>
+        <h1>Détails des sièges</h1>
+        
+        <!-- Messages d'erreur et de succès -->
+        <div th:if="${error}" style="background-color: #ffcccc; padding: 10px; margin: 10px 0; border: 1px solid #ff0000; border-radius: 5px;">
+            <strong>❌ Erreur:</strong> <span th:text="${error}"></span>
+        </div>
+        
+        <div th:if="${success}" style="background-color: #ccffcc; padding: 10px; margin: 10px 0; border: 1px solid #00ff00; border-radius: 5px;">
+            <strong>✓ Succès:</strong> <span th:text="${success}"></span>
+        </div>
+        
+        <div th:if="${vol != null}">
+            <h2>Informations du vol</h2>
+            <p>Numéro de vol: <span th:text="${vol.numeroVol}"></span></p>
+            <p>Départ: <span th:text="${vol.aeroportDepart.nom + ' - ' + #temporals.format(vol.dateHeureDepart, 'dd/MM/yyyy HH:mm')}"></span></p>
+            <p>Arrivée: <span th:text="${vol.aeroportArrivee.nom + ' - ' + #temporals.format(vol.dateHeureArrivee, 'dd/MM/yyyy HH:mm')}"></span></p>
+        </div>
+
+        <div class="filtre">
+            <h2>Filtrer les sièges</h2>
+            <form th:action="@{/billet}" method="get">
+                <input type="hidden" name="id" th:value="${vol != null ? vol.id : ''}" />
+                
+                <label for="classeSiegeId">Classe de siège: </label>
+                <select name="classeSiegeId" id="classeSiegeId">
+                    <option value="">Toutes les classes</option>
+                    <option th:each="classe : ${classeSieges}" 
+                            th:value="${classe.id}"
+                            th:text="${classe.libelle}"
+                            th:selected="${classeSiegeId != null && classeSiegeId == classe.id}"></option>
+                </select>
+
+                <label for="occupe">Statut d'occupation: </label>
+                <select name="occupe" id="occupe">
+                    <option value="">Tous</option>
+                    <option value="true" th:selected="${occupe != null && occupe == true}">Occupé</option>
+                    <option value="false" th:selected="${occupe != null && occupe == false}">Libre</option>
+                </select>
+
+                <label for="statutPaiement">Statut de paiement: </label>
+                <select name="statutPaiement" id="statutPaiement">
+                    <option value="">Tous</option>
+                    <option value="EN_ATTENTE" th:selected="${statutPaiement == 'EN_ATTENTE'}">En attente</option>
+                    <option value="VALIDE" th:selected="${statutPaiement == 'VALIDE'}">Payé</option>
+                    <option value="REFUSE" th:selected="${statutPaiement == 'REFUSE'}">Refusé</option>
+                </select>
+
+                <button type="submit">Filtrer</button>
+            </form>
+        </div>
+
+        <div>
+            <h2>Liste des sièges</h2>
+            <div th:if="${siegesVol != null && !siegesVol.isEmpty()}">
+                <div th:each="siegeVol : ${siegesVol}">
+                    <hr>
+                    <p><strong>Numéro Siège:</strong> <span th:text="${siegeVol.siege.numeroSiege}"></span></p>
+                    <p><strong>Classe Siège:</strong> <span th:text="${siegeVol.siege.classeSiege.libelle}"></span></p>
+                    <p><strong>Occupé:</strong> <span th:text="${siegeVol.occupe ? 'Oui' : 'Non'}"></span></p>
+                    
+                    <div th:with="info=${siegeInfo.get(siegeVol.id)}">
+                        <p th:if="${info.get('client') != null}">
+                            <strong>Client:</strong> 
+                            <span th:text="${info.get('client').nom + ' ' + info.get('client').prenom}"></span>
+                        </p>
+                        <p th:if="${info.get('client') == null}">
+                            <strong>Client:</strong> Aucun
+                        </p>
+                        
+                        <p th:if="${info.get('prix') != null}">
+                            <strong>Prix:</strong> <span th:text="${info.get('prix')}"></span> €
+                        </p>
+                        
+                        <p th:if="${info.get('statutBillet') != null}">
+                            <strong>Statut Billet:</strong> <span th:text="${info.get('statutBillet')}"></span>
+                        </p>
+                        
+                        <p th:if="${info.get('statutPaiement') != null}">
+                            <strong>Statut Paiement:</strong> <span th:text="${info.get('statutPaiement')}"></span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div th:if="${siegesVol == null || siegesVol.isEmpty()}">
+                <p>Aucun siège trouvé avec ces critères.</p>
+            </div>
+        </div>
+
+        <br>
+        <a href="/">Retour à la liste des vols</a>
+    </div>
+
+</body>
+
+</html>

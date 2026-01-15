@@ -1,9 +1,9 @@
 package com.itu.compagnie_aerienne.controller.reservation;
 
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
-@RestController
+@Controller
 public class ReservationController {
 
     @GetMapping("/reservation")

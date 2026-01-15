@@ -1,0 +1,177 @@
+package com.itu.compagnie_aerienne.service;
+
+import java.math.BigDecimal;
+import java.util.*;
+
+import org.springframework.stereotype.Service;
+
+import com.itu.compagnie_aerienne.model.*;
+import com.itu.compagnie_aerienne.model.SiegeCategorie;
+import com.itu.compagnie_aerienne.model.Vol;
+import com.itu.compagnie_aerienne.model.VolDetail;
+import com.itu.compagnie_aerienne.repository.*;
+
+@Service
+public class VolService {
+    private final VolRepository volRepository;
+    private final VolDetailRepository volDetailRepository;
+    private final AvionSiegeRepository avionSiegeRepository;
+    private final VolTarrifRepository volTarrifRepository;
+    private final ReservationRepository reservationRepository;
+    private final PaiementRepository paiementRepository;
+    private final PaiementDetailRepository paiementDetailRepository;
+    private final ReservationBilletRepository reservationBilletRepository;
+
+    public VolService(VolRepository volRepository, VolDetailRepository volDetailRepository, AvionSiegeRepository avionSiegeRepository, VolTarrifRepository volTarrifRepository, ReservationRepository reservationRepository, PaiementRepository paiementRepository, PaiementDetailRepository paiementDetailRepository, ReservationBilletRepository reservationBilletRepository) {
+        this.volRepository = volRepository;
+        this.volDetailRepository = volDetailRepository;
+        this.avionSiegeRepository = avionSiegeRepository;
+        this.volTarrifRepository = volTarrifRepository;
+        this.reservationRepository = reservationRepository;
+        this.paiementRepository = paiementRepository;
+        this.paiementDetailRepository = paiementDetailRepository;
+        this.reservationBilletRepository = reservationBilletRepository;
+    }
+
+    public List<Vol> getAllVol(){
+        return volRepository.findAll();
+    }
+
+    public List<VolDetail> getVolDetailsByVolId(Integer volId){
+        return volDetailRepository.findByVolIdVol(volId);
+    }
+
+    public List<AvionSiege> getAvionSiegesByAvionId(Integer avionId){
+        return avionSiegeRepository.findByAvionIdAvion(avionId);
+    }
+
+    public List<VolTarrif> getVolTarrifsByVolId(Integer volId){
+        return volTarrifRepository.findAllByVolIdVol(volId);
+    }
+
+    public HashMap<SiegeCategorie, BigDecimal> getNbrAvionSiegeOrderBySiegeCategorie(Integer avionId){
+        List<AvionSiege> listeAvionSiege = getAvionSiegesByAvionId(avionId);
+        HashMap<SiegeCategorie, BigDecimal> nbrAvionSiegeParSiegeCategorie = new HashMap<>();
+
+        for (AvionSiege avionSiege : listeAvionSiege){
+            SiegeCategorie siegeCategorie = avionSiege.getSiegeCategorie();
+            BigDecimal nbrSiege = nbrAvionSiegeParSiegeCategorie.getOrDefault(siegeCategorie, BigDecimal.ZERO);
+            nbrAvionSiegeParSiegeCategorie.put(siegeCategorie, nbrSiege.add(BigDecimal.ONE));
+        }
+
+        return nbrAvionSiegeParSiegeCategorie;
+    }
+
+    public HashMap<SiegeCategorie, BigDecimal> getRecetteMaxBySiegeCategorie(Integer volId, Integer avionId){
+        HashMap<SiegeCategorie, BigDecimal> nbrAvionSiegeParSiegeCategorie = getNbrAvionSiegeOrderBySiegeCategorie(avionId);
+        HashMap<SiegeCategorie, BigDecimal> recetteMaxParSiegeCategorie = new HashMap<>();
+
+        for (Map.Entry<SiegeCategorie, BigDecimal> entry : nbrAvionSiegeParSiegeCategorie.entrySet()) {
+            SiegeCategorie siegeCategorie = entry.getKey();
+            BigDecimal nbrSiege = entry.getValue();
+
+            VolTarrif volTarrif = volTarrifRepository.findByVolIdVolAndSiegeCategorieIdSiegeCategorie(volId, siegeCategorie.getIdSiegeCategorie());
+            
+            // Si aucun tarif n'est défini pour cette catégorie, on met 0
+            if (volTarrif != null) {
+                BigDecimal tarrif = volTarrif.getPrix();
+                BigDecimal recetteMax = tarrif.multiply(nbrSiege);
+                recetteMaxParSiegeCategorie.put(siegeCategorie, recetteMax);
+            } else {
+                recetteMaxParSiegeCategorie.put(siegeCategorie, BigDecimal.ZERO);
+            }
+        }
+
+        return recetteMaxParSiegeCategorie;
+    }
+
+    public HashMap<SiegeCategorie, BigDecimal> getTarrifBySiegeCategorie(Integer volId){
+        List<VolTarrif> tarrifs = getVolTarrifsByVolId(volId);
+        HashMap<SiegeCategorie, BigDecimal> tarrifParCategorie = new HashMap<>();
+
+        for (VolTarrif tarrif : tarrifs) {
+            if (tarrif != null && tarrif.getSiegeCategorie() != null && tarrif.getPrix() != null) {
+                tarrifParCategorie.put(tarrif.getSiegeCategorie(), tarrif.getPrix());
+            }
+        }
+
+        return tarrifParCategorie;
+    }
+
+    public BigDecimal chiffreAffaire(Integer volId){
+        BigDecimal chiffreAffaire = BigDecimal.ZERO;
+
+        // 1. Récupérer toutes les réservations pour ce vol
+        List<Reservation> reservations = reservationRepository.findAllByVolIdVol(volId);
+        
+        // 2. Extraire les IDs des réservations
+        List<Integer> reservationIds = new ArrayList<>();
+        for (Reservation reservation : reservations) {
+            reservationIds.add(reservation.getIdReservation());
+        }
+        
+        // Si aucune réservation, retourner 0
+        if (reservationIds.isEmpty()) {
+            return chiffreAffaire;
+        }
+        
+        // 3. Récupérer tous les paiements pour ces réservations
+        List<Paiement> paiements = paiementRepository.findByReservationIdReservationIn(reservationIds);
+        
+        // 4. Extraire les IDs des paiements
+        List<Integer> paiementIds = new ArrayList<>();
+        for (Paiement paiement : paiements) {
+            paiementIds.add(paiement.getIdPaiement());
+        }
+        
+        // Si aucun paiement, retourner 0
+        if (paiementIds.isEmpty()) {
+            return chiffreAffaire;
+        }
+        
+        // 5. Récupérer tous les détails de paiements
+        List<PaiementDetail> paiementDetails = paiementDetailRepository.findByPaiementIdPaiementIn(paiementIds);
+        
+        // 6. Sommer les montants
+        for (PaiementDetail detail : paiementDetails) {
+            chiffreAffaire = chiffreAffaire.add(detail.getMontant());
+        }
+
+        return chiffreAffaire;
+    }
+
+    public HashMap<SiegeCategorie, BigDecimal> getSiegesPrisParCategorie(Integer volId){
+        HashMap<SiegeCategorie, BigDecimal> siegesPrisParCategorie = new HashMap<>();
+
+        // 1. Récupérer toutes les réservations pour ce vol
+        List<Reservation> reservations = reservationRepository.findAllByVolIdVol(volId);
+        
+        // 2. Extraire les IDs des réservations
+        List<Integer> reservationIds = new ArrayList<>();
+        for (Reservation reservation : reservations) {
+            reservationIds.add(reservation.getIdReservation());
+        }
+        
+        // Si aucune réservation, retourner une HashMap vide
+        if (reservationIds.isEmpty()) {
+            return siegesPrisParCategorie;
+        }
+        
+        // 3. Récupérer tous les billets pour ces réservations
+        List<ReservationBillet> billets = reservationBilletRepository.findByReservationIdReservationIn(reservationIds);
+        
+        // 4. Compter les sièges par catégorie
+        for (ReservationBillet billet : billets) {
+            // Récupérer la catégorie du siège via AvionSiege
+            SiegeCategorie categorie = billet.getAvionSiege().getSiegeCategorie();
+            
+            // Incrémenter le compteur pour cette catégorie
+            BigDecimal count = siegesPrisParCategorie.getOrDefault(categorie, BigDecimal.ZERO);
+            siegesPrisParCategorie.put(categorie, count.add(BigDecimal.ONE));
+        }
+
+        return siegesPrisParCategorie;
+    }
+
+    
+}

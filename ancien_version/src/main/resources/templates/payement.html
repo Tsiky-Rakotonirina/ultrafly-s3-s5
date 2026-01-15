@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page de Payment</title>
+</head>
+<body>
+    <div>
+        <h1>Info Vol</h1>
+
+        <div>
+            <p>Numero Vol: </p>
+            <p>Aeroport Depart: </p>
+            <p>Aeroport Arrive: </p>
+            <p>Heure depart: </p>
+            <p>Heure arrive: </p>
+            <p>Avion: </p>
+        </div>
+
+
+        <h2>Sieges reservees: </h2>
+        <ul>
+            <li>SG01</li>
+            <li>...</li>
+        </ul>
+
+        <h2>Total a payer: </h2>
+
+        <form action="" method="post">
+            <label for="methode_paiement">Methode de paiement: </label>
+            <select name="methode_paiement" id="methode_paiement">
+                <option value="">Choisir</option>
+            </select>
+
+            <label for="montant">Montant: </label>
+            <input type="number" name="montant" id="montant">
+
+            <button>Ajouter methode de paiement</button>
+            <input type="submit" value="Payer">
+        </form>
+    </div>
+</body>
+</html>

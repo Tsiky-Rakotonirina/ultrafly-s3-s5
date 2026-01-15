@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste des vols</title>
+</head>
+
+<body>
+    <div>
+        <h1>Liste des vols disponibles</h1>
+
+        <!-- Messages d'erreur et de succès -->
+        <div th:if="${error}" style="background-color: #ffcccc; padding: 10px; margin: 10px 0; border: 1px solid #ff0000; border-radius: 5px;">
+            <strong>❌ Erreur:</strong> <span th:text="${error}"></span>
+        </div>
+        
+        <div th:if="${success}" style="background-color: #ccffcc; padding: 10px; margin: 10px 0; border: 1px solid #00ff00; border-radius: 5px;">
+            <strong>✓ Succès:</strong> <span th:text="${success}"></span>
+        </div>
+
+        <div th:each="vol : ${vols}">
+            <p>Numero Vol: <span th:text="${vol.numeroVol}"></span></p>
+            <p>Aeroport Depart: <span th:text="${vol.aeroportDepart.nom + ' (' + vol.aeroportDepart.codeAeroport + ') - ' + vol.aeroportDepart.ville + ', ' + vol.aeroportDepart.pays}"></span></p>
+            <p>Aeroport Arrivée: <span th:text="${vol.aeroportArrivee.nom + ' (' + vol.aeroportArrivee.codeAeroport + ') - ' + vol.aeroportArrivee.ville + ', ' + vol.aeroportArrivee.pays}"></span></p>
+            <p>Heure départ: <span th:text="${#temporals.format(vol.dateHeureDepart, 'dd/MM/yyyy HH:mm')}"></span></p>
+            <p>Heure arrivée: <span th:text="${#temporals.format(vol.dateHeureArrivee, 'dd/MM/yyyy HH:mm')}"></span></p>
+            <p>Avion: <span th:text="${vol.avion.codeAvion + ' - ' + vol.avion.modelAvion.designation}"></span></p>
+
+            <a th:href="@{/billet?id={id}(id=${vol.id})}">Voir détails</a>
+
+            <a th:href="@{/reservation?id={id}(id=${vol.id})}">Faire réservation</a>
+            
+            <hr>
+        </div>
+    </div>
+
+</body>
+
+</html>

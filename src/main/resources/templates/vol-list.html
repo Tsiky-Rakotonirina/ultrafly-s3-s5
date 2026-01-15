@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste des Vols - UltraFly</title>
+    <link rel="icon" type="image/png" th:href="@{/image/logo.png}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" th:href="@{/css/template.css}">
+</head>
+<body>
+    <!-- Background Elements -->
+    <div class="bg-element bg-element-1"></div>
+    <div class="bg-element bg-element-2"></div>
+    
+    <div class="uf-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="uf-sidebar">
+            <div class="uf-sidebar-header">
+                <div class="uf-sidebar-logo">
+                    <span class="logo-ultra">Ultra</span><span class="logo-fly">Fly</span>
+                </div>
+                <button class="uf-sidebar-toggle">
+                    <span>←</span>
+                </button>
+            </div>
+            
+            <nav class="uf-sidebar-nav">
+                <a href="#" class="uf-sidebar-item">
+                    <span class="uf-sidebar-icon">✈️</span>
+                    <span class="uf-sidebar-text">Vols</span>
+                </a>
+                <a href="#" class="uf-sidebar-item">
+                    <span class="uf-sidebar-icon">📋</span>
+                    <span class="uf-sidebar-text">Réservations</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="uf-main">
+            <div class="uf-content">
+                <!-- Liste des vols -->
+                <div th:each="volData : ${volsData}" class="uf-component-table" style="margin-bottom: 40px;">
+                    
+                    <h1 class="uf-subtitle">
+                        Vol <span th:text="${volData.vol.numero}"></span> - 
+                        <span th:text="${volData.vol.itineraire.aeroportDepart.nom}"></span> → 
+                        <span th:text="${volData.vol.itineraire.aeroportArrive.nom}"></span>
+                    </h1>
+                    
+                    <!-- Informations du vol -->
+                    <div class="uf-table-container" style="margin-bottom: 20px;">
+                        <table class="uf-table">
+                            <thead>
+                                <tr>
+                                    <th>Numéro Vol</th>
+                                    <th>Date & Heure</th>
+                                    <th>Type Vol</th>
+                                    <th>Aéroport Départ</th>
+                                    <th>Aéroport Arrivée</th>
+                                    <th>Statut</th>
+                                    <th class="uf-table-cell-bold">Chiffre d'Affaire</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="uf-table-cell-numeric" th:text="${volData.vol.numero}"></td>
+                                    <td class="uf-table-cell-date" th:text="${#temporals.format(volData.vol.heure, 'dd/MM/yyyy HH:mm')}"></td>
+                                    <td th:text="${volData.vol.volType.libelle}"></td>
+                                    <td th:text="${volData.vol.itineraire.aeroportDepart.nom}"></td>
+                                    <td th:text="${volData.vol.itineraire.aeroportArrive.nom}"></td>
+                                    <td class="uf-table-cell-bold" th:text="${volData.vol.statutVol.libelle}"></td>
+                                    <td class="uf-table-cell-bold" style="color: #28a745;">
+                                        <span th:text="${volData.chiffreAffaire}"></span> €
+                                    </td>
+                                    <td>
+                                        <a th:href="@{/reservation-list(volId=${volData.vol.idVol})}" class="uf-table-btn" style="margin-right: 10px;">Liste Réservations</a>
+                                        <a th:href="@{/reserver(volId=${volData.vol.idVol})}" class="uf-table-btn">Réserver</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Détails par catégorie de siège -->
+                    <h3 style="margin-top: 20px; margin-bottom: 10px; color: #333;">Détails par Catégorie de Siège</h3>
+                    <div class="uf-table-container">
+                        <table class="uf-table">
+                            <thead>
+                                <tr>
+                                    <th>Catégorie de Siège</th>
+                                    <th class="sortable sortable-numeric">Sièges Pris</th>
+                                    <th class="sortable sortable-numeric">Sièges Total</th>
+                                    <th class="sortable sortable-numeric">Tarif (€)</th>
+                                    <th class="sortable sortable-numeric">Recette Max (€)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="entry : ${volData.siegesTotal.entrySet()}">
+                                    <td class="uf-table-cell-bold" th:text="${entry.key.libelle}"></td>
+                                    <td class="uf-table-cell-numeric">
+                                        <span th:text="${volData.siegesPris.get(entry.key) != null ? volData.siegesPris.get(entry.key) : 0}"></span>
+                                    </td>
+                                    <td class="uf-table-cell-numeric" th:text="${entry.value}"></td>
+                                    <td class="uf-table-cell-numeric" th:text="${volData.tarrifs.get(entry.key) != null ? volData.tarrifs.get(entry.key) : '-'}"></td>
+                                    <td class="uf-table-cell-numeric" th:text="${volData.recetteMax.get(entry.key) != null ? volData.recetteMax.get(entry.key) : 0}"></td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr style="font-weight: bold; border-top: 2px solid #333;">
+                                    <td colspan="4" style="text-align: right; padding-right: 20px;">RECETTE MAX TOTALE :</td>
+                                    <td class="uf-table-cell-numeric" style="color: #007bff; font-size: 1.1em;">
+                                        <span th:text="${volData.recetteMaxTotal}"></span> €
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script th:src="@{/js/template.js}"></script>
+</body>
+</html>

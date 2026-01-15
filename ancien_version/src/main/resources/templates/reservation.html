@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page de reservation</title>
+</head>
+
+<body>
+
+    <!-- Messages d'erreur et de succès -->
+    <div th:if="${error}" style="background-color: #ffcccc; padding: 10px; margin: 10px 0; border: 1px solid #ff0000; border-radius: 5px;">
+        <strong>❌ Erreur:</strong> <span th:text="${error}"></span>
+    </div>
+    
+    <div th:if="${success}" style="background-color: #ccffcc; padding: 10px; margin: 10px 0; border: 1px solid #00ff00; border-radius: 5px;">
+        <strong>✓ Succès:</strong> <span th:text="${success}"></span>
+    </div>
+
+    <div th:if="${vol != null}">
+        <h2>Informations du vol</h2>
+        <p>Numéro de vol: <span th:text="${vol.numeroVol}"></span></p>
+        <p>Départ: <span th:text="${vol.aeroportDepart.nom + ' - ' + #temporals.format(vol.dateHeureDepart, 'dd/MM/yyyy HH:mm')}"></span></p>
+        <p>Arrivée: <span th:text="${vol.aeroportArrivee.nom + ' - ' + #temporals.format(vol.dateHeureArrivee, 'dd/MM/yyyy HH:mm')}"></span></p>
+        <p>Avion: <span th:text="${vol.avion.codeAvion}"></span></p>
+    </div>
+
+    <div class="filtre">
+        <h1>Critere de filtre de sieges: </h1>
+
+        <form th:action="@{/reservation}" method="get">
+            <input type="hidden" name="id" th:value="${vol != null ? vol.id : ''}" />
+            
+            <label for="numero_siege">Recherche par numero: </label>
+            <input type="text" name="numero_siege" id="numero_siege" 
+                   th:value="${filtreNumeroSiege}">
+
+            <label for="classe_siege">Classe de siege: </label>
+            <select name="classe_siege" id="classe_siege">
+                <option value="">Choisir</option>
+                <option th:each="classe : ${classeSieges}" 
+                        th:value="${classe.id}" 
+                        th:text="${classe.libelle}"
+                        th:selected="${filtreClasseSiege != null && filtreClasseSiege == classe.id.toString()}"></option>
+            </select>
+
+            <button type="submit">Filtrer</button>
+        </form>
+    </div>
+
+    <br><br>
+
+    <div>
+        <label for="client_select">Client: </label>
+        <select name="client_select" id="client_select" required>
+            <option value="">Choisir</option>
+            <option th:each="client : ${clients}" 
+                    th:value="${client.id}" 
+                    th:text="${client.nom + ' ' + client.prenom + ' (' + client.email + ')'}"></option>
+        </select>
+
+        <h3>Sélectionner les sièges</h3>
+        
+        <div id="sieges-container">
+            <div class="siege" th:each="siegeVol : ${siegesVol}">
+                <p>Numero Siege: <span th:text="${siegeVol.siege.numeroSiege}"></span></p>
+                <p>Classe Siege: <span th:text="${siegeVol.siege.classeSiege.libelle}"></span></p>
+                <p>Prix: <span th:text="${prixSiegesMap[siegeVol.id] != null ? #numbers.formatDecimal(prixSiegesMap[siegeVol.id], 1, 2) + ' $' : 'Non défini'}"></span></p>
+                <p>Occupé: <span th:text="${siegeVol.occupe ? 'Oui' : 'Non'}"></span></p>
+
+                <input type="checkbox" 
+                       class="siege-checkbox"
+                       th:value="${siegeVol.id}"
+                       th:name="'siege_' + ${siegeVol.id}" 
+                       th:id="'siege_' + ${siegeVol.id}"
+                       th:data-prix="${prixSiegesMap[siegeVol.id] != null ? prixSiegesMap[siegeVol.id] : 0}"
+                       th:disabled="${siegeVol.occupe}">
+            </div>
+        </div>
+        
+        <!-- Affichage du prix total sélectionné -->
+        <div id="prix-total-container" style="margin-top: 20px; padding: 10px; background-color: #f5f5f5; border-radius: 5px;">
+            <strong>Prix total sélectionné: </strong><span id="prix-total">0.00</span> $
+        </div>
+
+        <br><br>
+
+        <form th:action="@{/reserver}" method="post" onsubmit="return validateForm()">
+            <input type="hidden" name="volId" th:value="${vol != null ? vol.id : ''}" />
+            <input type="hidden" name="clientId" id="clientIdReserver" />
+            
+            <input type="submit" value="Réserver">
+        </form>
+
+        <form th:action="@{/payer}" method="post" onsubmit="return validateForm()">
+            <input type="hidden" name="volId" th:value="${vol != null ? vol.id : ''}" />
+            <input type="hidden" name="clientId" id="clientIdPayer" />
+            
+            <input type="submit" value="Payer">
+        </form>
+
+    </div>
+
+    <script>
+        // Calculer et afficher le prix total des sièges sélectionnés
+        function calculerPrixTotal() {
+            var checkboxes = document.querySelectorAll('.siege-checkbox:checked');
+            var total = 0;
+            
+            checkboxes.forEach(function(cb) {
+                var prix = parseFloat(cb.getAttribute('data-prix')) || 0;
+                total += prix;
+            });
+            
+            document.getElementById('prix-total').textContent = total.toFixed(2);
+        }
+        
+        // Ajouter l'événement de changement à toutes les checkboxes
+        document.addEventListener('DOMContentLoaded', function() {
+            var checkboxes = document.querySelectorAll('.siege-checkbox');
+            checkboxes.forEach(function(cb) {
+                cb.addEventListener('change', calculerPrixTotal);
+            });
+        });
+        
+        function validateForm() {
+            var clientId = document.getElementById('client_select').value;
+            if (!clientId) {
+                alert('Veuillez sélectionner un client');
+                return false;
+            }
+            
+            document.getElementById('clientIdReserver').value = clientId;
+            document.getElementById('clientIdPayer').value = clientId;
+            
+            var checkboxes = document.querySelectorAll('.siege-checkbox:checked');
+            if (checkboxes.length === 0) {
+                alert('Veuillez sélectionner au moins un siège');
+                return false;
+            }
+            
+            // Copier les checkboxes dans les deux formulaires
+            var forms = document.querySelectorAll('form[action*="reserver"], form[action*="payer"]');
+            forms.forEach(function(form) {
+                // Supprimer les anciens checkboxes
+                var oldCheckboxes = form.querySelectorAll('input[name^="siege_"]');
+                oldCheckboxes.forEach(function(cb) { cb.remove(); });
+                
+                // Ajouter les nouveaux
+                checkboxes.forEach(function(cb) {
+                    var hidden = document.createElement('input');
+                    hidden.type = 'hidden';
+                    hidden.name = cb.name;
+                    hidden.value = 'on';
+                    form.appendChild(hidden);
+                });
+            });
+            
+            return true;
+        }
+    </script>
+</body>
+
+</html>

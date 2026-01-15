@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page de paiement</title>
+</head>
+
+<body>
+
+    <div>
+        <h1>Paiement de la réservation</h1>
+
+        <!-- Messages d'erreur et de succès -->
+        <div th:if="${error}" style="background-color: #ffcccc; padding: 10px; margin: 10px 0; border: 1px solid #ff0000; border-radius: 5px;">
+            <strong>❌ Erreur:</strong> <span th:text="${error}"></span>
+        </div>
+        
+        <div th:if="${success}" style="background-color: #ccffcc; padding: 10px; margin: 10px 0; border: 1px solid #00ff00; border-radius: 5px;">
+            <strong>✓ Succès:</strong> <span th:text="${success}"></span>
+        </div>
+
+        <div th:if="${vol != null}">
+            <h2>Informations du vol</h2>
+            <p>Numéro de vol: <span th:text="${vol.numeroVol}"></span></p>
+            <p>Départ: <span th:text="${vol.aeroportDepart.nom + ' - ' + #temporals.format(vol.dateHeureDepart, 'dd/MM/yyyy HH:mm')}"></span></p>
+            <p>Arrivée: <span th:text="${vol.aeroportArrivee.nom + ' - ' + #temporals.format(vol.dateHeureArrivee, 'dd/MM/yyyy HH:mm')}"></span></p>
+            <p>Avion: <span th:text="${vol.avion.codeAvion}"></span></p>
+        </div>
+
+        <div th:if="${reservation != null}">
+            <h2>Informations de la réservation</h2>
+            <p>Client: <span th:text="${reservation.client.nom + ' ' + reservation.client.prenom}"></span></p>
+            <p>Date de réservation: <span th:text="${#temporals.format(reservation.dateReservation, 'dd/MM/yyyy HH:mm')}"></span></p>
+            <p>Statut: <span th:text="${reservation.statut}"></span></p>
+        </div>
+
+        <div>
+            <h2>Sièges réservés</h2>
+            <div th:each="siegeVol : ${siegesReserves}">
+                <p>
+                    Siège: <span th:text="${siegeVol.siege.numeroSiege}"></span> - 
+                    Classe: <span th:text="${siegeVol.siege.classeSiege.libelle}"></span>
+                </p>
+            </div>
+        </div>
+
+        <div>
+            <h2>Billets</h2>
+            <div th:each="billet : ${billets}">
+                <p>
+                    Billet #<span th:text="${billet.id}"></span> - 
+                    Siège: <span th:text="${billet.siegeVol.siege.numeroSiege}"></span> - 
+                    Prix: <span th:text="${billet.prix}"></span> € - 
+                    Statut: <span th:text="${billet.statut}"></span>
+                </p>
+            </div>
+        </div>
+
+        <div>
+            <h2>Montant total: <span th:text="${montantTotal}"></span> €</h2>
+        </div>
+
+        <div>
+            <h2>Choisir les méthodes de paiement</h2>
+            <form id="paymentForm" action="/effectuer-paiement" method="post">
+                <input type="hidden" name="reservationId" th:value="${reservation != null ? reservation.id : ''}" />
+                
+                <div id="paiementsContainer">
+                    <div class="paiement-row">
+                        <label>Méthode de paiement:</label>
+                        <select name="methode_0" required>
+                            <option value="">-- Sélectionner --</option>
+                            <option th:each="methode : ${methodesPaiement}" 
+                                    th:value="${methode.id}"
+                                    th:text="${methode.libelle}"></option>
+                        </select>
+                        
+                        <label>Montant:</label>
+                        <input type="number" name="montant_0" step="0.01" min="0.01" 
+                               th:max="${montantTotal}" required />
+                        €
+                    </div>
+                </div>
+
+                <br>
+                <button type="button" onclick="ajouterMethode()">+ Ajouter une méthode de paiement</button>
+                <br><br>
+                
+                <div id="totalInfo">
+                    <p><strong>Reste à payer: <span th:text="${montantTotal}"></span> €</strong></p>
+                    <p>Total entré: <span id="totalEntre">0.00</span> €</p>
+                </div>
+
+                <br>
+                <input type="submit" value="Effectuer le paiement">
+            </form>
+        </div>
+
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            var compteur = 1;
+            var resteAPayer = /*[[${montantTotal}]]*/ 0;
+            var methodesPaiement = /*[[${methodesPaiement}]]*/ [];
+
+            function ajouterMethode() {
+                var container = document.getElementById('paiementsContainer');
+                var newRow = document.createElement('div');
+                newRow.className = 'paiement-row';
+                newRow.innerHTML = `
+                    <hr>
+                    <label>Méthode de paiement:</label>
+                    <select name="methode_${compteur}" required>
+                        <option value="">-- Sélectionner --</option>
+                        ${methodesPaiement.map(m => `<option value="${m.id}">${m.libelle}</option>`).join('')}
+                    </select>
+                    
+                    <label>Montant:</label>
+                    <input type="number" name="montant_${compteur}" step="0.01" min="0.01" 
+                           max="${resteAPayer}" required onchange="calculerTotal()" />
+                    €
+                    <button type="button" onclick="supprimerMethode(this)">Supprimer</button>
+                `;
+                container.appendChild(newRow);
+                compteur++;
+            }
+
+            function supprimerMethode(button) {
+                button.parentElement.remove();
+                calculerTotal();
+            }
+
+            function calculerTotal() {
+                var inputs = document.querySelectorAll('input[name^="montant_"]');
+                var total = 0;
+                inputs.forEach(function(input) {
+                    var value = parseFloat(input.value) || 0;
+                    total += value;
+                });
+                document.getElementById('totalEntre').textContent = total.toFixed(2);
+                
+                if (total > resteAPayer) {
+                    alert('Attention: La somme des montants dépasse le reste à payer!');
+                }
+            }
+
+            // Écouter les changements sur les montants
+            document.addEventListener('change', function(e) {
+                if (e.target.name && e.target.name.startsWith('montant_')) {
+                    calculerTotal();
+                }
+            });
+
+            // Validation avant soumission
+            document.getElementById('paymentForm').addEventListener('submit', function(e) {
+                var inputs = document.querySelectorAll('input[name^="montant_"]');
+                var total = 0;
+                inputs.forEach(function(input) {
+                    total += parseFloat(input.value) || 0;
+                });
+                
+                if (total > resteAPayer) {
+                    e.preventDefault();
+                    alert('La somme des montants dépasse le reste à payer!');
+                    return false;
+                }
+                
+                if (total === 0) {
+                    e.preventDefault();
+                    alert('Veuillez entrer au moins un montant!');
+                    return false;
+                }
+            });
+            /*]]>*/
+        </script>
+
+        <br>
+        <a href="/">Retour à la liste des vols</a>
+    </div>
+
+</body>
+
+</html>
