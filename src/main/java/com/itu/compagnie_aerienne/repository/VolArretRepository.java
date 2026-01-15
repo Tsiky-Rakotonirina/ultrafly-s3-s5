@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface VolArretRepository extends JpaRepository<VolArret, Integer> {
+    int countByVolIdVol(Integer volId);
 }

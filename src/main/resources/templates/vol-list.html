@@ -7,6 +7,236 @@
     <link rel="icon" type="image/png" th:href="@{/image/logo.png}">
     <link rel="stylesheet" th:href="@{/css/index.css}">
     <link rel="stylesheet" th:href="@{/css/template.css}">
+    <style>
+        /* Styles spécifiques pour les filtres vol-list */
+        .vol-filters-container {
+            background: var(--bg-primary);
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-lg);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+            position: relative;
+        }
+        
+        .vol-filters-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--secondary-color) 0%, var(--accent-color) 50%, var(--secondary-color) 100%);
+            border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+        }
+        
+        .vol-filters-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+            padding-bottom: var(--spacing-md);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .vol-filters-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-semibold);
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+        
+        .vol-filters-title span {
+            color: var(--secondary-color);
+        }
+        
+        .filter-result-count {
+            font-size: var(--font-size-sm);
+            color: var(--text-muted);
+            background: var(--bg-secondary);
+            padding: var(--spacing-xs) var(--spacing-md);
+            border-radius: var(--border-radius-md);
+        }
+        
+        .vol-filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .filter-label {
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-semibold);
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: var(--spacing-xs);
+        }
+        
+        .filter-input, .filter-select {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+            background: var(--bg-primary);
+            transition: all var(--transition-base);
+        }
+        
+        .filter-input:focus, .filter-select:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(0, 180, 216, 0.1);
+        }
+        
+        .filter-range {
+            display: flex;
+            gap: var(--spacing-xs);
+            align-items: center;
+        }
+        
+        .filter-range input {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .filter-range-separator {
+            color: var(--text-muted);
+            font-size: var(--font-size-sm);
+        }
+        
+        .filter-checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-xs);
+            max-height: 100px;
+            overflow-y: auto;
+            padding: var(--spacing-xs);
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius-sm);
+        }
+        
+        .filter-checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            background: var(--bg-primary);
+            border-radius: var(--border-radius-sm);
+            font-size: var(--font-size-xs);
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+        
+        .filter-checkbox-item:hover {
+            background: rgba(0, 180, 216, 0.1);
+        }
+        
+        .filter-checkbox-item input[type="checkbox"] {
+            width: 14px;
+            height: 14px;
+            accent-color: var(--secondary-color);
+        }
+        
+        .filter-checkbox-item label {
+            cursor: pointer;
+            font-size: var(--font-size-xs);
+        }
+        
+        .vol-filters-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-md);
+            padding-top: var(--spacing-md);
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .filter-btn {
+            padding: var(--spacing-sm) var(--spacing-xl);
+            border: none;
+            border-radius: var(--border-radius-md);
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+        
+        .filter-btn-primary {
+            background: var(--secondary-color);
+            color: var(--text-light);
+        }
+        
+        .filter-btn-primary:hover {
+            background: var(--accent-color);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .filter-btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+        }
+        
+        .filter-btn-secondary:hover {
+            background: var(--border-color);
+        }
+        
+        /* Section filtres avancés par catégorie */
+        .filter-section-title {
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-semibold);
+            color: var(--secondary-color);
+            margin: var(--spacing-md) 0 var(--spacing-sm) 0;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            cursor: pointer;
+        }
+        
+        .filter-section-title:hover {
+            color: var(--accent-color);
+        }
+        
+        .filter-section-title::before {
+            content: '▼';
+            font-size: var(--font-size-xs);
+            transition: transform var(--transition-base);
+        }
+        
+        .filter-section-title.collapsed::before {
+            transform: rotate(-90deg);
+        }
+        
+        .filter-section-content {
+            overflow: hidden;
+            transition: max-height var(--transition-base);
+        }
+        
+        .filter-section-content.hidden {
+            max-height: 0;
+            padding: 0;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .vol-filters-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .vol-filters-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
     <!-- Background Elements -->
@@ -40,8 +270,213 @@
         <!-- Main Content -->
         <main class="uf-main">
             <div class="uf-content">
-                <!-- Liste des vols -->
-                <div th:each="volData : ${volsData}" class="uf-component-table" style="margin-bottom: 40px;">
+                
+                <!-- ========================================
+                     PANNEAU DE FILTRES
+                     ======================================== -->
+                <div class="vol-filters-container" id="volFilters">
+                    <div class="vol-filters-header">
+                        <h2 class="vol-filters-title">
+                            <span>🔍</span> Filtres de recherche
+                        </h2>
+                        <span class="filter-result-count" id="filterResultCount" th:text="${#lists.size(volsData)} + ' vols affichés'"></span>
+                    </div>
+                    
+                    <!-- Filtres principaux -->
+                    <div class="vol-filters-grid">
+                        <!-- Date/Heure (intervalle) -->
+                        <div class="filter-group">
+                            <label class="filter-label">Date/Heure Min</label>
+                            <input type="datetime-local" id="filterDateMin" class="filter-input vol-filter-input">
+                        </div>
+                        <div class="filter-group">
+                            <label class="filter-label">Date/Heure Max</label>
+                            <input type="datetime-local" id="filterDateMax" class="filter-input vol-filter-input">
+                        </div>
+                        
+                        <!-- Statut Vol -->
+                        <div class="filter-group">
+                            <label class="filter-label">Statut du Vol</label>
+                            <select id="filterStatut" class="filter-select vol-filter-input">
+                                <option value="">Tous les statuts</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Type Vol -->
+                        <div class="filter-group">
+                            <label class="filter-label">Type de Vol</label>
+                            <select id="filterVolType" class="filter-select vol-filter-input">
+                                <option value="">Tous les types</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Aéroport Départ -->
+                        <div class="filter-group">
+                            <label class="filter-label">Aéroport Départ</label>
+                            <select id="filterAeroportDepart" class="filter-select vol-filter-input">
+                                <option value="">Tous les aéroports</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Aéroport Arrivée -->
+                        <div class="filter-group">
+                            <label class="filter-label">Aéroport Arrivée</label>
+                            <select id="filterAeroportArrivee" class="filter-select vol-filter-input">
+                                <option value="">Tous les aéroports</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Nombre Escales (min/max) -->
+                        <div class="filter-group">
+                            <label class="filter-label">Nombre d'Escales</label>
+                            <div class="filter-range">
+                                <input type="number" id="filterEscalesMin" class="filter-input vol-filter-input" placeholder="Min" min="0">
+                                <span class="filter-range-separator">-</span>
+                                <input type="number" id="filterEscalesMax" class="filter-input vol-filter-input" placeholder="Max" min="0">
+                            </div>
+                        </div>
+                        
+                        <!-- Nombre Réservations (min/max) -->
+                        <div class="filter-group">
+                            <label class="filter-label">Nombre Réservations</label>
+                            <div class="filter-range">
+                                <input type="number" id="filterReservationsMin" class="filter-input vol-filter-input" placeholder="Min" min="0">
+                                <span class="filter-range-separator">-</span>
+                                <input type="number" id="filterReservationsMax" class="filter-input vol-filter-input" placeholder="Max" min="0">
+                            </div>
+                        </div>
+                        
+                        <!-- Tarif Moyen (min/max) -->
+                        <div class="filter-group">
+                            <label class="filter-label">Tarif Moyen (€)</label>
+                            <div class="filter-range">
+                                <input type="number" id="filterTarrifMin" class="filter-input vol-filter-input" placeholder="Min" min="0" step="0.01">
+                                <span class="filter-range-separator">-</span>
+                                <input type="number" id="filterTarrifMax" class="filter-input vol-filter-input" placeholder="Max" min="0" step="0.01">
+                            </div>
+                        </div>
+                        
+                        <!-- Chiffre d'Affaire (min/max) -->
+                        <div class="filter-group">
+                            <label class="filter-label">Chiffre d'Affaire (€)</label>
+                            <div class="filter-range">
+                                <input type="number" id="filterCAMin" class="filter-input vol-filter-input" placeholder="Min" min="0" step="0.01">
+                                <span class="filter-range-separator">-</span>
+                                <input type="number" id="filterCAMax" class="filter-input vol-filter-input" placeholder="Max" min="0" step="0.01">
+                            </div>
+                        </div>
+                        
+                        <!-- Recette Max Totale (min/max) -->
+                        <div class="filter-group">
+                            <label class="filter-label">Recette Max Totale (€)</label>
+                            <div class="filter-range">
+                                <input type="number" id="filterRecetteMin" class="filter-input vol-filter-input" placeholder="Min" min="0" step="0.01">
+                                <span class="filter-range-separator">-</span>
+                                <input type="number" id="filterRecetteMax" class="filter-input vol-filter-input" placeholder="Max" min="0" step="0.01">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Section Avions (multi-select) -->
+                    <div class="filter-group" style="margin-bottom: var(--spacing-md);">
+                        <label class="filter-label">Avions</label>
+                        <div class="filter-checkbox-group" id="filterAvions">
+                            <!-- Dynamically populated -->
+                        </div>
+                    </div>
+                    
+                    <!-- Section Filtres par Catégorie de Siège -->
+                    <div class="filter-section-title" onclick="toggleCategoryFilters()" id="categoryFilterToggle">
+                        Filtres par Catégorie de Siège
+                    </div>
+                    <div class="filter-section-content" id="categoryFiltersPanel">
+                        <div class="vol-filters-grid">
+                            <!-- Sélection catégorie -->
+                            <div class="filter-group">
+                                <label class="filter-label">Catégorie de Siège</label>
+                                <select id="filterSiegeCategorie" class="filter-select vol-filter-input">
+                                    <option value="">Sélectionner une catégorie</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Prix par catégorie -->
+                            <div class="filter-group">
+                                <label class="filter-label">Prix Catégorie (€)</label>
+                                <div class="filter-range">
+                                    <input type="number" id="filterPrixCatMin" class="filter-input vol-filter-input" placeholder="Min" min="0" step="0.01">
+                                    <span class="filter-range-separator">-</span>
+                                    <input type="number" id="filterPrixCatMax" class="filter-input vol-filter-input" placeholder="Max" min="0" step="0.01">
+                                </div>
+                            </div>
+                            
+                            <!-- Sièges Pris par catégorie -->
+                            <div class="filter-group">
+                                <label class="filter-label">Sièges Pris</label>
+                                <div class="filter-range">
+                                    <input type="number" id="filterSiegesPrisMin" class="filter-input vol-filter-input" placeholder="Min" min="0">
+                                    <span class="filter-range-separator">-</span>
+                                    <input type="number" id="filterSiegesPrisMax" class="filter-input vol-filter-input" placeholder="Max" min="0">
+                                </div>
+                            </div>
+                            
+                            <!-- Sièges Total par catégorie -->
+                            <div class="filter-group">
+                                <label class="filter-label">Sièges Total</label>
+                                <div class="filter-range">
+                                    <input type="number" id="filterSiegesTotalMin" class="filter-input vol-filter-input" placeholder="Min" min="0">
+                                    <span class="filter-range-separator">-</span>
+                                    <input type="number" id="filterSiegesTotalMax" class="filter-input vol-filter-input" placeholder="Max" min="0">
+                                </div>
+                            </div>
+                            
+                            <!-- Recette Max par catégorie -->
+                            <div class="filter-group">
+                                <label class="filter-label">Recette Max Catégorie (€)</label>
+                                <div class="filter-range">
+                                    <input type="number" id="filterRecetteCatMin" class="filter-input vol-filter-input" placeholder="Min" min="0" step="0.01">
+                                    <span class="filter-range-separator">-</span>
+                                    <input type="number" id="filterRecetteCatMax" class="filter-input vol-filter-input" placeholder="Max" min="0" step="0.01">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Boutons d'action -->
+                    <div class="vol-filters-actions">
+                        <button type="button" class="filter-btn filter-btn-secondary" id="resetFilters">
+                            Réinitialiser
+                        </button>
+                        <button type="button" class="filter-btn filter-btn-primary" id="applyFilters">
+                            Appliquer les filtres
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- ========================================
+                     LISTE DES VOLS
+                     ======================================== -->
+                <div th:each="volData : ${volsData}" 
+                     class="uf-component-table vol-card" 
+                     style="margin-bottom: 40px;"
+                     th:data-numero="${volData.vol.numero}"
+                     th:data-date-heure="${volData.vol.heure}"
+                     th:data-statut-vol-id="${volData.vol.statutVol.idStatutVol}"
+                     th:data-statut-vol-libelle="${volData.vol.statutVol.libelle}"
+                     th:data-vol-type-id="${volData.vol.volType.idVolType}"
+                     th:data-vol-type-libelle="${volData.vol.volType.libelle}"
+                     th:data-itineraire-id="${volData.vol.itineraire.idItineraire}"
+                     th:data-aeroport-depart-id="${volData.vol.itineraire.aeroportDepart.idAeroport}"
+                     th:data-aeroport-depart-nom="${volData.vol.itineraire.aeroportDepart.nom}"
+                     th:data-aeroport-arrivee-id="${volData.vol.itineraire.aeroportArrive.idAeroport}"
+                     th:data-aeroport-arrivee-nom="${volData.vol.itineraire.aeroportArrive.nom}"
+                     th:data-nombre-escales="${volData.nombreEscales != null ? volData.nombreEscales : 0}"
+                     th:data-avion-ids="${volData.avionId != null ? volData.avionId : ''}"
+                     th:data-avion-nom="${volData.avionNom != null ? volData.avionNom : ''}"
+                     th:data-nombre-reservations="${volData.nombreReservations != null ? volData.nombreReservations : 0}"
+                     th:data-tarrif-moyen="${volData.tarrifMoyen != null ? volData.tarrifMoyen : 0}"
+                     th:data-chiffre-affaire="${volData.chiffreAffaire}"
+                     th:data-recette-max-total="${volData.recetteMaxTotal}"
+                     th:data-categories-data="${volData.categoriesDataJson != null ? volData.categoriesDataJson : '[]'}">
                     
                     <h1 class="uf-subtitle">
                         Vol <span th:text="${volData.vol.numero}"></span> - 
@@ -124,5 +559,6 @@
     </div>
     
     <script th:src="@{/js/template.js}"></script>
+    <script th:src="@{/js/vol-list-filter.js}"></script>
 </body>
 </html>

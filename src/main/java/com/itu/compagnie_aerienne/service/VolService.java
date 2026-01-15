@@ -21,8 +21,9 @@ public class VolService {
     private final PaiementRepository paiementRepository;
     private final PaiementDetailRepository paiementDetailRepository;
     private final ReservationBilletRepository reservationBilletRepository;
+    private final VolArretRepository volArretRepository;
 
-    public VolService(VolRepository volRepository, VolDetailRepository volDetailRepository, AvionSiegeRepository avionSiegeRepository, VolTarrifRepository volTarrifRepository, ReservationRepository reservationRepository, PaiementRepository paiementRepository, PaiementDetailRepository paiementDetailRepository, ReservationBilletRepository reservationBilletRepository) {
+    public VolService(VolRepository volRepository, VolDetailRepository volDetailRepository, AvionSiegeRepository avionSiegeRepository, VolTarrifRepository volTarrifRepository, ReservationRepository reservationRepository, PaiementRepository paiementRepository, PaiementDetailRepository paiementDetailRepository, ReservationBilletRepository reservationBilletRepository, VolArretRepository volArretRepository) {
         this.volRepository = volRepository;
         this.volDetailRepository = volDetailRepository;
         this.avionSiegeRepository = avionSiegeRepository;
@@ -31,6 +32,7 @@ public class VolService {
         this.paiementRepository = paiementRepository;
         this.paiementDetailRepository = paiementDetailRepository;
         this.reservationBilletRepository = reservationBilletRepository;
+        this.volArretRepository = volArretRepository;
     }
 
     public List<Vol> getAllVol(){
@@ -173,5 +175,18 @@ public class VolService {
         return siegesPrisParCategorie;
     }
 
+    /**
+     * Compte le nombre d'escales pour un vol
+     */
+    public int countEscalesByVolId(Integer volId) {
+        return volArretRepository.countByVolIdVol(volId);
+    }
+
+    /**
+     * Compte le nombre de réservations pour un vol
+     */
+    public int countReservationsByVolId(Integer volId) {
+        return reservationRepository.countByVolIdVol(volId);
+    }
     
 }
