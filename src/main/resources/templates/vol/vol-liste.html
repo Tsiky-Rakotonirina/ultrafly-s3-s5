@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste des Vols - UltraFly</title>
+    <link rel="icon" type="image/png" th:href="@{/image/logo.png}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" th:href="@{/css/template.css}">
+</head>
+<body>
+    <div class="bg-element bg-element-1"></div>
+    <div class="bg-element bg-element-2"></div>
+    
+    <div class="uf-layout">
+        <aside class="uf-sidebar">
+            <div class="uf-sidebar-header">
+                <div class="uf-sidebar-logo"><span class="logo-ultra">Ultra</span><span class="logo-fly">Fly</span></div>
+                <button class="uf-sidebar-toggle"><span>←</span></button>
+            </div>
+            <nav class="uf-sidebar-nav">
+                <ul class="uf-sidebar-menu">
+                    <li class="uf-sidebar-item"><a th:href="@{/avion}" class="uf-sidebar-link"><span class="uf-sidebar-icon">✈️</span><span class="uf-sidebar-text">Avion</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/vol}" class="uf-sidebar-link active"><span class="uf-sidebar-icon">🛫</span><span class="uf-sidebar-text">Vol</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/reservation}" class="uf-sidebar-link"><span class="uf-sidebar-icon">🎫</span><span class="uf-sidebar-text">Réservation</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/personne}" class="uf-sidebar-link"><span class="uf-sidebar-icon">👥</span><span class="uf-sidebar-text">Personne</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/enregistrement}" class="uf-sidebar-link"><span class="uf-sidebar-icon">👨‍✈️</span><span class="uf-sidebar-text">Enregistrement</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/dashboard}" class="uf-sidebar-link"><span class="uf-sidebar-icon">📊</span><span class="uf-sidebar-text">Dashboard</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <main class="uf-main">
+            
+            <div th:if="${success}" class="uf-alert uf-alert-success" th:text="${success}"></div>
+            
+            <!-- Filtres -->
+            <div class="uf-component-form">
+                <h1 class="uf-subtitle">🔍 Filtres Vols</h1>
+                
+                <form th:action="@{/vol}" method="get" class="uf-filtre">
+                    
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Date/Heure Début</label>
+                        <input type="datetime-local" name="heureDebut" th:value="${heureDebutFiltre}" class="uf-form-input">
+                    </div>
+                    
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Date/Heure Fin</label>
+                        <input type="datetime-local" name="heureFin" th:value="${heureFinFiltre}" class="uf-form-input">
+                    </div>
+                    
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Type de Vol</label>
+                        <select name="volTypeId" class="uf-form-select">
+                            <option value="">-- Tous --</option>
+                            <option th:each="type : ${volTypes}" 
+                                    th:value="${type.idVolType}"
+                                    th:text="${type.libelle}"
+                                    th:selected="${type.idVolType == volTypeIdFiltre}">
+                            </option>
+                        </select>
+                    </div>
+                    
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Statut</label>
+                        <select name="statutVolId" class="uf-form-select">
+                            <option value="">-- Tous --</option>
+                            <option th:each="statut : ${statuts}" 
+                                    th:value="${statut.idVolStatut}"
+                                    th:text="${statut.libelle}"
+                                    th:selected="${statut.idVolStatut == statutVolIdFiltre}">
+                            </option>
+                        </select>
+                    </div>
+                    
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Aéroport Départ</label>
+                        <select name="aeroportDepartId" class="uf-form-select">
+                            <option value="">-- Tous --</option>
+                            <option th:each="aero : ${aeroports}" 
+                                    th:value="${aero.idAeroport}"
+                                    th:text="${aero.codeIata + ' - ' + aero.nom}"
+                                    th:selected="${aero.idAeroport == aeroportDepartIdFiltre}">
+                            </option>
+                        </select>
+                    </div>
+                    
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Aéroport Arrivée</label>
+                        <select name="aeroportArriveeId" class="uf-form-select">
+                            <option value="">-- Tous --</option>
+                            <option th:each="aero : ${aeroports}" 
+                                    th:value="${aero.idAeroport}"
+                                    th:text="${aero.codeIata + ' - ' + aero.nom}"
+                                    th:selected="${aero.idAeroport == aeroportArriveeIdFiltre}">
+                            </option>
+                        </select>
+                    </div>
+                    
+                    <div class="uf-separator" style="flex: 1 1 100%;"></div>
+                    
+                    <div class="uf-form-group uf-form-group-full">
+                        <button type="submit" class="uf-form-submit">🔍 Filtrer</button>
+                        <a th:href="@{/vol}" class="uf-form-submit" style="background: var(--text-muted); margin-left: 10px;">↻ Réinitialiser</a>
+                        <a th:href="@{/vol/saisie}" class="uf-form-submit" style="background: var(--color-success); margin-left: 10px;">+ Nouveau Vol</a>
+                    </div>
+                    
+                </form>   
+            </div>
+
+            <!-- Liste des Vols -->
+            <div class="uf-component-table" style="margin-top: 30px;">
+                <h1 class="uf-subtitle">🛫 Liste des Vols (<span th:text="${#lists.size(vols)}">0</span>)</h1>
+                
+                <div class="uf-table-container">
+                    <table class="uf-table">
+                        <thead>
+                            <tr>
+                                <th>Numéro</th>
+                                <th class="sortable sortable-date">Date/Heure</th>
+                                <th>Itinéraire</th>
+                                <th>Type</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="vol : ${vols}">
+                                <td class="uf-table-cell-bold" th:text="${vol.numero}">VOL001</td>
+                                <td class="uf-table-cell-date" th:text="${#temporals.format(vol.heure, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</td>
+                                <td>
+                                    <span th:text="${vol.itineraire.aeroportDepart.codeIata}">TNR</span>
+                                    → 
+                                    <span th:text="${vol.itineraire.aeroportArrive.codeIata}">CDG</span>
+                                </td>
+                                <td th:text="${vol.volType.libelle}">International</td>
+                                <td>
+                                    <span class="uf-badge" 
+                                          th:classappend="${vol.statutVol.libelle == 'Programme' ? 'uf-badge-info' : (vol.statutVol.libelle == 'Annule' ? 'uf-badge-danger' : (vol.statutVol.libelle == 'Atterri' ? 'uf-badge-success' : 'uf-badge-warning'))}"
+                                          th:text="${vol.statutVol.libelle}">Programmé</span>
+                                </td>
+                                <td>
+                                    <a th:href="@{/vol/{id}(id=${vol.idVol})}" class="uf-table-btn">📋 Fiche</a>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(vols)}">
+                                <td colspan="6" style="text-align: center;">Aucun vol trouvé</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+        </main>
+    </div>
+
+    <script th:src="@{/js/template.js}"></script>
+</body>
+</html>

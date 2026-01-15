@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'Reporter Vol - ' + ${vol.numero} + ' - UltraFly'">Reporter Vol - UltraFly</title>
+    <link rel="icon" type="image/png" th:href="@{/image/logo.png}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" th:href="@{/css/template.css}">
+</head>
+<body>
+    <div class="bg-element bg-element-1"></div>
+    <div class="bg-element bg-element-2"></div>
+    
+    <div class="uf-layout">
+        <aside class="uf-sidebar">
+            <div class="uf-sidebar-header">
+                <div class="uf-sidebar-logo"><span class="logo-ultra">Ultra</span><span class="logo-fly">Fly</span></div>
+                <button class="uf-sidebar-toggle"><span>←</span></button>
+            </div>
+            <nav class="uf-sidebar-nav">
+                <ul class="uf-sidebar-menu">
+                    <li class="uf-sidebar-item"><a th:href="@{/avion}" class="uf-sidebar-link"><span class="uf-sidebar-icon">✈️</span><span class="uf-sidebar-text">Avion</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/vol}" class="uf-sidebar-link active"><span class="uf-sidebar-icon">🛫</span><span class="uf-sidebar-text">Vol</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/reservation}" class="uf-sidebar-link"><span class="uf-sidebar-icon">🎫</span><span class="uf-sidebar-text">Réservation</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/personne}" class="uf-sidebar-link"><span class="uf-sidebar-icon">👥</span><span class="uf-sidebar-text">Personne</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/enregistrement}" class="uf-sidebar-link"><span class="uf-sidebar-icon">👨‍✈️</span><span class="uf-sidebar-text">Enregistrement</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/dashboard}" class="uf-sidebar-link"><span class="uf-sidebar-icon">📊</span><span class="uf-sidebar-text">Dashboard</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <main class="uf-main">
+            
+            <div class="uf-breadcrumb">
+                <a th:href="@{/vol/{id}(id=${vol.idVol})}">← Retour à la fiche</a>
+            </div>
+            
+            <div th:if="${error}" class="uf-alert uf-alert-danger" th:text="${error}"></div>
+            
+            <!-- Info Vol Actuel -->
+            <div class="uf-component-fiche" style="margin-bottom: 30px;">
+                <h1 class="uf-subtitle">📅 Reporter le Vol <span th:text="${vol.numero}">VOL001</span></h1>
+                
+                <div class="uf-fiche">
+                    <div class="uf-fiche-section">
+                        <div class="uf-fiche-mini status-warning">
+                            <div class="uf-fiche-mini-title">📅 Date/Heure Actuelle</div>
+                            <p class="uf-statut-big" th:text="${#temporals.format(vol.heure, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</p>
+                            <p>Itinéraire: <span th:text="${vol.itineraire.aeroportDepart.codeIata + ' → ' + vol.itineraire.aeroportArrive.codeIata}">TNR → CDG</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Formulaire Report -->
+            <div class="uf-component-form">
+                <h1 class="uf-subtitle">📅 Nouvelle Date/Heure</h1>
+                
+                <form th:action="@{/vol/{id}/reporter(id=${vol.idVol})}" method="post" class="uf-form">
+                    
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Nouvelle Date/Heure *</label>
+                        <input type="datetime-local" name="nouvelleHeure" class="uf-form-input" required>
+                        <small class="uf-form-help">La nouvelle date doit être postérieure à la date actuelle</small>
+                    </div>
+                    
+                    <div class="uf-separator" style="flex: 1 1 100%;"></div>
+                    
+                    <div class="uf-form-group uf-form-group-full">
+                        <button type="submit" class="uf-form-submit" style="background: var(--color-warning);">📅 Reporter le Vol</button>
+                        <a th:href="@{/vol/{id}(id=${vol.idVol})}" class="uf-form-submit" style="background: var(--text-muted); margin-left: 10px;">❌ Annuler</a>
+                    </div>
+                    
+                </form>
+            </div>
+            
+            <!-- Historique des Reports -->
+            <div class="uf-component-table" style="margin-top: 30px;" th:if="${!#lists.isEmpty(reports)}">
+                <h1 class="uf-subtitle">📜 Historique des Reports</h1>
+                
+                <div class="uf-table-container">
+                    <table class="uf-table">
+                        <thead>
+                            <tr>
+                                <th>Numéro</th>
+                                <th class="sortable sortable-date">Date/Heure Reportée</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="report : ${reports}">
+                                <td th:text="${report.numero}">RPT001</td>
+                                <td class="uf-table-cell-date" th:text="${#temporals.format(report.heure, 'dd/MM/yyyy HH:mm')}">01/01/2024 12:00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+        </main>
+    </div>
+
+    <script th:src="@{/js/template.js}"></script>
+</body>
+</html>

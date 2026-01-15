@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sélection des Sièges - UltraFly</title>
+    <link rel="icon" type="image/png" th:href="@{/image/logo.png}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" th:href="@{/css/template.css}">
+</head>
+<body>
+    <div class="bg-element bg-element-1"></div>
+    <div class="bg-element bg-element-2"></div>
+    
+    <div class="uf-layout">
+        <aside class="uf-sidebar">
+            <div class="uf-sidebar-header">
+                <div class="uf-sidebar-logo"><span class="logo-ultra">Ultra</span><span class="logo-fly">Fly</span></div>
+                <button class="uf-sidebar-toggle"><span>←</span></button>
+            </div>
+            <nav class="uf-sidebar-nav">
+                <ul class="uf-sidebar-menu">
+                    <li class="uf-sidebar-item"><a th:href="@{/avion}" class="uf-sidebar-link"><span class="uf-sidebar-icon">✈️</span><span class="uf-sidebar-text">Avion</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/vol}" class="uf-sidebar-link"><span class="uf-sidebar-icon">🛫</span><span class="uf-sidebar-text">Vol</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/reservation}" class="uf-sidebar-link active"><span class="uf-sidebar-icon">🎫</span><span class="uf-sidebar-text">Réservation</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/personne}" class="uf-sidebar-link"><span class="uf-sidebar-icon">👥</span><span class="uf-sidebar-text">Personne</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/enregistrement}" class="uf-sidebar-link"><span class="uf-sidebar-icon">👨‍✈️</span><span class="uf-sidebar-text">Enregistrement</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/dashboard}" class="uf-sidebar-link"><span class="uf-sidebar-icon">📊</span><span class="uf-sidebar-text">Dashboard</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <main class="uf-main">
+            
+            <div th:if="${error}" class="uf-alert uf-alert-danger" th:text="${error}"></div>
+            
+            <!-- Header -->
+            <div class="uf-fiche-header">
+                <div class="uf-fiche-title">
+                    <a th:href="@{/reservation/saisie}" class="uf-btn uf-btn-secondary">← Retour</a>
+                    <h1 class="uf-title">✈️ Sélection des Sièges</h1>
+                </div>
+            </div>
+            
+            <!-- Étapes -->
+            <div class="uf-steps">
+                <div class="uf-step completed">
+                    <span class="uf-step-number">✓</span>
+                    <span class="uf-step-label">Client & Vol</span>
+                </div>
+                <div class="uf-step active">
+                    <span class="uf-step-number">2</span>
+                    <span class="uf-step-label">Sélection Sièges</span>
+                </div>
+                <div class="uf-step">
+                    <span class="uf-step-number">3</span>
+                    <span class="uf-step-label">Confirmation</span>
+                </div>
+            </div>
+            
+            <!-- Info résumé -->
+            <div class="uf-booking-info">
+                <div class="uf-info-card">
+                    <span class="uf-info-icon">👤</span>
+                    <div>
+                        <span class="uf-info-label">Client</span>
+                        <span class="uf-info-value" th:text="${client.personne.nom + ' ' + client.personne.prenom}">Client Nom</span>
+                    </div>
+                </div>
+                <div class="uf-info-card">
+                    <span class="uf-info-icon">🛫</span>
+                    <div>
+                        <span class="uf-info-label">Vol</span>
+                        <span class="uf-info-value" th:text="${vol.numero}">VOL001</span>
+                    </div>
+                </div>
+                <div class="uf-info-card">
+                    <span class="uf-info-icon">📍</span>
+                    <div>
+                        <span class="uf-info-label">Trajet</span>
+                        <span class="uf-info-value" th:text="${vol.itineraire?.aeroportDepart?.codeIata + ' → ' + vol.itineraire?.aeroportArrivee?.codeIata}">TNR → CDG</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Légende -->
+            <div class="uf-legend">
+                <div class="uf-legend-item">
+                    <div class="uf-legend-seat available"></div>
+                    <span>Disponible</span>
+                </div>
+                <div class="uf-legend-item">
+                    <div class="uf-legend-seat selected"></div>
+                    <span>Sélectionné</span>
+                </div>
+                <div class="uf-legend-item">
+                    <div class="uf-legend-seat reserved"></div>
+                    <span>Réservé</span>
+                </div>
+                <div class="uf-legend-item">
+                    <div class="uf-legend-seat business"></div>
+                    <span>Business</span>
+                </div>
+                <div class="uf-legend-item">
+                    <div class="uf-legend-seat economy"></div>
+                    <span>Économique</span>
+                </div>
+            </div>
+            
+            <div class="uf-seat-selection-container">
+                <!-- Cabine Avion -->
+                <div class="uf-cabin">
+                    <!-- Nez de l'avion -->
+                    <div class="uf-cabin-nose">
+                        <div class="uf-cockpit">🛫 COCKPIT</div>
+                    </div>
+                    
+                    <!-- Zone des sièges -->
+                    <div class="uf-cabin-body">
+                        <!-- Grouper par catégorie et rangée -->
+                        <div th:each="categorie : ${#lists.isEmpty(tarifs) ? T(java.util.Collections).emptyList() : tarifs}" class="uf-cabin-section">
+                            <div class="uf-section-header" th:text="${categorie.siegeCategorie?.libelle}">Business</div>
+                        </div>
+                        
+                        <div class="uf-seats-container">
+                            <div th:each="siege : ${sieges}" 
+                                 th:id="'seat-' + ${siege.siege.idAvionSiege}"
+                                 th:data-id="${siege.siege.idAvionSiege}"
+                                 th:data-price="${siege.prix}"
+                                 th:data-position="${siege.siege.position}"
+                                 th:data-category="${siege.siege.siegeCategorie?.libelle}"
+                                 class="uf-seat"
+                                 th:classappend="${siege.reserve ? 'reserved' : ''} + ' ' + ${siege.siege.siegeCategorie?.libelle == 'Business' or siege.siege.siegeCategorie?.libelle == 'Premiere Classe' ? 'business' : 'economy'}"
+                                 th:onclick="${siege.reserve} ? '' : 'toggleSeat(this)'">
+                                <span class="uf-seat-label" th:text="${siege.siege.position}">1A</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Queue de l'avion -->
+                    <div class="uf-cabin-tail">
+                        <div class="uf-tail-wing left"></div>
+                        <div class="uf-tail-wing right"></div>
+                    </div>
+                </div>
+                
+                <!-- Panneau de sélection -->
+                <div class="uf-selection-panel">
+                    <h3>🎫 Sièges Sélectionnés</h3>
+                    
+                    <div id="selectedSeatsList" class="uf-selected-seats">
+                        <p class="uf-empty-selection">Cliquez sur un siège pour le sélectionner</p>
+                    </div>
+                    
+                    <div class="uf-selection-summary">
+                        <div class="uf-summary-row">
+                            <span>Nombre de sièges:</span>
+                            <span id="seatCount">0</span>
+                        </div>
+                        <div class="uf-summary-row total">
+                            <span>Total:</span>
+                            <span id="totalPrice">0 MGA</span>
+                        </div>
+                    </div>
+                    
+                    <form th:action="@{/reservation/saisie}" method="post" id="reservationForm">
+                        <input type="hidden" name="clientId" th:value="${client.idClient}">
+                        <input type="hidden" name="volId" th:value="${vol.idVol}">
+                        <input type="hidden" name="siegeIds" id="siegeIdsInput" value="">
+                        
+                        <button type="submit" class="uf-btn uf-btn-success uf-btn-block" id="submitBtn" disabled>
+                            ✅ Confirmer la Réservation
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+        </main>
+    </div>
+    
+    <script th:src="@{/js/template.js}"></script>
+    
+    <style>
+        .uf-steps {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        .uf-step {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            opacity: 0.5;
+        }
+        .uf-step.active, .uf-step.completed {
+            opacity: 1;
+        }
+        .uf-step-number {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        .uf-step.active .uf-step-number {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+        .uf-step.completed .uf-step-number {
+            background: #22c55e;
+        }
+        .uf-step-label {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        /* Booking Info */
+        .uf-booking-info {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        .uf-info-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex: 1;
+            min-width: 200px;
+        }
+        .uf-info-icon {
+            font-size: 2rem;
+        }
+        .uf-info-label {
+            display: block;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.8rem;
+        }
+        .uf-info-value {
+            display: block;
+            color: #fff;
+            font-weight: 600;
+        }
+        
+        /* Légende */
+        .uf-legend {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        .uf-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .uf-legend-seat {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .uf-legend-seat.available {
+            background: rgba(34, 197, 94, 0.3);
+            border: 2px solid #22c55e;
+        }
+        .uf-legend-seat.selected {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: 2px solid #fff;
+        }
+        .uf-legend-seat.reserved {
+            background: rgba(239, 68, 68, 0.3);
+            border: 2px solid #ef4444;
+        }
+        .uf-legend-seat.business {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+        }
+        .uf-legend-seat.economy {
+            background: rgba(59, 130, 246, 0.5);
+        }
+        
+        /* Container principal */
+        .uf-seat-selection-container {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 2rem;
+        }
+        
+        @media (max-width: 1024px) {
+            .uf-seat-selection-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Cabine d'avion */
+        .uf-cabin {
+            background: linear-gradient(135deg, rgba(31, 38, 135, 0.3), rgba(31, 38, 135, 0.1));
+            border-radius: 100px 100px 20px 20px;
+            padding: 2rem;
+            position: relative;
+            min-height: 500px;
+        }
+        
+        .uf-cabin-nose {
+            text-align: center;
+            padding: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .uf-cockpit {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            display: inline-block;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .uf-cabin-body {
+            padding: 1rem;
+        }
+        
+        .uf-section-header {
+            text-align: center;
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+        
+        .uf-seats-container {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 0.5rem;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        /* Allée centrale */
+        .uf-seats-container .uf-seat:nth-child(6n+3)::after {
+            content: '';
+            display: block;
+            width: 20px;
+        }
+        
+        .uf-cabin-tail {
+            height: 50px;
+            position: relative;
+            margin-top: 2rem;
+        }
+        
+        .uf-tail-wing {
+            position: absolute;
+            width: 100px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .uf-tail-wing.left {
+            left: 0;
+            transform: skewY(-20deg);
+        }
+        .uf-tail-wing.right {
+            right: 0;
+            transform: skewY(20deg);
+        }
+        
+        /* Sièges */
+        .uf-seat {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px 8px 4px 4px;
+            background: rgba(34, 197, 94, 0.3);
+            border: 2px solid #22c55e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .uf-seat:hover:not(.reserved) {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.5);
+        }
+        
+        .uf-seat.business {
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.3), rgba(245, 158, 11, 0.3));
+            border-color: #fbbf24;
+            width: 60px;
+            height: 60px;
+        }
+        
+        .uf-seat.economy {
+            background: rgba(59, 130, 246, 0.3);
+            border-color: #3b82f6;
+        }
+        
+        .uf-seat.reserved {
+            background: rgba(239, 68, 68, 0.3);
+            border-color: #ef4444;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        
+        .uf-seat.selected {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-color: #fff;
+            box-shadow: 0 0 15px rgba(102, 126, 234, 0.7);
+        }
+        
+        .uf-seat-label {
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        /* Panneau de sélection */
+        .uf-selection-panel {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 1.5rem;
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+        
+        .uf-selection-panel h3 {
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+        
+        .uf-selected-seats {
+            min-height: 150px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+        }
+        
+        .uf-empty-selection {
+            color: rgba(255, 255, 255, 0.5);
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .uf-selected-seat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .uf-seat-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .uf-seat-position {
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .uf-seat-category {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .uf-seat-price {
+            color: #22c55e;
+            font-weight: bold;
+        }
+        
+        .uf-remove-seat {
+            background: rgba(239, 68, 68, 0.3);
+            border: none;
+            color: #fff;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            margin-left: 0.5rem;
+        }
+        
+        .uf-selection-summary {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .uf-summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .uf-summary-row.total {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .uf-btn-block {
+            width: 100%;
+        }
+        
+        .uf-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+    
+    <script>
+        let selectedSeats = [];
+        
+        function toggleSeat(element) {
+            const seatId = element.dataset.id;
+            const price = parseFloat(element.dataset.price);
+            const position = element.dataset.position;
+            const category = element.dataset.category;
+            
+            const index = selectedSeats.findIndex(s => s.id === seatId);
+            
+            if (index > -1) {
+                // Désélectionner
+                selectedSeats.splice(index, 1);
+                element.classList.remove('selected');
+            } else {
+                // Sélectionner
+                selectedSeats.push({ id: seatId, price: price, position: position, category: category });
+                element.classList.add('selected');
+            }
+            
+            updateSelectionPanel();
+        }
+        
+        function removeSeat(seatId) {
+            const index = selectedSeats.findIndex(s => s.id === seatId);
+            if (index > -1) {
+                selectedSeats.splice(index, 1);
+                const seatElement = document.getElementById('seat-' + seatId);
+                if (seatElement) {
+                    seatElement.classList.remove('selected');
+                }
+                updateSelectionPanel();
+            }
+        }
+        
+        function updateSelectionPanel() {
+            const listContainer = document.getElementById('selectedSeatsList');
+            const seatCountElement = document.getElementById('seatCount');
+            const totalPriceElement = document.getElementById('totalPrice');
+            const submitBtn = document.getElementById('submitBtn');
+            const siegeIdsInput = document.getElementById('siegeIdsInput');
+            
+            if (selectedSeats.length === 0) {
+                listContainer.innerHTML = '<p class="uf-empty-selection">Cliquez sur un siège pour le sélectionner</p>';
+                submitBtn.disabled = true;
+            } else {
+                let html = '';
+                selectedSeats.forEach(seat => {
+                    html += `
+                        <div class="uf-selected-seat-item">
+                            <div class="uf-seat-info">
+                                <span class="uf-seat-position">${seat.position}</span>
+                                <span class="uf-seat-category">${seat.category}</span>
+                            </div>
+                            <div>
+                                <span class="uf-seat-price">${formatNumber(seat.price)} MGA</span>
+                                <button type="button" class="uf-remove-seat" onclick="removeSeat('${seat.id}')">×</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                listContainer.innerHTML = html;
+                submitBtn.disabled = false;
+            }
+            
+            // Mise à jour des totaux
+            seatCountElement.textContent = selectedSeats.length;
+            const total = selectedSeats.reduce((sum, seat) => sum + seat.price, 0);
+            totalPriceElement.textContent = formatNumber(total) + ' MGA';
+            
+            // Mise à jour du champ caché
+            siegeIdsInput.value = selectedSeats.map(s => s.id).join(',');
+        }
+        
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+    </script>
+</body>
+</html>

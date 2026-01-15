@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paiement - UltraFly</title>
+    <link rel="icon" type="image/png" th:href="@{/image/logo.png}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" th:href="@{/css/template.css}">
+</head>
+<body>
+    <div class="bg-element bg-element-1"></div>
+    <div class="bg-element bg-element-2"></div>
+    
+    <div class="uf-layout">
+        <aside class="uf-sidebar">
+            <div class="uf-sidebar-header">
+                <div class="uf-sidebar-logo"><span class="logo-ultra">Ultra</span><span class="logo-fly">Fly</span></div>
+                <button class="uf-sidebar-toggle"><span>←</span></button>
+            </div>
+            <nav class="uf-sidebar-nav">
+                <ul class="uf-sidebar-menu">
+                    <li class="uf-sidebar-item"><a th:href="@{/avion}" class="uf-sidebar-link"><span class="uf-sidebar-icon">✈️</span><span class="uf-sidebar-text">Avion</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/vol}" class="uf-sidebar-link"><span class="uf-sidebar-icon">🛫</span><span class="uf-sidebar-text">Vol</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/reservation}" class="uf-sidebar-link active"><span class="uf-sidebar-icon">🎫</span><span class="uf-sidebar-text">Réservation</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/personne}" class="uf-sidebar-link"><span class="uf-sidebar-icon">👥</span><span class="uf-sidebar-text">Personne</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/enregistrement}" class="uf-sidebar-link"><span class="uf-sidebar-icon">👨‍✈️</span><span class="uf-sidebar-text">Enregistrement</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/dashboard}" class="uf-sidebar-link"><span class="uf-sidebar-icon">📊</span><span class="uf-sidebar-text">Dashboard</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <main class="uf-main">
+            
+            <div th:if="${error}" class="uf-alert uf-alert-danger" th:text="${error}"></div>
+            
+            <!-- Header -->
+            <div class="uf-fiche-header">
+                <div class="uf-fiche-title">
+                    <a th:href="@{/reservation/{id}(id=${reservation.idReservation})}" class="uf-btn uf-btn-secondary">← Retour</a>
+                    <h1 class="uf-title">💰 Paiement - <span th:text="${reservation.numero}">RES001</span></h1>
+                </div>
+            </div>
+            
+            <div class="uf-payment-container">
+                <!-- Récapitulatif -->
+                <div class="uf-payment-summary-card">
+                    <h2 class="uf-subtitle">📋 Récapitulatif de la Réservation</h2>
+                    
+                    <div class="uf-summary-info">
+                        <div class="uf-summary-row">
+                            <span>Client:</span>
+                            <span th:text="${reservation.client?.personne?.nom + ' ' + reservation.client?.personne?.prenom}">Client</span>
+                        </div>
+                        <div class="uf-summary-row">
+                            <span>Vol:</span>
+                            <span th:text="${reservation.vol?.numero + ' - ' + reservation.vol?.itineraire?.aeroportDepart?.codeIata + ' → ' + reservation.vol?.itineraire?.aeroportArrivee?.codeIata}">VOL001</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Billets -->
+                    <h3>🎫 Billets à payer</h3>
+                    <div class="uf-billets-list">
+                        <div th:each="billet : ${billets}" class="uf-billet-item" th:classappend="${billet.billetStatut?.libelle == 'Paye' ? 'paid' : ''}">
+                            <div class="uf-billet-info">
+                                <span class="uf-billet-numero" th:text="${billet.numero}">BLT001</span>
+                                <span class="uf-billet-siege" th:text="${'Siège ' + billet.avionSiege?.position + ' (' + billet.avionSiege?.siegeCategorie?.libelle + ')'}">1A</span>
+                            </div>
+                            <div class="uf-billet-payment">
+                                <span class="uf-billet-price" th:text="${#numbers.formatDecimal(billet.prix, 0, 'COMMA', 0, 'POINT') + ' MGA'}">500,000 MGA</span>
+                                <span class="uf-billet-status" th:classappend="${billet.billetStatut?.libelle == 'Paye' ? 'paid' : 'pending'}" th:text="${billet.billetStatut?.libelle}">Reserve</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Totaux -->
+                    <div class="uf-payment-totals">
+                        <div class="uf-total-row">
+                            <span>Montant Total:</span>
+                            <span th:text="${#numbers.formatDecimal(paiement?.montantTotal, 0, 'COMMA', 0, 'POINT') + ' MGA'}">1,000,000 MGA</span>
+                        </div>
+                        <div class="uf-total-row paid">
+                            <span>Déjà Payé:</span>
+                            <span th:text="${#numbers.formatDecimal(totalPaye, 0, 'COMMA', 0, 'POINT') + ' MGA'}">0 MGA</span>
+                        </div>
+                        <div class="uf-total-row remaining">
+                            <span>Reste à Payer:</span>
+                            <span th:text="${#numbers.formatDecimal(restePayer, 0, 'COMMA', 0, 'POINT') + ' MGA'}">1,000,000 MGA</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Barre de progression -->
+                    <div class="uf-progress-container" th:if="${paiement?.montantTotal > 0}">
+                        <div class="uf-progress-bar">
+                            <div class="uf-progress-fill" th:style="'width: ' + ${(totalPaye * 100 / paiement.montantTotal)} + '%'"></div>
+                        </div>
+                        <span class="uf-progress-text" th:text="${#numbers.formatDecimal((totalPaye * 100 / paiement.montantTotal), 0, 'COMMA', 1, 'POINT') + '% payé'}">0% payé</span>
+                    </div>
+                </div>
+                
+                <!-- Formulaire de paiement -->
+                <div class="uf-payment-form-card" th:if="${restePayer > 0}">
+                    <h2 class="uf-subtitle">💳 Effectuer un Paiement</h2>
+                    
+                    <form th:action="@{/reservation/{id}/paiement(id=${reservation.idReservation})}" method="post">
+                        
+                        <div class="uf-form-group">
+                            <label class="uf-form-label">Montant à payer *</label>
+                            <input type="number" 
+                                   name="montant" 
+                                   required 
+                                   step="0.01"
+                                   min="1"
+                                   th:max="${restePayer}"
+                                   class="uf-form-input uf-input-large"
+                                   th:placeholder="'Max: ' + ${#numbers.formatDecimal(restePayer, 0, 'COMMA', 0, 'POINT')} + ' MGA'"
+                                   id="montantInput">
+                            <small class="uf-form-help">Vous pouvez payer partiellement. Les billets seront marqués payés par ordre d'ID.</small>
+                        </div>
+                        
+                        <!-- Boutons de montant rapide -->
+                        <div class="uf-quick-amounts">
+                            <button type="button" class="uf-quick-btn" th:onclick="'setAmount(' + ${restePayer} + ')'">
+                                Tout payer (<span th:text="${#numbers.formatDecimal(restePayer, 0, 'COMMA', 0, 'POINT')}">1,000,000</span> MGA)
+                            </button>
+                            <button type="button" class="uf-quick-btn" th:if="${#lists.size(billets) > 0}" th:each="billet, iterStat : ${billets}" th:if="${iterStat.index == 0 and billet.billetStatut?.libelle != 'Paye'}" th:onclick="'setAmount(' + ${billet.prix} + ')'">
+                                1 billet (<span th:text="${#numbers.formatDecimal(billet.prix, 0, 'COMMA', 0, 'POINT')}">500,000</span> MGA)
+                            </button>
+                        </div>
+                        
+                        <div class="uf-form-group">
+                            <label class="uf-form-label">Devise *</label>
+                            <select name="deviseId" required class="uf-form-select">
+                                <option th:each="devise : ${devises}"
+                                        th:value="${devise.idDevise}"
+                                        th:text="${devise.code + ' - ' + devise.libelle}"
+                                        th:selected="${devise.code == 'MGA'}">
+                                </option>
+                            </select>
+                            <small class="uf-form-help">Les montants en devise étrangère seront convertis en MGA selon le taux du jour.</small>
+                        </div>
+                        
+                        <div class="uf-form-group">
+                            <label class="uf-form-label">Mode de Paiement *</label>
+                            <div class="uf-payment-modes">
+                                <th:block th:each="mode : ${paiementModes}">
+                                    <label class="uf-payment-mode-option">
+                                        <input type="radio" name="paiementModeId" th:value="${mode.idPaiementMode}" required>
+                                        <div class="uf-mode-card">
+                                            <span class="uf-mode-icon" th:text="${mode.libelle == 'Especes' ? '💵' : (mode.libelle == 'Carte bancaire' ? '💳' : (mode.libelle == 'Virement' ? '🏦' : (mode.libelle == 'Mobile Money' ? '📱' : '💰')))}">💳</span>
+                                            <span class="uf-mode-name" th:text="${mode.libelle}">Carte bancaire</span>
+                                        </div>
+                                    </label>
+                                </th:block>
+                            </div>
+                        </div>
+                        
+                        <div class="uf-form-actions">
+                            <a th:href="@{/reservation/{id}(id=${reservation.idReservation})}" class="uf-btn uf-btn-secondary">Annuler</a>
+                            <button type="submit" class="uf-btn uf-btn-success">✅ Confirmer le Paiement</button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Message si tout est payé -->
+                <div class="uf-payment-complete" th:if="${restePayer <= 0}">
+                    <div class="uf-complete-icon">✅</div>
+                    <h2>Paiement Complet!</h2>
+                    <p>Cette réservation a été entièrement payée.</p>
+                    <a th:href="@{/reservation/{id}(id=${reservation.idReservation})}" class="uf-btn uf-btn-primary">Retour à la réservation</a>
+                </div>
+            </div>
+            
+        </main>
+    </div>
+    
+    <script th:src="@{/js/template.js}"></script>
+    
+    <style>
+        .uf-payment-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        
+        @media (max-width: 1024px) {
+            .uf-payment-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .uf-payment-summary-card, .uf-payment-form-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 2rem;
+        }
+        
+        .uf-summary-info {
+            margin-bottom: 1.5rem;
+        }
+        
+        .uf-summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .uf-billets-list {
+            margin: 1rem 0;
+        }
+        
+        .uf-billet-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            border-left: 4px solid #eab308;
+        }
+        
+        .uf-billet-item.paid {
+            border-left-color: #22c55e;
+            opacity: 0.7;
+        }
+        
+        .uf-billet-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .uf-billet-numero {
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .uf-billet-siege {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .uf-billet-payment {
+            text-align: right;
+        }
+        
+        .uf-billet-price {
+            display: block;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .uf-billet-status {
+            font-size: 0.8rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+        
+        .uf-billet-status.paid {
+            background: rgba(34, 197, 94, 0.3);
+            color: #22c55e;
+        }
+        
+        .uf-billet-status.pending {
+            background: rgba(234, 179, 8, 0.3);
+            color: #eab308;
+        }
+        
+        .uf-payment-totals {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 2px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .uf-total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            font-size: 1.1rem;
+        }
+        
+        .uf-total-row.paid {
+            color: #22c55e;
+        }
+        
+        .uf-total-row.remaining {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #eab308;
+        }
+        
+        .uf-progress-container {
+            margin-top: 1rem;
+        }
+        
+        .uf-progress-bar {
+            height: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        
+        .uf-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #22c55e, #4ade80);
+            border-radius: 6px;
+            transition: width 0.5s ease;
+        }
+        
+        .uf-progress-text {
+            display: block;
+            text-align: center;
+            margin-top: 0.5rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .uf-input-large {
+            font-size: 1.5rem;
+            padding: 1rem;
+        }
+        
+        .uf-quick-amounts {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .uf-quick-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .uf-quick-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .uf-payment-modes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+        }
+        
+        .uf-payment-mode-option input {
+            display: none;
+        }
+        
+        .uf-mode-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .uf-mode-card:hover {
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+        
+        .uf-payment-mode-option input:checked + .uf-mode-card {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.2);
+        }
+        
+        .uf-mode-icon {
+            display: block;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .uf-mode-name {
+            display: block;
+            color: #fff;
+            font-size: 0.9rem;
+        }
+        
+        .uf-payment-complete {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 3rem;
+            background: rgba(34, 197, 94, 0.1);
+            border-radius: 16px;
+        }
+        
+        .uf-complete-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        
+        .uf-payment-complete h2 {
+            color: #22c55e;
+            margin-bottom: 0.5rem;
+        }
+        
+        .uf-payment-complete p {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 1.5rem;
+        }
+    </style>
+    
+    <script>
+        function setAmount(amount) {
+            document.getElementById('montantInput').value = amount;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste des Avions - UltraFly</title>
+    <link rel="icon" type="image/png" th:href="@{/image/logo.png}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" th:href="@{/css/template.css}">
+</head>
+<body>
+    <!-- Background Elements -->
+    <div class="bg-element bg-element-1"></div>
+    <div class="bg-element bg-element-2"></div>
+    
+    <div class="uf-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="uf-sidebar">
+            <div class="uf-sidebar-header">
+                <div class="uf-sidebar-logo">
+                    <span class="logo-ultra">Ultra</span><span class="logo-fly">Fly</span>
+                </div>
+                <button class="uf-sidebar-toggle">
+                    <span>←</span>
+                </button>
+            </div>
+            
+            <nav class="uf-sidebar-nav">
+                <ul class="uf-sidebar-menu">
+                    <li class="uf-sidebar-item">
+                        <a th:href="@{/avion}" class="uf-sidebar-link active">
+                            <span class="uf-sidebar-icon">✈️</span>
+                            <span class="uf-sidebar-text">Avion</span>
+                        </a>
+                    </li>
+                    <li class="uf-sidebar-item">
+                        <a th:href="@{/vol}" class="uf-sidebar-link">
+                            <span class="uf-sidebar-icon">🛫</span>
+                            <span class="uf-sidebar-text">Vol</span>
+                        </a>
+                    </li>
+                    <li class="uf-sidebar-item">
+                        <a th:href="@{/reservation}" class="uf-sidebar-link">
+                            <span class="uf-sidebar-icon">🎫</span>
+                            <span class="uf-sidebar-text">Réservation</span>
+                        </a>
+                    </li>
+                    <li class="uf-sidebar-item">
+                        <a th:href="@{/personne}" class="uf-sidebar-link">
+                            <span class="uf-sidebar-icon">👥</span>
+                            <span class="uf-sidebar-text">Personne</span>
+                        </a>
+                    </li>
+                    <li class="uf-sidebar-item">
+                        <a th:href="@{/enregistrement}" class="uf-sidebar-link">
+                            <span class="uf-sidebar-icon">👨‍✈️</span>
+                            <span class="uf-sidebar-text">Enregistrement</span>
+                        </a>
+                    </li>
+                    <li class="uf-sidebar-item">
+                        <a th:href="@{/dashboard}" class="uf-sidebar-link">
+                            <span class="uf-sidebar-icon">📊</span>
+                            <span class="uf-sidebar-text">Dashboard</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <!-- Main Content Area -->
+        <main class="uf-main">
+            
+            <!-- Message de succès -->
+            <div th:if="${success}" class="uf-alert uf-alert-success" th:text="${success}"></div>
+            
+            <!-- Section Filtre -->
+            <div class="uf-component-form">
+                <h1 class="uf-subtitle">🔍 Filtres Avions</h1>
+                
+                <form th:action="@{/avion}" method="get" class="uf-filtre">
+                    
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Constructeur</label>
+                        <input type="text" name="constructeur" th:value="${constructeurFiltre}" 
+                               placeholder="Ex: Boeing, Airbus..." class="uf-form-input">
+                    </div>
+                    
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Modèle</label>
+                        <input type="text" name="modele" th:value="${modeleFiltre}" 
+                               placeholder="Ex: 737, A320..." class="uf-form-input">
+                    </div>
+                    
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Capacité Min</label>
+                        <input type="number" name="capaciteMin" th:value="${capaciteMinFiltre}" 
+                               placeholder="0" class="uf-form-input">
+                    </div>
+                    
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Capacité Max</label>
+                        <input type="number" name="capaciteMax" th:value="${capaciteMaxFiltre}" 
+                               placeholder="500" class="uf-form-input">
+                    </div>
+                    
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Consommation Min (L/h)</label>
+                        <input type="number" step="0.01" name="consommationMin" th:value="${consommationMinFiltre}" 
+                               placeholder="0" class="uf-form-input">
+                    </div>
+                    
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Consommation Max (L/h)</label>
+                        <input type="number" step="0.01" name="consommationMax" th:value="${consommationMaxFiltre}" 
+                               placeholder="10000" class="uf-form-input">
+                    </div>
+                    
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Date possession (début)</label>
+                        <input type="date" name="datePossessionDebut" th:value="${datePossessionDebutFiltre}" 
+                               class="uf-form-input">
+                    </div>
+                    
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Date possession (fin)</label>
+                        <input type="date" name="datePossessionFin" th:value="${datePossessionFinFiltre}" 
+                               class="uf-form-input">
+                    </div>
+                    
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Type Carburant</label>
+                        <select name="carburantId" class="uf-form-select">
+                            <option value="">-- Tous --</option>
+                            <option th:each="carburant : ${carburants}" 
+                                    th:value="${carburant.idCarburant}"
+                                    th:text="${carburant.libelle}"
+                                    th:selected="${carburant.idCarburant == carburantIdFiltre}">
+                            </option>
+                        </select>
+                    </div>
+                    
+                    <div class="uf-separator" style="flex: 1 1 100%;"></div>
+                    
+                    <div class="uf-form-group uf-form-group-full">
+                        <button type="submit" class="uf-form-submit">🔍 Filtrer</button>
+                        <a th:href="@{/avion}" class="uf-form-submit" style="background: var(--text-muted); margin-left: 10px;">↻ Réinitialiser</a>
+                        <a th:href="@{/avion/saisie}" class="uf-form-submit" style="background: var(--color-success); margin-left: 10px;">+ Nouvel Avion</a>
+                    </div>
+                    
+                </form>   
+            </div>
+
+            <!-- Section Liste -->
+            <div class="uf-component-liste" style="margin-top: 30px;">
+                <h1 class="uf-subtitle">✈️ Liste des Avions (<span th:text="${#lists.size(avions)}">0</span>)</h1>
+                
+                <div class="uf-list-container">
+                    
+                    <div th:if="${#lists.isEmpty(avions)}" class="uf-empty-state">
+                        <p>Aucun avion trouvé avec ces critères.</p>
+                    </div>
+                    
+                    <div th:each="avion : ${avions}" class="uf-box">
+                        <!-- Header avec Numéro Bold -->
+                        <div class="uf-box-header">
+                            <span class="uf-box-number" th:text="${avion.numero}">AVN001</span>
+                            <span class="uf-box-title" th:text="${avion.constructeur + ' ' + avion.modele}">Boeing 737</span>
+                        </div>
+                        
+                        <!-- Contenu Principal -->
+                        <div class="uf-box-content">
+                            <p class="uf-box-attr"><strong>Capacité:</strong> <span th:text="${avion.capacite}">180</span> places</p>
+                            <p class="uf-box-attr"><strong>Vitesse:</strong> <span th:text="${avion.vitesse}">850</span> km/h</p>
+                            <p class="uf-box-attr"><strong>Consommation:</strong> <span th:text="${avion.consommation}">2500</span> L/h</p>
+                        </div>
+                        
+                        <!-- Section Interne -->
+                        <div class="uf-box-section">
+                            <div class="uf-box-section-title">Informations</div>
+                            <p class="uf-box-section-attr">Carburant: <span th:text="${avion.carburant?.libelle ?: 'Non défini'}">Jet A-1</span></p>
+                            <p class="uf-box-section-attr">Date possession: <span th:text="${avion.datePossession != null ? #temporals.format(avion.datePossession, 'dd/MM/yyyy') : 'N/A'}">01/01/2020</span></p>
+                        </div>
+                        
+                        <!-- Actions -->
+                        <div class="uf-box-actions">
+                            <a th:href="@{/avion/{id}(id=${avion.idAvion})}" class="uf-table-btn">📋 Voir Fiche</a>
+                            <a th:href="@{/avion/saisie/{id}(id=${avion.idAvion})}" class="uf-table-btn" style="background: var(--accent-color);">✏️ Modifier</a>
+                        </div>
+                    </div>
+                    
+                </div>  
+            </div>
+            
+        </main>
+    </div>
+
+    <script th:src="@{/js/template.js}"></script>
+</body>
+</html>

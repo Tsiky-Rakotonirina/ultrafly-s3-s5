@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Changer Statut Réservation - UltraFly</title>
+    <link rel="icon" type="image/png" th:href="@{/image/logo.png}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" th:href="@{/css/template.css}">
+</head>
+<body>
+    <div class="bg-element bg-element-1"></div>
+    <div class="bg-element bg-element-2"></div>
+    
+    <div class="uf-layout">
+        <aside class="uf-sidebar">
+            <div class="uf-sidebar-header">
+                <div class="uf-sidebar-logo"><span class="logo-ultra">Ultra</span><span class="logo-fly">Fly</span></div>
+                <button class="uf-sidebar-toggle"><span>←</span></button>
+            </div>
+            <nav class="uf-sidebar-nav">
+                <ul class="uf-sidebar-menu">
+                    <li class="uf-sidebar-item"><a th:href="@{/avion}" class="uf-sidebar-link"><span class="uf-sidebar-icon">✈️</span><span class="uf-sidebar-text">Avion</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/vol}" class="uf-sidebar-link"><span class="uf-sidebar-icon">🛫</span><span class="uf-sidebar-text">Vol</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/reservation}" class="uf-sidebar-link active"><span class="uf-sidebar-icon">🎫</span><span class="uf-sidebar-text">Réservation</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/personne}" class="uf-sidebar-link"><span class="uf-sidebar-icon">👥</span><span class="uf-sidebar-text">Personne</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/enregistrement}" class="uf-sidebar-link"><span class="uf-sidebar-icon">👨‍✈️</span><span class="uf-sidebar-text">Enregistrement</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/dashboard}" class="uf-sidebar-link"><span class="uf-sidebar-icon">📊</span><span class="uf-sidebar-text">Dashboard</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <main class="uf-main">
+            
+            <!-- Header -->
+            <div class="uf-fiche-header">
+                <div class="uf-fiche-title">
+                    <a th:href="@{/reservation/{id}(id=${reservation.idReservation})}" class="uf-btn uf-btn-secondary">← Retour</a>
+                    <h1 class="uf-title">🔄 Changer Statut - <span th:text="${reservation.numero}">RES001</span></h1>
+                </div>
+            </div>
+            
+            <!-- Formulaire -->
+            <div class="uf-component-form">
+                <h2 class="uf-subtitle">Statut actuel: 
+                    <span class="uf-badge" 
+                          th:classappend="${reservation.reservationStatut?.libelle == 'En attente' ? 'uf-badge-warning' : 
+                                          (reservation.reservationStatut?.libelle == 'Confirme' ? 'uf-badge-success' :
+                                          (reservation.reservationStatut?.libelle == 'Annule' ? 'uf-badge-danger' : 'uf-badge-info'))}"
+                          th:text="${reservation.reservationStatut?.libelle}">En attente</span>
+                </h2>
+                
+                <form th:action="@{/reservation/{id}/statut(id=${reservation.idReservation})}" method="post">
+                    
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Nouveau Statut *</label>
+                        <select name="statutId" required class="uf-form-select">
+                            <option value="">-- Sélectionner un statut --</option>
+                            <option th:each="statut : ${statuts}"
+                                    th:value="${statut.idReservationStatut}"
+                                    th:text="${statut.libelle}"
+                                    th:selected="${statut.idReservationStatut == reservation.reservationStatut?.idReservationStatut}">
+                            </option>
+                        </select>
+                    </div>
+                    
+                    <div class="uf-form-actions">
+                        <a th:href="@{/reservation/{id}(id=${reservation.idReservation})}" class="uf-btn uf-btn-secondary">Annuler</a>
+                        <button type="submit" class="uf-btn uf-btn-primary">✅ Enregistrer</button>
+                    </div>
+                </form>
+            </div>
+            
+        </main>
+    </div>
+    
+    <script th:src="@{/js/template.js}"></script>
+</body>
+</html>

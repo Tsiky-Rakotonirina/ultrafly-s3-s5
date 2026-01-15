@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'Fiche Avion ' + ${avion.numero} + ' - UltraFly'">Fiche Avion - UltraFly</title>
+    <link rel="icon" type="image/png" th:href="@{/image/logo.png}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" th:href="@{/css/template.css}">
+</head>
+<body>
+    <div class="bg-element bg-element-1"></div>
+    <div class="bg-element bg-element-2"></div>
+    
+    <div class="uf-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="uf-sidebar">
+            <div class="uf-sidebar-header">
+                <div class="uf-sidebar-logo">
+                    <span class="logo-ultra">Ultra</span><span class="logo-fly">Fly</span>
+                </div>
+                <button class="uf-sidebar-toggle"><span>←</span></button>
+            </div>
+            <nav class="uf-sidebar-nav">
+                <ul class="uf-sidebar-menu">
+                    <li class="uf-sidebar-item"><a th:href="@{/avion}" class="uf-sidebar-link active"><span class="uf-sidebar-icon">✈️</span><span class="uf-sidebar-text">Avion</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/vol}" class="uf-sidebar-link"><span class="uf-sidebar-icon">🛫</span><span class="uf-sidebar-text">Vol</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/reservation}" class="uf-sidebar-link"><span class="uf-sidebar-icon">🎫</span><span class="uf-sidebar-text">Réservation</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/personne}" class="uf-sidebar-link"><span class="uf-sidebar-icon">👥</span><span class="uf-sidebar-text">Personne</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/enregistrement}" class="uf-sidebar-link"><span class="uf-sidebar-icon">👨‍✈️</span><span class="uf-sidebar-text">Enregistrement</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/dashboard}" class="uf-sidebar-link"><span class="uf-sidebar-icon">📊</span><span class="uf-sidebar-text">Dashboard</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <main class="uf-main">
+            
+            <!-- Breadcrumb -->
+            <div class="uf-breadcrumb">
+                <a th:href="@{/avion}">← Retour à la liste</a>
+            </div>
+            
+            <!-- Message de succès -->
+            <div th:if="${success}" class="uf-alert uf-alert-success" th:text="${success}"></div>
+            
+            <!-- Fiche Avion -->
+            <div class="uf-component-fiche">
+                <h1 class="uf-subtitle">✈️ Fiche Avion <span th:text="${avion.numero}">AVN001</span></h1>
+                
+                <div class="uf-fiche">
+                    
+                    <!-- Section 1: Sous-Fiche Identité -->
+                    <div class="uf-fiche-section">
+                        <div class="uf-fiche-mini">
+                            <div class="uf-fiche-mini-title">🔖 Identité</div>
+                            <p><strong>Numéro:</strong> <span th:text="${avion.numero}">AVN001</span></p>
+                            <p><strong>Constructeur:</strong> <span th:text="${avion.constructeur}">Boeing</span></p>
+                            <p><strong>Modèle:</strong> <span th:text="${avion.modele}">737-800</span></p>
+                        </div>
+                    </div>
+                    
+                    <!-- Section 2: Attributs Techniques -->
+                    <div class="uf-fiche-section">
+                        <div class="uf-fiche-attrs">
+                            <div class="uf-fiche-attr">
+                                <div class="uf-fiche-attr-label">Capacité</div>
+                                <div class="uf-fiche-attr-value" th:text="${avion.capacite + ' places'}">180 places</div>
+                            </div>
+                            <div class="uf-fiche-attr">
+                                <div class="uf-fiche-attr-label">Vitesse</div>
+                                <div class="uf-fiche-attr-value" th:text="${avion.vitesse + ' km/h'}">850 km/h</div>
+                            </div>
+                            <div class="uf-fiche-attr">
+                                <div class="uf-fiche-attr-label">Consommation</div>
+                                <div class="uf-fiche-attr-value" th:text="${avion.consommation + ' L/h'}">2500 L/h</div>
+                            </div>
+                            <div class="uf-fiche-attr">
+                                <div class="uf-fiche-attr-label">Carburant</div>
+                                <div class="uf-fiche-attr-value" th:text="${avion.carburant?.libelle ?: 'Non défini'}">Jet A-1</div>
+                            </div>
+                            <div class="uf-fiche-attr">
+                                <div class="uf-fiche-attr-label">Date Possession</div>
+                                <div class="uf-fiche-attr-value" th:text="${avion.datePossession != null ? #temporals.format(avion.datePossession, 'dd/MM/yyyy') : 'N/A'}">01/01/2020</div>
+                            </div>
+                            <div class="uf-fiche-attr">
+                                <div class="uf-fiche-attr-label">Nb Sièges</div>
+                                <div class="uf-fiche-attr-value" th:text="${nbSieges}">180</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Section 3: Statut Actuel -->
+                    <div class="uf-fiche-section">
+                        <div class="uf-fiche-mini" th:classappend="${statutActuel != null ? (statutActuel.avionStatut.libelle == 'En service' ? 'status-success' : (statutActuel.avionStatut.libelle == 'En maintenance' ? 'status-warning' : 'status-danger')) : ''}">
+                            <div class="uf-fiche-mini-title">📊 Statut Actuel</div>
+                            <p th:if="${statutActuel != null}">
+                                <strong>Statut:</strong> <span th:text="${statutActuel.avionStatut.libelle}">En service</span>
+                            </p>
+                            <p th:if="${statutActuel != null}">
+                                <strong>Depuis:</strong> <span th:text="${#temporals.format(statutActuel.dateStatut, 'dd/MM/yyyy')}">01/01/2024</span>
+                            </p>
+                            <p th:if="${statutActuel == null}">Aucun statut défini</p>
+                            <p><strong>Total Carburant:</strong> <span th:text="${totalCarburant + ' L'}">5000 L</span></p>
+                        </div>
+                    </div>
+                    
+                    <!-- Section 4: Boutons Actions -->
+                    <div class="uf-fiche-section uf-fiche-actions">
+                        <a th:href="@{/avion/saisie/{id}(id=${avion.idAvion})}" class="uf-action-btn uf-action-edit">✏️ Modifier</a>
+                        <a th:href="@{/avion/{id}/statut-saisie(id=${avion.idAvion})}" class="uf-action-btn uf-action-status">🔄 Changer Statut</a>
+                        <a th:href="@{/avion/{id}/ravitaillement-saisie(id=${avion.idAvion})}" class="uf-action-btn uf-action-fuel">⛽ Ravitailler</a>
+                        <a th:href="@{/avion/{id}/siege-saisie(id=${avion.idAvion})}" class="uf-action-btn uf-action-seats">💺 Gérer Sièges</a>
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <!-- Table Historique Statuts -->
+            <div class="uf-component-table" style="margin-top: 30px;">
+                <h1 class="uf-subtitle">📜 Historique des Statuts</h1>
+                
+                <div class="uf-table-container">
+                    <table class="uf-table">
+                        <thead>
+                            <tr>
+                                <th class="sortable sortable-date">Date</th>
+                                <th>Statut</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="hist : ${historiques}">
+                                <td class="uf-table-cell-date" th:text="${#temporals.format(hist.dateStatut, 'dd/MM/yyyy')}">01/01/2024</td>
+                                <td class="uf-table-cell-bold" th:text="${hist.avionStatut.libelle}">En service</td>
+                                <td th:text="${hist.avionStatut.description}">Avion opérationnel</td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(historiques)}">
+                                <td colspan="3" style="text-align: center;">Aucun historique</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Table Ravitaillements -->
+            <div class="uf-component-table" style="margin-top: 30px;">
+                <h1 class="uf-subtitle">⛽ Historique Ravitaillements</h1>
+                
+                <div class="uf-table-container">
+                    <table class="uf-table">
+                        <thead>
+                            <tr>
+                                <th class="sortable sortable-date">Date</th>
+                                <th>Carburant</th>
+                                <th class="sortable sortable-numeric">Quantité (L)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="rav : ${ravitaillements}">
+                                <td class="uf-table-cell-date" th:text="${#temporals.format(rav.dateCarburant, 'dd/MM/yyyy')}">01/01/2024</td>
+                                <td th:text="${rav.carburant.libelle}">Jet A-1</td>
+                                <td class="uf-table-cell-numeric" th:text="${rav.quantite}">1000</td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(ravitaillements)}">
+                                <td colspan="3" style="text-align: center;">Aucun ravitaillement</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Visualisation Sièges -->
+            <div class="uf-component-seats" style="margin-top: 30px;">
+                <h1 class="uf-subtitle">💺 Configuration Cabine (<span th:text="${#lists.size(sieges)}">0</span> sièges)</h1>
+                
+                <div class="uf-seats-container">
+                    <div class="uf-seats-grid" th:if="${!#lists.isEmpty(sieges)}">
+                        <div th:each="siege : ${sieges}" class="uf-seat" 
+                             th:classappend="${siege.siegeCategorie.libelle == 'Première' ? 'uf-seat-first' : (siege.siegeCategorie.libelle == 'Affaires' ? 'uf-seat-business' : 'uf-seat-eco')}"
+                             th:title="${siege.rangee + siege.colonne + ' - ' + siege.siegeCategorie.libelle}">
+                            <span th:text="${siege.rangee + siege.colonne}">1A</span>
+                        </div>
+                    </div>
+                    <div th:if="${#lists.isEmpty(sieges)}" class="uf-empty-state">
+                        <p>Aucun siège configuré</p>
+                        <a th:href="@{/avion/{id}/siege-saisie(id=${avion.idAvion})}" class="uf-table-btn">+ Configurer les sièges</a>
+                    </div>
+                </div>
+                
+                <div class="uf-seats-legend">
+                    <span class="uf-legend-item"><span class="uf-legend-color uf-seat-first"></span> Première Classe</span>
+                    <span class="uf-legend-item"><span class="uf-legend-color uf-seat-business"></span> Classe Affaires</span>
+                    <span class="uf-legend-item"><span class="uf-legend-color uf-seat-eco"></span> Classe Économique</span>
+                </div>
+            </div>
+            
+            <!-- Bouton Supprimer -->
+            <div class="uf-danger-zone" style="margin-top: 40px;">
+                <h3>⚠️ Zone de Danger</h3>
+                <form th:action="@{/avion/{id}/supprimer(id=${avion.idAvion})}" method="post" 
+                      onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet avion ?');">
+                    <button type="submit" class="uf-btn-danger">🗑️ Supprimer cet avion</button>
+                </form>
+            </div>
+            
+        </main>
+    </div>
+
+    <script th:src="@{/js/template.js}"></script>
+</body>
+</html>

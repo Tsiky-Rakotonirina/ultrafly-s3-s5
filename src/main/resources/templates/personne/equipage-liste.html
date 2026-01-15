@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste des Équipages - UltraFly</title>
+    <link rel="icon" type="image/png" th:href="@{/image/logo.png}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" th:href="@{/css/template.css}">
+</head>
+<body>
+    <div class="bg-element bg-element-1"></div>
+    <div class="bg-element bg-element-2"></div>
+    
+    <div class="uf-layout">
+        <aside class="uf-sidebar">
+            <div class="uf-sidebar-header">
+                <div class="uf-sidebar-logo"><span class="logo-ultra">Ultra</span><span class="logo-fly">Fly</span></div>
+                <button class="uf-sidebar-toggle"><span>←</span></button>
+            </div>
+            <nav class="uf-sidebar-nav">
+                <ul class="uf-sidebar-menu">
+                    <li class="uf-sidebar-item"><a th:href="@{/avion}" class="uf-sidebar-link"><span class="uf-sidebar-icon">✈️</span><span class="uf-sidebar-text">Avion</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/vol}" class="uf-sidebar-link"><span class="uf-sidebar-icon">🛫</span><span class="uf-sidebar-text">Vol</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/reservation}" class="uf-sidebar-link"><span class="uf-sidebar-icon">🎫</span><span class="uf-sidebar-text">Réservation</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/personne}" class="uf-sidebar-link active"><span class="uf-sidebar-icon">👥</span><span class="uf-sidebar-text">Personne</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/enregistrement}" class="uf-sidebar-link"><span class="uf-sidebar-icon">👨‍✈️</span><span class="uf-sidebar-text">Enregistrement</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/dashboard}" class="uf-sidebar-link"><span class="uf-sidebar-icon">📊</span><span class="uf-sidebar-text">Dashboard</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <main class="uf-main">
+            
+            <div class="uf-breadcrumb">
+                <a th:href="@{/personne}">← Retour au menu Personne</a>
+            </div>
+            
+            <div th:if="${success}" class="uf-alert uf-alert-success" th:text="${success}"></div>
+            
+            <!-- Filtres -->
+            <div class="uf-component-form">
+                <h1 class="uf-subtitle">🔍 Filtres Équipages</h1>
+                
+                <form th:action="@{/personne/equipage}" method="get" class="uf-filtre">
+                    
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Nom</label>
+                        <input type="text" name="nom" th:value="${nomFiltre}" class="uf-form-input" placeholder="Rechercher...">
+                    </div>
+                    
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Date Début</label>
+                        <input type="date" name="dateDebut" th:value="${dateDebutFiltre}" class="uf-form-input">
+                    </div>
+                    
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Date Fin</label>
+                        <input type="date" name="dateFin" th:value="${dateFinFiltre}" class="uf-form-input">
+                    </div>
+                    
+                    <div class="uf-separator" style="flex: 1 1 100%;"></div>
+                    
+                    <div class="uf-form-group uf-form-group-full">
+                        <button type="submit" class="uf-form-submit">🔍 Filtrer</button>
+                        <a th:href="@{/personne/equipage}" class="uf-form-submit" style="background: var(--text-muted); margin-left: 10px;">↻ Réinitialiser</a>
+                        <a th:href="@{/personne/equipage/saisie}" class="uf-form-submit" style="background: var(--color-success); margin-left: 10px;">+ Nouvel Équipage</a>
+                    </div>
+                    
+                </form>   
+            </div>
+
+            <!-- Liste -->
+            <div class="uf-component-liste" style="margin-top: 30px;">
+                <h1 class="uf-subtitle">👥 Liste des Équipages (<span th:text="${#lists.size(equipages)}">0</span>)</h1>
+                
+                <div class="uf-list-container">
+                    <div th:each="equipage : ${equipages}" class="uf-box">
+                        <div class="uf-box-header">
+                            <span class="uf-box-number" th:text="${equipage.numero}">EQP001</span>
+                            <span class="uf-box-date" th:text="${#temporals.format(equipage.dateEquipage, 'dd/MM/yyyy')}">01/01/2024</span>
+                        </div>
+                        <div class="uf-box-content">
+                            <h3 class="uf-box-title" th:text="${equipage.nom}">Équipage Alpha</h3>
+                        </div>
+                        <div class="uf-box-footer">
+                            <a th:href="@{/personne/equipage/{id}(id=${equipage.idEquipage})}" class="uf-box-btn">📋 Fiche</a>
+                        </div>
+                    </div>
+                    
+                    <div th:if="${#lists.isEmpty(equipages)}" class="uf-empty-state">
+                        <p>Aucun équipage trouvé</p>
+                    </div>
+                </div>
+            </div>
+            
+        </main>
+    </div>
+
+    <script th:src="@{/js/template.js}"></script>
+</body>
+</html>

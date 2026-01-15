@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Personnes - UltraFly</title>
+    <link rel="icon" type="image/png" th:href="@{/image/logo.png}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" th:href="@{/css/template.css}">
+</head>
+<body>
+    <div class="bg-element bg-element-1"></div>
+    <div class="bg-element bg-element-2"></div>
+    
+    <div class="uf-layout">
+        <aside class="uf-sidebar">
+            <div class="uf-sidebar-header">
+                <div class="uf-sidebar-logo"><span class="logo-ultra">Ultra</span><span class="logo-fly">Fly</span></div>
+                <button class="uf-sidebar-toggle"><span>←</span></button>
+            </div>
+            <nav class="uf-sidebar-nav">
+                <ul class="uf-sidebar-menu">
+                    <li class="uf-sidebar-item"><a th:href="@{/avion}" class="uf-sidebar-link"><span class="uf-sidebar-icon">✈️</span><span class="uf-sidebar-text">Avion</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/vol}" class="uf-sidebar-link"><span class="uf-sidebar-icon">🛫</span><span class="uf-sidebar-text">Vol</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/reservation}" class="uf-sidebar-link"><span class="uf-sidebar-icon">🎫</span><span class="uf-sidebar-text">Réservation</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/personne}" class="uf-sidebar-link active"><span class="uf-sidebar-icon">👥</span><span class="uf-sidebar-text">Personne</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/enregistrement}" class="uf-sidebar-link"><span class="uf-sidebar-icon">👨‍✈️</span><span class="uf-sidebar-text">Enregistrement</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/dashboard}" class="uf-sidebar-link"><span class="uf-sidebar-icon">📊</span><span class="uf-sidebar-text">Dashboard</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <main class="uf-main">
+            
+            <h1 class="uf-page-title">👥 Gestion des Personnes</h1>
+            
+            <!-- Modules -->
+            <div class="uf-dashboard-grid">
+                
+                <!-- Module Clients -->
+                <div class="uf-dashboard-card">
+                    <div class="uf-card-header">
+                        <span class="uf-card-icon">👤</span>
+                        <h2 class="uf-card-title">Clients</h2>
+                    </div>
+                    <div class="uf-card-stats">
+                        <div class="uf-stat">
+                            <span class="uf-stat-value" th:text="${#lists.size(clients)}">0</span>
+                            <span class="uf-stat-label">Clients enregistrés</span>
+                        </div>
+                    </div>
+                    <div class="uf-card-actions">
+                        <a th:href="@{/personne/client}" class="uf-card-btn">📋 Liste</a>
+                        <a th:href="@{/personne/client/saisie}" class="uf-card-btn uf-card-btn-primary">+ Nouveau</a>
+                    </div>
+                </div>
+                
+                <!-- Module Employés -->
+                <div class="uf-dashboard-card">
+                    <div class="uf-card-header">
+                        <span class="uf-card-icon">👨‍💼</span>
+                        <h2 class="uf-card-title">Employés</h2>
+                    </div>
+                    <div class="uf-card-stats">
+                        <div class="uf-stat">
+                            <span class="uf-stat-value" th:text="${#lists.size(employes)}">0</span>
+                            <span class="uf-stat-label">Employés actifs</span>
+                        </div>
+                    </div>
+                    <div class="uf-card-actions">
+                        <a th:href="@{/personne/employe}" class="uf-card-btn">📋 Liste</a>
+                        <a th:href="@{/personne/employe/saisie}" class="uf-card-btn uf-card-btn-primary">+ Nouveau</a>
+                    </div>
+                </div>
+                
+                <!-- Module Équipages -->
+                <div class="uf-dashboard-card">
+                    <div class="uf-card-header">
+                        <span class="uf-card-icon">👥</span>
+                        <h2 class="uf-card-title">Équipages</h2>
+                    </div>
+                    <div class="uf-card-stats">
+                        <div class="uf-stat">
+                            <span class="uf-stat-value" th:text="${#lists.size(equipages)}">0</span>
+                            <span class="uf-stat-label">Équipages formés</span>
+                        </div>
+                    </div>
+                    <div class="uf-card-actions">
+                        <a th:href="@{/personne/equipage}" class="uf-card-btn">📋 Liste</a>
+                        <a th:href="@{/personne/equipage/saisie}" class="uf-card-btn uf-card-btn-primary">+ Nouveau</a>
+                    </div>
+                </div>
+                
+            </div>
+            
+        </main>
+    </div>
+
+    <script th:src="@{/js/template.js}"></script>
+</body>
+</html>

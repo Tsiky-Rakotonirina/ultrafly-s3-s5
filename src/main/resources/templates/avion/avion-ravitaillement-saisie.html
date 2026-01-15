@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ravitaillement Avion - UltraFly</title>
+    <link rel="icon" type="image/png" th:href="@{/image/logo.png}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" th:href="@{/css/template.css}">
+</head>
+<body>
+    <div class="bg-element bg-element-1"></div>
+    <div class="bg-element bg-element-2"></div>
+    
+    <div class="uf-layout">
+        <aside class="uf-sidebar">
+            <div class="uf-sidebar-header">
+                <div class="uf-sidebar-logo"><span class="logo-ultra">Ultra</span><span class="logo-fly">Fly</span></div>
+                <button class="uf-sidebar-toggle"><span>←</span></button>
+            </div>
+            <nav class="uf-sidebar-nav">
+                <ul class="uf-sidebar-menu">
+                    <li class="uf-sidebar-item"><a th:href="@{/avion}" class="uf-sidebar-link active"><span class="uf-sidebar-icon">✈️</span><span class="uf-sidebar-text">Avion</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/vol}" class="uf-sidebar-link"><span class="uf-sidebar-icon">🛫</span><span class="uf-sidebar-text">Vol</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/reservation}" class="uf-sidebar-link"><span class="uf-sidebar-icon">🎫</span><span class="uf-sidebar-text">Réservation</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/personne}" class="uf-sidebar-link"><span class="uf-sidebar-icon">👥</span><span class="uf-sidebar-text">Personne</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/enregistrement}" class="uf-sidebar-link"><span class="uf-sidebar-icon">👨‍✈️</span><span class="uf-sidebar-text">Enregistrement</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/dashboard}" class="uf-sidebar-link"><span class="uf-sidebar-icon">📊</span><span class="uf-sidebar-text">Dashboard</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <main class="uf-main">
+            
+            <div class="uf-breadcrumb">
+                <a th:href="@{/avion/{id}(id=${avion.idAvion})}">← Retour à la fiche</a>
+            </div>
+            
+            <div class="uf-component-form">
+                <h1 class="uf-subtitle">⛽ Ravitaillement - <span th:text="${avion.numero}">AVN001</span></h1>
+                
+                <div class="uf-info-box">
+                    <p><strong>Avion:</strong> <span th:text="${avion.constructeur + ' ' + avion.modele}">Boeing 737</span></p>
+                    <p><strong>Carburant par défaut:</strong> <span th:text="${avion.carburant?.libelle ?: 'Non défini'}">Jet A-1</span></p>
+                </div>
+                
+                <form th:action="@{/avion/{id}/ravitaillement(id=${avion.idAvion})}" method="post" class="uf-form">
+                    
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Type de Carburant *</label>
+                        <select name="carburantId" class="uf-form-select" required>
+                            <option value="">-- Sélectionner --</option>
+                            <option th:each="carburant : ${carburants}" 
+                                    th:value="${carburant.idCarburant}"
+                                    th:text="${carburant.libelle}"
+                                    th:selected="${avion.carburant != null && carburant.idCarburant == avion.carburant.idCarburant}">
+                            </option>
+                        </select>
+                    </div>
+                    
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Quantité (Litres) *</label>
+                        <input type="number" name="quantite" step="0.01" min="0.01" placeholder="Ex: 5000" class="uf-form-input" required>
+                    </div>
+                    
+                    <div class="uf-separator" style="flex: 1 1 100%;"></div>
+                    
+                    <div class="uf-form-group uf-form-group-full">
+                        <button type="submit" class="uf-form-submit">⛽ Enregistrer le ravitaillement</button>
+                        <a th:href="@{/avion/{id}(id=${avion.idAvion})}" class="uf-form-submit" style="background: var(--text-muted); margin-left: 10px;">❌ Annuler</a>
+                    </div>
+                    
+                </form>   
+            </div>
+            
+        </main>
+    </div>
+
+    <script th:src="@{/js/template.js}"></script>
+</body>
+</html>

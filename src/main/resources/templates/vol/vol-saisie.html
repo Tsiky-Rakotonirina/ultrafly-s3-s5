@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${vol != null && vol.idVol != null ? 'Modifier Vol ' + vol.numero : 'Nouveau Vol'} + ' - UltraFly'">Saisie Vol - UltraFly</title>
+    <link rel="icon" type="image/png" th:href="@{/image/logo.png}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" th:href="@{/css/template.css}">
+</head>
+<body>
+    <div class="bg-element bg-element-1"></div>
+    <div class="bg-element bg-element-2"></div>
+    
+    <div class="uf-layout">
+        <aside class="uf-sidebar">
+            <div class="uf-sidebar-header">
+                <div class="uf-sidebar-logo"><span class="logo-ultra">Ultra</span><span class="logo-fly">Fly</span></div>
+                <button class="uf-sidebar-toggle"><span>←</span></button>
+            </div>
+            <nav class="uf-sidebar-nav">
+                <ul class="uf-sidebar-menu">
+                    <li class="uf-sidebar-item"><a th:href="@{/avion}" class="uf-sidebar-link"><span class="uf-sidebar-icon">✈️</span><span class="uf-sidebar-text">Avion</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/vol}" class="uf-sidebar-link active"><span class="uf-sidebar-icon">🛫</span><span class="uf-sidebar-text">Vol</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/reservation}" class="uf-sidebar-link"><span class="uf-sidebar-icon">🎫</span><span class="uf-sidebar-text">Réservation</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/personne}" class="uf-sidebar-link"><span class="uf-sidebar-icon">👥</span><span class="uf-sidebar-text">Personne</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/enregistrement}" class="uf-sidebar-link"><span class="uf-sidebar-icon">👨‍✈️</span><span class="uf-sidebar-text">Enregistrement</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/dashboard}" class="uf-sidebar-link"><span class="uf-sidebar-icon">📊</span><span class="uf-sidebar-text">Dashboard</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <main class="uf-main">
+            
+            <div class="uf-breadcrumb">
+                <a th:href="@{/vol}">← Retour à la liste</a>
+            </div>
+            
+            <div th:if="${error}" class="uf-alert uf-alert-danger" th:text="${error}"></div>
+            
+            <!-- Formulaire -->
+            <div class="uf-component-form">
+                <h1 class="uf-subtitle" th:text="${vol != null && vol.idVol != null ? '✏️ Modifier Vol ' + vol.numero : '➕ Nouveau Vol'}">Saisie Vol</h1>
+                
+                <form th:action="@{/vol/saisie}" method="post" th:object="${vol}" class="uf-form">
+                    
+                    <input type="hidden" th:field="*{idVol}">
+                    <input type="hidden" th:field="*{numero}">
+                    
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Date/Heure du Vol *</label>
+                        <input type="datetime-local" th:field="*{heure}" class="uf-form-input" required>
+                    </div>
+                    
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Type de Vol *</label>
+                        <select th:field="*{volType}" class="uf-form-select" required>
+                            <option value="">-- Sélectionner --</option>
+                            <option th:each="type : ${volTypes}" 
+                                    th:value="${type.idVolType}"
+                                    th:text="${type.libelle}"
+                                    th:selected="${vol.volType != null && vol.volType.idVolType == type.idVolType}">
+                            </option>
+                        </select>
+                    </div>
+                    
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Itinéraire *</label>
+                        <select th:field="*{itineraire}" class="uf-form-select" required>
+                            <option value="">-- Sélectionner --</option>
+                            <option th:each="it : ${itineraires}" 
+                                    th:value="${it.idItineraire}"
+                                    th:text="${it.aeroportDepart.codeIata + ' → ' + it.aeroportArrive.codeIata + ' (' + it.distance + ' km)'}"
+                                    th:selected="${vol.itineraire != null && vol.itineraire.idItineraire == it.idItineraire}">
+                            </option>
+                        </select>
+                    </div>
+                    
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Statut *</label>
+                        <select th:field="*{statutVol}" class="uf-form-select" required>
+                            <option th:each="statut : ${statuts}" 
+                                    th:value="${statut.idVolStatut}"
+                                    th:text="${statut.libelle}"
+                                    th:selected="${vol.statutVol != null && vol.statutVol.idVolStatut == statut.idVolStatut}">
+                            </option>
+                        </select>
+                    </div>
+                    
+                    <div class="uf-separator" style="flex: 1 1 100%;"></div>
+                    
+                    <div class="uf-form-group uf-form-group-full">
+                        <button type="submit" class="uf-form-submit">💾 Enregistrer</button>
+                        <a th:href="@{/vol}" class="uf-form-submit" style="background: var(--text-muted); margin-left: 10px;">❌ Annuler</a>
+                    </div>
+                    
+                </form>
+            </div>
+            
+        </main>
+    </div>
+
+    <script th:src="@{/js/template.js}"></script>
+</body>
+</html>

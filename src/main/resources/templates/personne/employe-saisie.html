@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${employe != null ? 'Modifier Employé ' + employe.numero : 'Nouvel Employé'} + ' - UltraFly'">Saisie Employé - UltraFly</title>
+    <link rel="icon" type="image/png" th:href="@{/image/logo.png}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" th:href="@{/css/template.css}">
+</head>
+<body>
+    <div class="bg-element bg-element-1"></div>
+    <div class="bg-element bg-element-2"></div>
+    
+    <div class="uf-layout">
+        <aside class="uf-sidebar">
+            <div class="uf-sidebar-header">
+                <div class="uf-sidebar-logo"><span class="logo-ultra">Ultra</span><span class="logo-fly">Fly</span></div>
+                <button class="uf-sidebar-toggle"><span>←</span></button>
+            </div>
+            <nav class="uf-sidebar-nav">
+                <ul class="uf-sidebar-menu">
+                    <li class="uf-sidebar-item"><a th:href="@{/avion}" class="uf-sidebar-link"><span class="uf-sidebar-icon">✈️</span><span class="uf-sidebar-text">Avion</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/vol}" class="uf-sidebar-link"><span class="uf-sidebar-icon">🛫</span><span class="uf-sidebar-text">Vol</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/reservation}" class="uf-sidebar-link"><span class="uf-sidebar-icon">🎫</span><span class="uf-sidebar-text">Réservation</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/personne}" class="uf-sidebar-link active"><span class="uf-sidebar-icon">👥</span><span class="uf-sidebar-text">Personne</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/enregistrement}" class="uf-sidebar-link"><span class="uf-sidebar-icon">👨‍✈️</span><span class="uf-sidebar-text">Enregistrement</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/dashboard}" class="uf-sidebar-link"><span class="uf-sidebar-icon">📊</span><span class="uf-sidebar-text">Dashboard</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <main class="uf-main">
+            
+            <div class="uf-breadcrumb">
+                <a th:href="@{/personne/employe}">← Retour à la liste</a>
+            </div>
+            
+            <div th:if="${error}" class="uf-alert uf-alert-danger" th:text="${error}"></div>
+            
+            <!-- Formulaire -->
+            <div class="uf-component-form">
+                <h1 class="uf-subtitle" th:text="${employe != null ? '✏️ Modifier Employé ' + employe.numero : '➕ Nouvel Employé'}">Saisie Employé</h1>
+                
+                <form th:action="@{/personne/employe/saisie}" method="post" class="uf-form">
+                    
+                    <input type="hidden" name="idEmploye" th:value="${employe?.idEmploye}">
+                    
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Nom *</label>
+                        <input type="text" name="nom" th:value="${employe?.personne?.nom}" class="uf-form-input" required placeholder="Nom complet">
+                    </div>
+                    
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Email</label>
+                        <input type="email" name="email" th:value="${employe?.personne?.email}" class="uf-form-input" placeholder="email@exemple.com">
+                    </div>
+                    
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Date de Naissance</label>
+                        <input type="date" name="dateNaissance" th:value="${employe?.personne?.dateNaissance}" class="uf-form-input">
+                    </div>
+                    
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Pays</label>
+                        <select name="paysId" class="uf-form-select">
+                            <option value="">-- Sélectionner --</option>
+                            <option th:each="p : ${pays}" 
+                                    th:value="${p.idPays}"
+                                    th:text="${p.libelle}"
+                                    th:selected="${employe?.personne?.pays != null && employe.personne.pays.idPays == p.idPays}">
+                            </option>
+                        </select>
+                    </div>
+                    
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Poste *</label>
+                        <select name="posteId" class="uf-form-select" required>
+                            <option value="">-- Sélectionner --</option>
+                            <option th:each="p : ${postes}" 
+                                    th:value="${p.idPoste}"
+                                    th:text="${p.libelle}"
+                                    th:selected="${employe?.poste != null && employe.poste.idPoste == p.idPoste}">
+                            </option>
+                        </select>
+                    </div>
+                    
+                    <div class="uf-separator" style="flex: 1 1 100%;"></div>
+                    
+                    <div class="uf-form-group uf-form-group-full">
+                        <button type="submit" class="uf-form-submit">💾 Enregistrer</button>
+                        <a th:href="@{/personne/employe}" class="uf-form-submit" style="background: var(--text-muted); margin-left: 10px;">❌ Annuler</a>
+                    </div>
+                    
+                </form>
+            </div>
+            
+        </main>
+    </div>
+
+    <script th:src="@{/js/template.js}"></script>
+</body>
+</html>

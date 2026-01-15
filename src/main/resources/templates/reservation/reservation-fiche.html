@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Détail Réservation - UltraFly</title>
+    <link rel="icon" type="image/png" th:href="@{/image/logo.png}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" th:href="@{/css/template.css}">
+</head>
+<body>
+    <div class="bg-element bg-element-1"></div>
+    <div class="bg-element bg-element-2"></div>
+    
+    <div class="uf-layout">
+        <aside class="uf-sidebar">
+            <div class="uf-sidebar-header">
+                <div class="uf-sidebar-logo"><span class="logo-ultra">Ultra</span><span class="logo-fly">Fly</span></div>
+                <button class="uf-sidebar-toggle"><span>←</span></button>
+            </div>
+            <nav class="uf-sidebar-nav">
+                <ul class="uf-sidebar-menu">
+                    <li class="uf-sidebar-item"><a th:href="@{/avion}" class="uf-sidebar-link"><span class="uf-sidebar-icon">✈️</span><span class="uf-sidebar-text">Avion</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/vol}" class="uf-sidebar-link"><span class="uf-sidebar-icon">🛫</span><span class="uf-sidebar-text">Vol</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/reservation}" class="uf-sidebar-link active"><span class="uf-sidebar-icon">🎫</span><span class="uf-sidebar-text">Réservation</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/personne}" class="uf-sidebar-link"><span class="uf-sidebar-icon">👥</span><span class="uf-sidebar-text">Personne</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/enregistrement}" class="uf-sidebar-link"><span class="uf-sidebar-icon">👨‍✈️</span><span class="uf-sidebar-text">Enregistrement</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/dashboard}" class="uf-sidebar-link"><span class="uf-sidebar-icon">📊</span><span class="uf-sidebar-text">Dashboard</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <main class="uf-main">
+            
+            <div th:if="${success}" class="uf-alert uf-alert-success" th:text="${success}"></div>
+            <div th:if="${error}" class="uf-alert uf-alert-danger" th:text="${error}"></div>
+            
+            <!-- Header avec actions -->
+            <div class="uf-fiche-header">
+                <div class="uf-fiche-title">
+                    <a th:href="@{/reservation}" class="uf-btn uf-btn-secondary">← Retour</a>
+                    <h1 class="uf-title">🎫 Réservation <span th:text="${reservation.numero}">RES001</span></h1>
+                </div>
+                <div class="uf-fiche-actions">
+                    <a th:href="@{/reservation/{id}/paiement-saisie(id=${reservation.idReservation})}" 
+                       class="uf-btn uf-btn-success"
+                       th:if="${restePayer > 0}">💰 Effectuer un Paiement</a>
+                    <a th:href="@{/reservation/{id}/statut-saisie(id=${reservation.idReservation})}" 
+                       class="uf-btn uf-btn-warning">🔄 Changer Statut</a>
+                    <form th:action="@{/reservation/{id}/annuler(id=${reservation.idReservation})}" 
+                          method="post" style="display: inline;"
+                          th:if="${reservation.reservationStatut?.libelle != 'Annule'}"
+                          onsubmit="return confirm('Êtes-vous sûr de vouloir annuler cette réservation ?');">
+                        <button type="submit" class="uf-btn uf-btn-danger">❌ Annuler</button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Informations Générales -->
+            <div class="uf-component-fiche">
+                <h2 class="uf-subtitle">📋 Informations Générales</h2>
+                
+                <div class="uf-fiche-grid">
+                    <div class="uf-fiche-row">
+                        <span class="uf-fiche-label">Numéro:</span>
+                        <span class="uf-fiche-value" th:text="${reservation.numero}">RES001</span>
+                    </div>
+                    <div class="uf-fiche-row">
+                        <span class="uf-fiche-label">Date:</span>
+                        <span class="uf-fiche-value" th:text="${#temporals.format(reservation.dateReservation, 'dd/MM/yyyy')}">01/01/2024</span>
+                    </div>
+                    <div class="uf-fiche-row">
+                        <span class="uf-fiche-label">Statut:</span>
+                        <span class="uf-badge" 
+                              th:classappend="${reservation.reservationStatut?.libelle == 'En attente' ? 'uf-badge-warning' : 
+                                              (reservation.reservationStatut?.libelle == 'Confirme' ? 'uf-badge-success' :
+                                              (reservation.reservationStatut?.libelle == 'Annule' ? 'uf-badge-danger' : 'uf-badge-info'))}"
+                              th:text="${reservation.reservationStatut?.libelle}">En attente</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Client -->
+            <div class="uf-component-fiche">
+                <h2 class="uf-subtitle">👤 Client</h2>
+                
+                <div class="uf-fiche-grid">
+                    <div class="uf-fiche-row">
+                        <span class="uf-fiche-label">Nom complet:</span>
+                        <span class="uf-fiche-value" th:text="${reservation.client?.personne?.nom + ' ' + reservation.client?.personne?.prenom}">Client Nom</span>
+                    </div>
+                    <div class="uf-fiche-row">
+                        <span class="uf-fiche-label">Contact:</span>
+                        <span class="uf-fiche-value" th:text="${reservation.client?.personne?.contact}">0341234567</span>
+                    </div>
+                    <div class="uf-fiche-row">
+                        <span class="uf-fiche-label">Email:</span>
+                        <span class="uf-fiche-value" th:text="${reservation.client?.personne?.mail}">email@example.com</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Vol -->
+            <div class="uf-component-fiche">
+                <h2 class="uf-subtitle">🛫 Vol</h2>
+                
+                <div class="uf-fiche-grid">
+                    <div class="uf-fiche-row">
+                        <span class="uf-fiche-label">Numéro:</span>
+                        <a th:href="@{/vol/{id}(id=${reservation.vol?.idVol})}" th:text="${reservation.vol?.numero}" class="uf-link">VOL001</a>
+                    </div>
+                    <div class="uf-fiche-row">
+                        <span class="uf-fiche-label">Trajet:</span>
+                        <span class="uf-fiche-value" th:text="${reservation.vol?.itineraire?.aeroportDepart?.nom + ' → ' + reservation.vol?.itineraire?.aeroportArrivee?.nom}">TNR → CDG</span>
+                    </div>
+                    <div class="uf-fiche-row">
+                        <span class="uf-fiche-label">Type:</span>
+                        <span class="uf-fiche-value" th:text="${reservation.vol?.volType?.libelle}">International</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Billets réservés -->
+            <div class="uf-component-list">
+                <h2 class="uf-subtitle">🎫 Billets Réservés (<span th:text="${#lists.size(billets)}">0</span>)</h2>
+                
+                <div class="uf-table-container">
+                    <table class="uf-table">
+                        <thead>
+                            <tr>
+                                <th>N° Billet</th>
+                                <th>Siège</th>
+                                <th>Catégorie</th>
+                                <th>Prix</th>
+                                <th>Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="billet : ${billets}">
+                                <td th:text="${billet.numero}">BLT001</td>
+                                <td th:text="${billet.avionSiege?.position}">1A</td>
+                                <td th:text="${billet.avionSiege?.siegeCategorie?.libelle}">Business</td>
+                                <td th:text="${#numbers.formatDecimal(billet.prix, 0, 'COMMA', 0, 'POINT') + ' MGA'}">500,000 MGA</td>
+                                <td>
+                                    <span class="uf-badge" 
+                                          th:classappend="${billet.billetStatut?.libelle == 'Reserve' ? 'uf-badge-warning' : 
+                                                          (billet.billetStatut?.libelle == 'Paye' ? 'uf-badge-success' :
+                                                          (billet.billetStatut?.libelle == 'Annule' ? 'uf-badge-danger' : 'uf-badge-info'))}"
+                                          th:text="${billet.billetStatut?.libelle}">Reserve</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Récapitulatif Paiement -->
+            <div class="uf-component-fiche uf-payment-summary">
+                <h2 class="uf-subtitle">💰 Récapitulatif Paiement</h2>
+                
+                <div class="uf-payment-grid">
+                    <div class="uf-payment-item">
+                        <span class="uf-payment-label">Montant Total:</span>
+                        <span class="uf-payment-value" th:text="${#numbers.formatDecimal(montantTotal, 0, 'COMMA', 0, 'POINT') + ' MGA'}">1,000,000 MGA</span>
+                    </div>
+                    <div class="uf-payment-item uf-payment-success">
+                        <span class="uf-payment-label">Total Payé:</span>
+                        <span class="uf-payment-value" th:text="${#numbers.formatDecimal(totalPaye, 0, 'COMMA', 0, 'POINT') + ' MGA'}">500,000 MGA</span>
+                    </div>
+                    <div class="uf-payment-item" th:classappend="${restePayer > 0 ? 'uf-payment-warning' : 'uf-payment-success'}">
+                        <span class="uf-payment-label">Reste à Payer:</span>
+                        <span class="uf-payment-value" th:text="${#numbers.formatDecimal(restePayer, 0, 'COMMA', 0, 'POINT') + ' MGA'}">500,000 MGA</span>
+                    </div>
+                </div>
+                
+                <!-- Barre de progression -->
+                <div class="uf-progress-container" th:if="${montantTotal > 0}">
+                    <div class="uf-progress-bar">
+                        <div class="uf-progress-fill" th:style="'width: ' + ${(totalPaye * 100 / montantTotal)} + '%'"></div>
+                    </div>
+                    <span class="uf-progress-text" th:text="${#numbers.formatDecimal((totalPaye * 100 / montantTotal), 0, 'COMMA', 1, 'POINT') + '% payé'}">50% payé</span>
+                </div>
+            </div>
+            
+            <!-- Historique des Paiements -->
+            <div class="uf-component-list" th:if="${paiementDetails != null and not #lists.isEmpty(paiementDetails)}">
+                <h2 class="uf-subtitle">💳 Historique des Paiements</h2>
+                
+                <div class="uf-table-container">
+                    <table class="uf-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Montant</th>
+                                <th>Devise</th>
+                                <th>Mode</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="detail : ${paiementDetails}">
+                                <td th:text="${#temporals.format(detail.datePaiement, 'dd/MM/yyyy')}">01/01/2024</td>
+                                <td th:text="${#numbers.formatDecimal(detail.montant, 0, 'COMMA', 2, 'POINT')}">500,000</td>
+                                <td th:text="${detail.devise?.code}">MGA</td>
+                                <td th:text="${detail.paiementMode?.libelle}">Carte bancaire</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Historique des Statuts -->
+            <div class="uf-component-list" th:if="${not #lists.isEmpty(historiques)}">
+                <h2 class="uf-subtitle">📜 Historique des Statuts</h2>
+                
+                <div class="uf-table-container">
+                    <table class="uf-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="historique : ${historiques}">
+                                <td th:text="${#temporals.format(historique.dateStatut, 'dd/MM/yyyy')}">01/01/2024</td>
+                                <td>
+                                    <span class="uf-badge" 
+                                          th:classappend="${historique.reservationStatut?.libelle == 'En attente' ? 'uf-badge-warning' : 
+                                                          (historique.reservationStatut?.libelle == 'Confirme' ? 'uf-badge-success' :
+                                                          (historique.reservationStatut?.libelle == 'Annule' ? 'uf-badge-danger' : 'uf-badge-info'))}"
+                                          th:text="${historique.reservationStatut?.libelle}">Statut</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+        </main>
+    </div>
+    
+    <script th:src="@{/js/template.js}"></script>
+    
+    <style>
+        .uf-payment-summary {
+            background: linear-gradient(135deg, rgba(31, 38, 135, 0.2), rgba(31, 38, 135, 0.1));
+        }
+        .uf-payment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+        .uf-payment-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .uf-payment-label {
+            display: block;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        .uf-payment-value {
+            display: block;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+        }
+        .uf-payment-success {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+        .uf-payment-warning {
+            background: rgba(234, 179, 8, 0.2);
+            border: 1px solid rgba(234, 179, 8, 0.3);
+        }
+        .uf-progress-container {
+            margin-top: 1.5rem;
+        }
+        .uf-progress-bar {
+            height: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .uf-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #22c55e, #4ade80);
+            border-radius: 6px;
+            transition: width 0.5s ease;
+        }
+        .uf-progress-text {
+            display: block;
+            text-align: center;
+            margin-top: 0.5rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+    </style>
+</body>
+</html>

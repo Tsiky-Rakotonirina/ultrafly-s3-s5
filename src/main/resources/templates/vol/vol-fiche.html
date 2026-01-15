@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'Fiche Vol ' + ${vol.numero} + ' - UltraFly'">Fiche Vol - UltraFly</title>
+    <link rel="icon" type="image/png" th:href="@{/image/logo.png}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" th:href="@{/css/template.css}">
+</head>
+<body>
+    <div class="bg-element bg-element-1"></div>
+    <div class="bg-element bg-element-2"></div>
+    
+    <div class="uf-layout">
+        <aside class="uf-sidebar">
+            <div class="uf-sidebar-header">
+                <div class="uf-sidebar-logo"><span class="logo-ultra">Ultra</span><span class="logo-fly">Fly</span></div>
+                <button class="uf-sidebar-toggle"><span>←</span></button>
+            </div>
+            <nav class="uf-sidebar-nav">
+                <ul class="uf-sidebar-menu">
+                    <li class="uf-sidebar-item"><a th:href="@{/avion}" class="uf-sidebar-link"><span class="uf-sidebar-icon">✈️</span><span class="uf-sidebar-text">Avion</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/vol}" class="uf-sidebar-link active"><span class="uf-sidebar-icon">🛫</span><span class="uf-sidebar-text">Vol</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/reservation}" class="uf-sidebar-link"><span class="uf-sidebar-icon">🎫</span><span class="uf-sidebar-text">Réservation</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/personne}" class="uf-sidebar-link"><span class="uf-sidebar-icon">👥</span><span class="uf-sidebar-text">Personne</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/enregistrement}" class="uf-sidebar-link"><span class="uf-sidebar-icon">👨‍✈️</span><span class="uf-sidebar-text">Enregistrement</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/dashboard}" class="uf-sidebar-link"><span class="uf-sidebar-icon">📊</span><span class="uf-sidebar-text">Dashboard</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <main class="uf-main">
+            
+            <div class="uf-breadcrumb">
+                <a th:href="@{/vol}">← Retour à la liste</a>
+            </div>
+            
+            <div th:if="${success}" class="uf-alert uf-alert-success" th:text="${success}"></div>
+            
+            <!-- Fiche Vol -->
+            <div class="uf-component-fiche">
+                <h1 class="uf-subtitle">🛫 Fiche Vol <span th:text="${vol.numero}">VOL001</span></h1>
+                
+                <div class="uf-fiche">
+                    
+                    <!-- Identité Vol -->
+                    <div class="uf-fiche-section">
+                        <div class="uf-fiche-mini">
+                            <div class="uf-fiche-mini-title">🔖 Identité</div>
+                            <p><strong>Numéro:</strong> <span th:text="${vol.numero}">VOL001</span></p>
+                            <p><strong>Type:</strong> <span th:text="${vol.volType.libelle}">International</span></p>
+                            <p><strong>Date/Heure:</strong> <span th:text="${#temporals.format(vol.heure, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</span></p>
+                        </div>
+                    </div>
+                    
+                    <!-- Itinéraire -->
+                    <div class="uf-fiche-section">
+                        <div class="uf-fiche-mini uf-fiche-itineraire">
+                            <div class="uf-fiche-mini-title">🗺️ Itinéraire</div>
+                            <div class="uf-itineraire-visual">
+                                <div class="uf-itineraire-point">
+                                    <span class="uf-itineraire-code" th:text="${vol.itineraire.aeroportDepart.codeIata}">TNR</span>
+                                    <span class="uf-itineraire-name" th:text="${vol.itineraire.aeroportDepart.nom}">Antananarivo</span>
+                                </div>
+                                <div class="uf-itineraire-arrow">✈️ → </div>
+                                <div class="uf-itineraire-point">
+                                    <span class="uf-itineraire-code" th:text="${vol.itineraire.aeroportArrive.codeIata}">CDG</span>
+                                    <span class="uf-itineraire-name" th:text="${vol.itineraire.aeroportArrive.nom}">Paris CDG</span>
+                                </div>
+                            </div>
+                            <p><strong>Distance:</strong> <span th:text="${vol.itineraire.distance + ' km'}">9000 km</span></p>
+                            <p><strong>Durée:</strong> <span th:text="${vol.itineraire.duree}">11h</span></p>
+                        </div>
+                    </div>
+                    
+                    <!-- Statut -->
+                    <div class="uf-fiche-section">
+                        <div class="uf-fiche-mini" 
+                             th:classappend="${vol.statutVol.libelle == 'Programme' ? 'status-info' : (vol.statutVol.libelle == 'Annule' ? 'status-danger' : (vol.statutVol.libelle == 'Atterri' ? 'status-success' : 'status-warning'))}">
+                            <div class="uf-fiche-mini-title">📊 Statut Actuel</div>
+                            <p class="uf-statut-big" th:text="${vol.statutVol.libelle}">Programmé</p>
+                            <p th:text="${vol.statutVol.description}">Vol planifié</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Actions -->
+                    <div class="uf-fiche-section uf-fiche-actions">
+                        <a th:href="@{/vol/saisie/{id}(id=${vol.idVol})}" class="uf-action-btn uf-action-edit">✏️ Modifier</a>
+                        <a th:href="@{/vol/{id}/statut-saisie(id=${vol.idVol})}" class="uf-action-btn uf-action-status">🔄 Changer Statut</a>
+                        <a th:href="@{/vol/{id}/report-saisie(id=${vol.idVol})}" class="uf-action-btn uf-action-report">📅 Reporter</a>
+                        <a th:href="@{/vol/{id}/arret-saisie(id=${vol.idVol})}" class="uf-action-btn uf-action-stop">🛑 Arrêter</a>
+                        <a th:href="@{/vol/{id}/tarif-saisie(id=${vol.idVol})}" class="uf-action-btn uf-action-tarif">💰 Tarifs</a>
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <!-- Tarifs -->
+            <div class="uf-component-table" style="margin-top: 30px;">
+                <h1 class="uf-subtitle">💰 Tarifs par Catégorie</h1>
+                
+                <div class="uf-table-container">
+                    <table class="uf-table">
+                        <thead>
+                            <tr>
+                                <th>Numéro</th>
+                                <th>Catégorie</th>
+                                <th class="sortable sortable-numeric">Prix (MGA)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="tarif : ${tarifs}">
+                                <td th:text="${tarif.numero}">TRF001</td>
+                                <td class="uf-table-cell-bold" th:text="${tarif.siegeCategorie.libelle}">Économique</td>
+                                <td class="uf-table-cell-numeric" th:text="${#numbers.formatDecimal(tarif.prix, 0, 'COMMA', 0, 'POINT')}">500000</td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(tarifs)}">
+                                <td colspan="3" style="text-align: center;">Aucun tarif défini</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Escales -->
+            <div class="uf-component-liste" style="margin-top: 30px;" th:if="${!#lists.isEmpty(escales)}">
+                <h1 class="uf-subtitle">🛬 Escales</h1>
+                
+                <div class="uf-list-container">
+                    <div th:each="escale, iterStat : ${escales}" class="uf-box uf-box-small">
+                        <div class="uf-box-header">
+                            <span class="uf-box-number" th:text="'Escale ' + ${iterStat.count}">Escale 1</span>
+                        </div>
+                        <div class="uf-box-content">
+                            <p><strong>De:</strong> <span th:text="${escale.aeroportDepart.codeIata + ' - ' + escale.aeroportDepart.nom}">TNR</span></p>
+                            <p><strong>Vers:</strong> <span th:text="${escale.aeroportArrive.codeIata + ' - ' + escale.aeroportArrive.nom}">NBO</span></p>
+                            <p><strong>Distance:</strong> <span th:text="${escale.distance + ' km'}">2000 km</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Historique -->
+            <div class="uf-component-table" style="margin-top: 30px;">
+                <h1 class="uf-subtitle">📜 Historique des Statuts</h1>
+                
+                <div class="uf-table-container">
+                    <table class="uf-table">
+                        <thead>
+                            <tr>
+                                <th class="sortable sortable-date">Date</th>
+                                <th>Statut</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="hist : ${historiques}">
+                                <td class="uf-table-cell-date" th:text="${#temporals.format(hist.dateStatut, 'dd/MM/yyyy')}">01/01/2024</td>
+                                <td class="uf-table-cell-bold" th:text="${hist.statutVol.libelle}">Programmé</td>
+                                <td th:text="${hist.statutVol.description}">Vol planifié</td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(historiques)}">
+                                <td colspan="3" style="text-align: center;">Aucun historique</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Arrêts -->
+            <div class="uf-component-table" style="margin-top: 30px;" th:if="${!#lists.isEmpty(arrets)}">
+                <h1 class="uf-subtitle">🛑 Arrêts Enregistrés</h1>
+                
+                <div class="uf-table-container">
+                    <table class="uf-table">
+                        <thead>
+                            <tr>
+                                <th>Numéro</th>
+                                <th class="sortable sortable-date">Date/Heure</th>
+                                <th>Aéroport</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="arret : ${arrets}">
+                                <td th:text="${arret.numero}">ART001</td>
+                                <td class="uf-table-cell-date" th:text="${#temporals.format(arret.heure, 'dd/MM/yyyy HH:mm')}">01/01/2024 12:00</td>
+                                <td th:text="${arret.aeroport.codeIata + ' - ' + arret.aeroport.nom}">NBO - Nairobi</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Zone Danger -->
+            <div class="uf-danger-zone" style="margin-top: 40px;">
+                <h3>⚠️ Zone de Danger</h3>
+                <form th:action="@{/vol/{id}/annuler(id=${vol.idVol})}" method="post" style="display: inline;"
+                      onsubmit="return confirm('Êtes-vous sûr de vouloir annuler ce vol ?');">
+                    <button type="submit" class="uf-btn-danger">❌ Annuler ce vol</button>
+                </form>
+                <form th:action="@{/vol/{id}/supprimer(id=${vol.idVol})}" method="post" style="display: inline; margin-left: 10px;"
+                      onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce vol ?');">
+                    <button type="submit" class="uf-btn-danger">🗑️ Supprimer</button>
+                </form>
+            </div>
+            
+        </main>
+    </div>
+
+    <script th:src="@{/js/template.js}"></script>
+</body>
+</html>

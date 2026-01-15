@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste des Réservations - UltraFly</title>
+    <link rel="icon" type="image/png" th:href="@{/image/logo.png}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" th:href="@{/css/template.css}">
+</head>
+<body>
+    <div class="bg-element bg-element-1"></div>
+    <div class="bg-element bg-element-2"></div>
+    
+    <div class="uf-layout">
+        <aside class="uf-sidebar">
+            <div class="uf-sidebar-header">
+                <div class="uf-sidebar-logo"><span class="logo-ultra">Ultra</span><span class="logo-fly">Fly</span></div>
+                <button class="uf-sidebar-toggle"><span>←</span></button>
+            </div>
+            <nav class="uf-sidebar-nav">
+                <ul class="uf-sidebar-menu">
+                    <li class="uf-sidebar-item"><a th:href="@{/avion}" class="uf-sidebar-link"><span class="uf-sidebar-icon">✈️</span><span class="uf-sidebar-text">Avion</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/vol}" class="uf-sidebar-link"><span class="uf-sidebar-icon">🛫</span><span class="uf-sidebar-text">Vol</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/reservation}" class="uf-sidebar-link active"><span class="uf-sidebar-icon">🎫</span><span class="uf-sidebar-text">Réservation</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/personne}" class="uf-sidebar-link"><span class="uf-sidebar-icon">👥</span><span class="uf-sidebar-text">Personne</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/enregistrement}" class="uf-sidebar-link"><span class="uf-sidebar-icon">👨‍✈️</span><span class="uf-sidebar-text">Enregistrement</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/dashboard}" class="uf-sidebar-link"><span class="uf-sidebar-icon">📊</span><span class="uf-sidebar-text">Dashboard</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <main class="uf-main">
+            
+            <div th:if="${success}" class="uf-alert uf-alert-success" th:text="${success}"></div>
+            <div th:if="${error}" class="uf-alert uf-alert-danger" th:text="${error}"></div>
+            
+            <!-- Filtres -->
+            <div class="uf-component-form">
+                <h1 class="uf-subtitle">🔍 Filtres Réservations</h1>
+                
+                <form th:action="@{/reservation}" method="get" class="uf-filtre">
+                    
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Numéro</label>
+                        <input type="text" name="numero" th:value="${numeroFiltre}" class="uf-form-input" placeholder="RES001">
+                    </div>
+                    
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Client</label>
+                        <select name="clientId" class="uf-form-select">
+                            <option value="">-- Tous --</option>
+                            <option th:each="client : ${clients}" 
+                                    th:value="${client.idClient}"
+                                    th:text="${client.personne.nom + ' ' + client.personne.prenom}"
+                                    th:selected="${client.idClient == clientIdFiltre}">
+                            </option>
+                        </select>
+                    </div>
+                    
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Vol</label>
+                        <select name="volId" class="uf-form-select">
+                            <option value="">-- Tous --</option>
+                            <option th:each="vol : ${vols}" 
+                                    th:value="${vol.idVol}"
+                                    th:text="${vol.numero}"
+                                    th:selected="${vol.idVol == volIdFiltre}">
+                            </option>
+                        </select>
+                    </div>
+                    
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Statut</label>
+                        <select name="statutId" class="uf-form-select">
+                            <option value="">-- Tous --</option>
+                            <option th:each="statut : ${statuts}" 
+                                    th:value="${statut.idReservationStatut}"
+                                    th:text="${statut.libelle}"
+                                    th:selected="${statut.idReservationStatut == statutIdFiltre}">
+                            </option>
+                        </select>
+                    </div>
+                    
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Date Début</label>
+                        <input type="date" name="dateDebut" th:value="${dateDebutFiltre}" class="uf-form-input">
+                    </div>
+                    
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Date Fin</label>
+                        <input type="date" name="dateFin" th:value="${dateFinFiltre}" class="uf-form-input">
+                    </div>
+                    
+                    <div class="uf-form-actions">
+                        <button type="submit" class="uf-btn uf-btn-primary">🔍 Filtrer</button>
+                        <a th:href="@{/reservation}" class="uf-btn uf-btn-secondary">🔄 Réinitialiser</a>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Liste -->
+            <div class="uf-component-list">
+                <div class="uf-list-header">
+                    <h1 class="uf-subtitle">🎫 Liste des Réservations</h1>
+                    <a th:href="@{/reservation/saisie}" class="uf-btn uf-btn-success">➕ Nouvelle Réservation</a>
+                </div>
+                
+                <div class="uf-table-container">
+                    <table class="uf-table">
+                        <thead>
+                            <tr>
+                                <th>Numéro</th>
+                                <th>Date</th>
+                                <th>Client</th>
+                                <th>Vol</th>
+                                <th>Trajet</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="reservation : ${reservations}">
+                                <td th:text="${reservation.numero}">RES001</td>
+                                <td th:text="${#temporals.format(reservation.dateReservation, 'dd/MM/yyyy')}">01/01/2024</td>
+                                <td th:text="${reservation.client?.personne?.nom + ' ' + reservation.client?.personne?.prenom}">Client</td>
+                                <td th:text="${reservation.vol?.numero}">VOL001</td>
+                                <td th:text="${reservation.vol?.itineraire?.aeroportDepart?.codeIata + ' → ' + reservation.vol?.itineraire?.aeroportArrivee?.codeIata}">TNR → CDG</td>
+                                <td>
+                                    <span class="uf-badge" 
+                                          th:classappend="${reservation.reservationStatut?.libelle == 'En attente' ? 'uf-badge-warning' : 
+                                                          (reservation.reservationStatut?.libelle == 'Confirme' ? 'uf-badge-success' :
+                                                          (reservation.reservationStatut?.libelle == 'Annule' ? 'uf-badge-danger' : 'uf-badge-info'))}"
+                                          th:text="${reservation.reservationStatut?.libelle}">Statut</span>
+                                </td>
+                                <td>
+                                    <a th:href="@{/reservation/{id}(id=${reservation.idReservation})}" class="uf-btn uf-btn-sm uf-btn-primary">👁️ Voir</a>
+                                    <a th:href="@{/reservation/{id}/paiement-saisie(id=${reservation.idReservation})}" class="uf-btn uf-btn-sm uf-btn-success">💰 Payer</a>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(reservations)}">
+                                <td colspan="7" class="uf-empty-message">Aucune réservation trouvée</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+        </main>
+    </div>
+    
+    <script th:src="@{/js/template.js}"></script>
+</body>
+</html>

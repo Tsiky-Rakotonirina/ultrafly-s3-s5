@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion Sièges Avion - UltraFly</title>
+    <link rel="icon" type="image/png" th:href="@{/image/logo.png}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" th:href="@{/css/template.css}">
+</head>
+<body>
+    <div class="bg-element bg-element-1"></div>
+    <div class="bg-element bg-element-2"></div>
+    
+    <div class="uf-layout">
+        <aside class="uf-sidebar">
+            <div class="uf-sidebar-header">
+                <div class="uf-sidebar-logo"><span class="logo-ultra">Ultra</span><span class="logo-fly">Fly</span></div>
+                <button class="uf-sidebar-toggle"><span>←</span></button>
+            </div>
+            <nav class="uf-sidebar-nav">
+                <ul class="uf-sidebar-menu">
+                    <li class="uf-sidebar-item"><a th:href="@{/avion}" class="uf-sidebar-link active"><span class="uf-sidebar-icon">✈️</span><span class="uf-sidebar-text">Avion</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/vol}" class="uf-sidebar-link"><span class="uf-sidebar-icon">🛫</span><span class="uf-sidebar-text">Vol</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/reservation}" class="uf-sidebar-link"><span class="uf-sidebar-icon">🎫</span><span class="uf-sidebar-text">Réservation</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/personne}" class="uf-sidebar-link"><span class="uf-sidebar-icon">👥</span><span class="uf-sidebar-text">Personne</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/enregistrement}" class="uf-sidebar-link"><span class="uf-sidebar-icon">👨‍✈️</span><span class="uf-sidebar-text">Enregistrement</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/dashboard}" class="uf-sidebar-link"><span class="uf-sidebar-icon">📊</span><span class="uf-sidebar-text">Dashboard</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <main class="uf-main">
+            
+            <div class="uf-breadcrumb">
+                <a th:href="@{/avion/{id}(id=${avion.idAvion})}">← Retour à la fiche</a>
+            </div>
+            
+            <!-- Message de succès -->
+            <div th:if="${success}" class="uf-alert uf-alert-success" th:text="${success}"></div>
+            
+            <!-- Visualisation actuelle des sièges -->
+            <div class="uf-component-seats">
+                <h1 class="uf-subtitle">💺 Configuration actuelle (<span th:text="${#lists.size(sieges)}">0</span> sièges)</h1>
+                
+                <div class="uf-seats-container">
+                    <div class="uf-seats-grid" th:if="${!#lists.isEmpty(sieges)}">
+                        <div th:each="siege : ${sieges}" class="uf-seat" 
+                             th:classappend="${siege.siegeCategorie.libelle == 'Première' ? 'uf-seat-first' : (siege.siegeCategorie.libelle == 'Affaires' ? 'uf-seat-business' : 'uf-seat-eco')}"
+                             th:title="${siege.numero + ' - ' + siege.siegeCategorie.libelle}">
+                            <span th:text="${siege.rangee + siege.colonne}">1A</span>
+                        </div>
+                    </div>
+                    <div th:if="${#lists.isEmpty(sieges)}" class="uf-empty-state">
+                        <p>Aucun siège configuré</p>
+                    </div>
+                </div>
+                
+                <div class="uf-seats-legend">
+                    <span class="uf-legend-item"><span class="uf-legend-color uf-seat-first"></span> Première Classe</span>
+                    <span class="uf-legend-item"><span class="uf-legend-color uf-seat-business"></span> Classe Affaires</span>
+                    <span class="uf-legend-item"><span class="uf-legend-color uf-seat-eco"></span> Classe Économique</span>
+                </div>
+            </div>
+            
+            <!-- Formulaire ajout siège -->
+            <div class="uf-component-form" style="margin-top: 30px;">
+                <h1 class="uf-subtitle">➕ Ajouter un Siège</h1>
+                
+                <form th:action="@{/avion/{id}/siege(id=${avion.idAvion})}" method="post" class="uf-form">
+                    
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Rangée *</label>
+                        <input type="number" name="rangee" placeholder="Ex: 1, 2, 3..." class="uf-form-input" min="1" required>
+                    </div>
+                    
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Colonne *</label>
+                        <select name="colonne" class="uf-form-select" required>
+                            <option value="">-- Sélectionner --</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                            <option value="E">E</option>
+                            <option value="F">F</option>
+                            <option value="G">G</option>
+                            <option value="H">H</option>
+                            <option value="I">I</option>
+                            <option value="J">J</option>
+                        </select>
+                    </div>
+                    
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Catégorie *</label>
+                        <select name="siegeCategorieId" class="uf-form-select" required>
+                            <option value="">-- Sélectionner --</option>
+                            <option th:each="cat : ${siegeCategories}" 
+                                    th:value="${cat.idSiegeCategorie}"
+                                    th:text="${cat.libelle}">
+                            </option>
+                        </select>
+                    </div>
+                    
+                    <div class="uf-form-group uf-form-group-full">
+                        <button type="submit" class="uf-form-submit">💺 Ajouter le siège</button>
+                    </div>
+                    
+                </form>   
+            </div>
+            
+            <!-- Table des sièges existants -->
+            <div class="uf-component-table" style="margin-top: 30px;">
+                <h1 class="uf-subtitle">📋 Liste des Sièges</h1>
+                
+                <div class="uf-table-container">
+                    <table class="uf-table">
+                        <thead>
+                            <tr>
+                                <th>Numéro</th>
+                                <th class="sortable sortable-numeric">Rangée</th>
+                                <th>Colonne</th>
+                                <th>Catégorie</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="siege : ${sieges}">
+                                <td class="uf-table-cell-bold" th:text="${siege.numero}">SIG001</td>
+                                <td class="uf-table-cell-numeric" th:text="${siege.rangee}">1</td>
+                                <td th:text="${siege.colonne}">A</td>
+                                <td th:text="${siege.siegeCategorie.libelle}">Économique</td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(sieges)}">
+                                <td colspan="4" style="text-align: center;">Aucun siège</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+        </main>
+    </div>
+
+    <script th:src="@{/js/template.js}"></script>
+</body>
+</html>

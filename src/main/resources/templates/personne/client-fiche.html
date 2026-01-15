@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'Fiche Client ' + ${client.numero} + ' - UltraFly'">Fiche Client - UltraFly</title>
+    <link rel="icon" type="image/png" th:href="@{/image/logo.png}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" th:href="@{/css/template.css}">
+</head>
+<body>
+    <div class="bg-element bg-element-1"></div>
+    <div class="bg-element bg-element-2"></div>
+    
+    <div class="uf-layout">
+        <aside class="uf-sidebar">
+            <div class="uf-sidebar-header">
+                <div class="uf-sidebar-logo"><span class="logo-ultra">Ultra</span><span class="logo-fly">Fly</span></div>
+                <button class="uf-sidebar-toggle"><span>←</span></button>
+            </div>
+            <nav class="uf-sidebar-nav">
+                <ul class="uf-sidebar-menu">
+                    <li class="uf-sidebar-item"><a th:href="@{/avion}" class="uf-sidebar-link"><span class="uf-sidebar-icon">✈️</span><span class="uf-sidebar-text">Avion</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/vol}" class="uf-sidebar-link"><span class="uf-sidebar-icon">🛫</span><span class="uf-sidebar-text">Vol</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/reservation}" class="uf-sidebar-link"><span class="uf-sidebar-icon">🎫</span><span class="uf-sidebar-text">Réservation</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/personne}" class="uf-sidebar-link active"><span class="uf-sidebar-icon">👥</span><span class="uf-sidebar-text">Personne</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/enregistrement}" class="uf-sidebar-link"><span class="uf-sidebar-icon">👨‍✈️</span><span class="uf-sidebar-text">Enregistrement</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/dashboard}" class="uf-sidebar-link"><span class="uf-sidebar-icon">📊</span><span class="uf-sidebar-text">Dashboard</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <main class="uf-main">
+            
+            <div class="uf-breadcrumb">
+                <a th:href="@{/personne/client}">← Retour à la liste</a>
+            </div>
+            
+            <div th:if="${success}" class="uf-alert uf-alert-success" th:text="${success}"></div>
+            
+            <!-- Fiche Client -->
+            <div class="uf-component-fiche">
+                <h1 class="uf-subtitle">👤 Fiche Client <span th:text="${client.numero}">CLT001</span></h1>
+                
+                <div class="uf-fiche">
+                    
+                    <!-- Identité -->
+                    <div class="uf-fiche-section">
+                        <div class="uf-fiche-mini">
+                            <div class="uf-fiche-mini-title">🔖 Identité</div>
+                            <p><strong>Numéro:</strong> <span th:text="${client.numero}">CLT001</span></p>
+                            <p><strong>Nom:</strong> <span th:text="${client.personne.nom}">Jean Dupont</span></p>
+                            <p><strong>Email:</strong> <span th:text="${client.personne.email ?: 'Non renseigné'}">jean@email.com</span></p>
+                        </div>
+                    </div>
+                    
+                    <!-- Informations personnelles -->
+                    <div class="uf-fiche-section">
+                        <div class="uf-fiche-mini">
+                            <div class="uf-fiche-mini-title">📋 Informations Personnelles</div>
+                            <p><strong>Date de naissance:</strong> <span th:text="${client.personne.dateNaissance != null ? #temporals.format(client.personne.dateNaissance, 'dd/MM/yyyy') : 'Non renseignée'}">01/01/1990</span></p>
+                            <p><strong>Pays:</strong> <span th:text="${client.personne.pays?.libelle ?: 'Non renseigné'}">Madagascar</span></p>
+                            <p><strong>Inscrit le:</strong> <span th:text="${#temporals.format(client.personne.datePersonne, 'dd/MM/yyyy')}">01/01/2024</span></p>
+                        </div>
+                    </div>
+                    
+                    <!-- Documents -->
+                    <div class="uf-fiche-section">
+                        <div class="uf-fiche-mini status-info">
+                            <div class="uf-fiche-mini-title">🛂 Documents</div>
+                            <p><strong>N° Passeport:</strong> <span th:text="${client.passeport ?: 'Non renseigné'}">AB123456</span></p>
+                        </div>
+                    </div>
+                    
+                    <!-- Actions -->
+                    <div class="uf-fiche-section uf-fiche-actions">
+                        <a th:href="@{/personne/client/saisie/{id}(id=${client.idClient})}" class="uf-action-btn uf-action-edit">✏️ Modifier</a>
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <!-- Zone Danger -->
+            <div class="uf-danger-zone" style="margin-top: 40px;">
+                <h3>⚠️ Zone de Danger</h3>
+                <form th:action="@{/personne/client/{id}/supprimer(id=${client.idClient})}" method="post" style="display: inline;"
+                      onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce client ?');">
+                    <button type="submit" class="uf-btn-danger">🗑️ Supprimer</button>
+                </form>
+            </div>
+            
+        </main>
+    </div>
+
+    <script th:src="@{/js/template.js}"></script>
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nouvelle Réservation - UltraFly</title>
+    <link rel="icon" type="image/png" th:href="@{/image/logo.png}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" th:href="@{/css/template.css}">
+</head>
+<body>
+    <div class="bg-element bg-element-1"></div>
+    <div class="bg-element bg-element-2"></div>
+    
+    <div class="uf-layout">
+        <aside class="uf-sidebar">
+            <div class="uf-sidebar-header">
+                <div class="uf-sidebar-logo"><span class="logo-ultra">Ultra</span><span class="logo-fly">Fly</span></div>
+                <button class="uf-sidebar-toggle"><span>←</span></button>
+            </div>
+            <nav class="uf-sidebar-nav">
+                <ul class="uf-sidebar-menu">
+                    <li class="uf-sidebar-item"><a th:href="@{/avion}" class="uf-sidebar-link"><span class="uf-sidebar-icon">✈️</span><span class="uf-sidebar-text">Avion</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/vol}" class="uf-sidebar-link"><span class="uf-sidebar-icon">🛫</span><span class="uf-sidebar-text">Vol</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/reservation}" class="uf-sidebar-link active"><span class="uf-sidebar-icon">🎫</span><span class="uf-sidebar-text">Réservation</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/personne}" class="uf-sidebar-link"><span class="uf-sidebar-icon">👥</span><span class="uf-sidebar-text">Personne</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/enregistrement}" class="uf-sidebar-link"><span class="uf-sidebar-icon">👨‍✈️</span><span class="uf-sidebar-text">Enregistrement</span></a></li>
+                    <li class="uf-sidebar-item"><a th:href="@{/dashboard}" class="uf-sidebar-link"><span class="uf-sidebar-icon">📊</span><span class="uf-sidebar-text">Dashboard</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <main class="uf-main">
+            
+            <div th:if="${error}" class="uf-alert uf-alert-danger" th:text="${error}"></div>
+            
+            <!-- Header -->
+            <div class="uf-fiche-header">
+                <div class="uf-fiche-title">
+                    <a th:href="@{/reservation}" class="uf-btn uf-btn-secondary">← Retour</a>
+                    <h1 class="uf-title">🎫 Nouvelle Réservation</h1>
+                </div>
+            </div>
+            
+            <!-- Étapes -->
+            <div class="uf-steps">
+                <div class="uf-step active">
+                    <span class="uf-step-number">1</span>
+                    <span class="uf-step-label">Client & Vol</span>
+                </div>
+                <div class="uf-step">
+                    <span class="uf-step-number">2</span>
+                    <span class="uf-step-label">Sélection Sièges</span>
+                </div>
+                <div class="uf-step">
+                    <span class="uf-step-number">3</span>
+                    <span class="uf-step-label">Confirmation</span>
+                </div>
+            </div>
+            
+            <!-- Formulaire -->
+            <div class="uf-component-form">
+                <h2 class="uf-subtitle">👤 Sélection du Client et du Vol</h2>
+                
+                <form th:action="@{/reservation/saisie/sieges}" method="get" id="selectionForm">
+                    
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Client *</label>
+                        <select name="clientId" required class="uf-form-select" id="clientSelect">
+                            <option value="">-- Sélectionner un client --</option>
+                            <option th:each="client : ${clients}" 
+                                    th:value="${client.idClient}"
+                                    th:text="${client.personne.nom + ' ' + client.personne.prenom + ' (' + client.personne.contact + ')'}">
+                            </option>
+                        </select>
+                    </div>
+                    
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Vol *</label>
+                        <select name="volId" required class="uf-form-select" id="volSelect">
+                            <option value="">-- Sélectionner un vol --</option>
+                            <option th:each="vol : ${vols}" 
+                                    th:value="${vol.idVol}"
+                                    th:data-itineraire="${vol.itineraire?.aeroportDepart?.codeIata + ' → ' + vol.itineraire?.aeroportArrivee?.codeIata}"
+                                    th:text="${vol.numero + ' - ' + vol.itineraire?.aeroportDepart?.codeIata + ' → ' + vol.itineraire?.aeroportArrivee?.codeIata}">
+                            </option>
+                        </select>
+                    </div>
+                    
+                    <!-- Aperçu du vol sélectionné -->
+                    <div id="volPreview" class="uf-vol-preview" style="display: none;">
+                        <h3>📋 Détails du vol</h3>
+                        <div id="volDetails"></div>
+                    </div>
+                    
+                    <div class="uf-form-actions">
+                        <a th:href="@{/reservation}" class="uf-btn uf-btn-secondary">Annuler</a>
+                        <button type="submit" class="uf-btn uf-btn-primary">Suivant - Sélection des Sièges →</button>
+                    </div>
+                </form>
+            </div>
+            
+        </main>
+    </div>
+    
+    <script th:src="@{/js/template.js}"></script>
+    
+    <style>
+        .uf-steps {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        .uf-step {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            opacity: 0.5;
+        }
+        .uf-step.active {
+            opacity: 1;
+        }
+        .uf-step-number {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        .uf-step.active .uf-step-number {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+        .uf-step-label {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        .uf-vol-preview {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        .uf-vol-preview h3 {
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+    </style>
+</body>
+</html>
