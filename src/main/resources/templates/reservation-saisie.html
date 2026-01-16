@@ -142,14 +142,14 @@
                     <form th:action="@{/reservation-saisie}" method="post" class="uf-form" id="reservationForm">
                         <input type="hidden" name="volId" th:value="${vol.idVol}">
                         
-                        <!-- Sélection du client -->
+                        <!-- Sélection du client principal qui fait la réservation -->
                         <div class="uf-form-group">
-                            <label class="uf-form-label">Client</label>
-                            <select name="clientId" class="uf-form-select" required>
-                                <option value="">-- Sélectionner un client --</option>
+                            <label class="uf-form-label">Client principal (Responsable de la réservation)</label>
+                            <select name="clientId" id="clientPrincipal" class="uf-form-select" required>
+                                <option value="">-- Sélectionner le client principal --</option>
                                 <option th:each="client : ${clients}" 
                                         th:value="${client.idClient}" 
-                                        th:text="${client.personne.nom + ' (' + client.numero + ')'}">
+                                        th:text="${client.personne.nom + ' (' + client.numero + ')' + (client.clientType != null ? ' - ' + client.clientType.libelle : '')}">
                                 </option>
                             </select>
                         </div>
@@ -176,6 +176,7 @@
                                 <div th:each="siegeInfo : ${entry.value}" 
                                      th:class="${siegeInfo.reserve} ? 'siege-item reserve' : 'siege-item disponible'"
                                      th:data-prix="${siegeInfo.prix}"
+                                     th:data-categorie="${entry.key.idSiegeCategorie}"
                                      onclick="toggleSiege(this)">
                                     
                                     <input type="checkbox" 
@@ -188,10 +189,31 @@
                             </div>
                         </div>
                         
+                        <!-- Table des sièges sélectionnés -->
+                        <div id="selectedSeatsSection" style="display: none; margin-top: 30px;">
+                            <h3 style="color: #fff; margin-bottom: 20px;">Sièges Sélectionnés</h3>
+                            
+                            <div class="uf-table-container">
+                                <table class="uf-table" id="selectedSeatsTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Numéro Siège</th>
+                                            <th>Client</th>
+                                            <th>Prix</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="selectedSeatsBody">
+                                        <!-- Les lignes seront ajoutées dynamiquement -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
                         <!-- Total -->
                         <div class="total-section">
                             <span style="color: #888;">Total estimé:</span>
-                            <span class="total-amount" id="totalAmount">0 €</span>
+                            <span class="total-amount" id="totalAmount">0 Ar</span>
                         </div>
                         
                         <!-- Boutons -->
@@ -207,24 +229,177 @@
     </div>
 
     <script th:src="@{/js/template.js}"></script>
-    <script>
+    <script th:inline="javascript">
+        const volId = /*[[${vol.idVol}]]*/ 0;
+        const clients = /*[[${clients}]]*/ [];
+        const tarifs = /*[[${tarifs}]]*/ {};
+        const tarifRemises = /*[[${tarifRemises}]]*/ {};
+        
+        // Stocker les sièges sélectionnés avec leurs infos
+        let selectedSeats = [];
+        
+        function getCategorieIdForSiege(siegeElement) {
+            // Récupérer l'ID de catégorie depuis l'attribut data-categorie
+            return siegeElement.getAttribute('data-categorie');
+        }
+        
         function toggleSiege(element) {
             if (element.classList.contains('reserve')) return;
             
             const checkbox = element.querySelector('.siege-checkbox');
-            checkbox.checked = !checkbox.checked;
-            element.classList.toggle('selected', checkbox.checked);
+            const siegeId = checkbox.name.replace('siege_', '');
+            const siegeNumero = element.querySelector('div').textContent;
             
+            if (checkbox.checked) {
+                // Déselectionner
+                checkbox.checked = false;
+                element.classList.remove('selected');
+                removeSeatFromTable(siegeId);
+            } else {
+                // Sélectionner
+                checkbox.checked = true;
+                element.classList.add('selected');
+                addSeatToTable(siegeId, siegeNumero, element);
+            }
+            
+            updateTableVisibility();
+        }
+        
+        function addSeatToTable(siegeId, siegeNumero, siegeElement) {
+            const categorieId = getCategorieIdForSiege(siegeElement);
+            
+            selectedSeats.push({
+                id: siegeId,
+                numero: siegeNumero,
+                clientId: null,
+                prix: 0,
+                categorieId: categorieId
+            });
+            
+            const tbody = document.getElementById('selectedSeatsBody');
+            const row = document.createElement('tr');
+            row.id = 'seat-row-' + siegeId;
+            
+            row.innerHTML = `
+                <td class="uf-table-cell-bold">${siegeNumero}</td>
+                <td>
+                    <select class="uf-form-select" name="billet_${siegeId}_clientId" onchange="onClientChange(${siegeId}, this.value)" required>
+                        <option value="">-- Sélectionner un client --</option>
+                        ${clients.map(c => `<option value="${c.idClient}">${c.personne.nom + ' (' + c.numero + ')' + (c.clientType != null ? ' - ' + c.clientType.libelle : '')}</option>`).join('')}
+                    </select>
+                </td>
+                <td class="uf-table-cell-numeric" id="prix-${siegeId}">0 Ar</td>
+                <td>
+                    <button type="button" class="uf-table-btn" style="background: #dc3545;" onclick="removeSeatFromSelection(${siegeId})">Retirer</button>
+                </td>
+            `;
+            
+            tbody.appendChild(row);
+        }
+        
+        function removeSeatFromTable(siegeId) {
+            const row = document.getElementById('seat-row-' + siegeId);
+            if (row) {
+                row.remove();
+            }
+            selectedSeats = selectedSeats.filter(s => s.id != siegeId);
+            updateTotal();
+        }
+        
+        function removeSeatFromSelection(siegeId) {
+            // Décocher le checkbox dans la grille
+            const checkbox = document.querySelector(`input[name="siege_${siegeId}"]`);
+            if (checkbox) {
+                checkbox.checked = false;
+                checkbox.parentElement.classList.remove('selected');
+            }
+            removeSeatFromTable(siegeId);
+            updateTableVisibility();
+        }
+        
+        function onClientChange(siegeId, clientId) {
+            if (!clientId) {
+                updateSeatPrix(siegeId, 0);
+                return;
+            }
+            
+            // Trouver le siège dans selectedSeats
+            const seat = selectedSeats.find(s => s.id == siegeId);
+            if (!seat) return;
+            
+            // Trouver le client sélectionné
+            const client = clients.find(c => c.idClient == clientId);
+            if (!client) return;
+            
+            // Calculer le prix
+            let prix = 0;
+            const categorieId = seat.categorieId;
+            
+            // Vérifier s'il y a une remise pour ce type de client et cette catégorie
+            if (client.clientType && tarifRemises[categorieId] && tarifRemises[categorieId][client.clientType.idClientType]) {
+                // Prix avec remise
+                prix = tarifRemises[categorieId][client.clientType.idClientType];
+            } else if (tarifs[categorieId]) {
+                // Prix par défaut de la catégorie
+                prix = tarifs[categorieId];
+            }
+            
+            updateSeatPrix(siegeId, prix);
+            
+            // Mettre à jour dans selectedSeats
+            seat.clientId = clientId;
+            seat.prix = prix;
+        }
+        
+        function updateSeatPrix(siegeId, prix) {
+            const prixCell = document.getElementById('prix-' + siegeId);
+            if (prixCell) {
+                prixCell.textContent = prix + ' Ar';
+            }
             updateTotal();
         }
         
         function updateTotal() {
             let total = 0;
-            document.querySelectorAll('.siege-item.selected').forEach(function(el) {
-                total += parseFloat(el.dataset.prix) || 0;
+            selectedSeats.forEach(seat => {
+                total += parseFloat(seat.prix) || 0;
             });
-            document.getElementById('totalAmount').textContent = total.toFixed(2) + ' €';
+            document.getElementById('totalAmount').textContent = total.toFixed(2) + ' Ar';
         }
+        
+        function updateTableVisibility() {
+            const section = document.getElementById('selectedSeatsSection');
+            section.style.display = selectedSeats.length > 0 ? 'block' : 'none';
+        }
+        
+        // Validation avant soumission
+        document.getElementById('reservationForm').addEventListener('submit', function(e) {
+            if (selectedSeats.length === 0) {
+                e.preventDefault();
+                alert('Veuillez sélectionner au moins un siège');
+                return false;
+            }
+            
+            // Vérifier que tous les sièges ont un client
+            for (let seat of selectedSeats) {
+                if (!seat.clientId) {
+                    e.preventDefault();
+                    alert('Veuillez sélectionner un client pour tous les sièges');
+                    return false;
+                }
+            }
+            
+            // Ajouter les prix au formulaire (les clientId sont déjà dans les selects)
+            selectedSeats.forEach(seat => {
+                const inputPrix = document.createElement('input');
+                inputPrix.type = 'hidden';
+                inputPrix.name = `billet_${seat.id}_prix`;
+                inputPrix.value = seat.prix;
+                this.appendChild(inputPrix);
+            });
+            
+            return true;
+        });
     </script>
 </body>
 </html>

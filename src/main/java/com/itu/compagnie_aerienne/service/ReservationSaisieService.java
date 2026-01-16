@@ -10,8 +10,29 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.itu.compagnie_aerienne.model.*;
-import com.itu.compagnie_aerienne.repository.*;
+import com.itu.compagnie_aerienne.model.Avion;
+import com.itu.compagnie_aerienne.model.AvionSiege;
+import com.itu.compagnie_aerienne.model.BilletStatut;
+import com.itu.compagnie_aerienne.model.Client;
+import com.itu.compagnie_aerienne.model.Paiement;
+import com.itu.compagnie_aerienne.model.Reservation;
+import com.itu.compagnie_aerienne.model.ReservationBillet;
+import com.itu.compagnie_aerienne.model.ReservationStatut;
+import com.itu.compagnie_aerienne.model.Vol;
+import com.itu.compagnie_aerienne.model.VolDetail;
+import com.itu.compagnie_aerienne.model.VolTarrif;
+import com.itu.compagnie_aerienne.model.VolTarrifRemise;
+import com.itu.compagnie_aerienne.repository.AvionSiegeRepository;
+import com.itu.compagnie_aerienne.repository.BilletStatutRepository;
+import com.itu.compagnie_aerienne.repository.ClientRepository;
+import com.itu.compagnie_aerienne.repository.PaiementRepository;
+import com.itu.compagnie_aerienne.repository.ReservationBilletRepository;
+import com.itu.compagnie_aerienne.repository.ReservationRepository;
+import com.itu.compagnie_aerienne.repository.ReservationStatutRepository;
+import com.itu.compagnie_aerienne.repository.VolDetailRepository;
+import com.itu.compagnie_aerienne.repository.VolRepository;
+import com.itu.compagnie_aerienne.repository.VolTarrifRemiseRepository;
+import com.itu.compagnie_aerienne.repository.VolTarrifRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,6 +44,7 @@ public class ReservationSaisieService {
     private final ClientRepository clientRepository;
     private final AvionSiegeRepository avionSiegeRepository;
     private final VolTarrifRepository volTarrifRepository;
+    private final VolTarrifRemiseRepository volTarrifRemiseRepository;
     private final ReservationRepository reservationRepository;
     private final ReservationBilletRepository reservationBilletRepository;
     private final ReservationStatutRepository reservationStatutRepository;
@@ -96,6 +118,38 @@ public class ReservationSaisieService {
     }
     
     /**
+     * Récupère les remises de tarifs (vol_tarrif_remise) pour le vol
+     * Retourne une structure: {categorieId: {clientTypeId: prixReduit}}
+     */
+    public Map<String, Object> getTarifRemises(Integer volId) {
+        List<VolTarrif> tarifs = volTarrifRepository.findAllByVolIdVol(volId);
+        Map<String, Object> result = new HashMap<>();
+        
+        // Structure: categorieId -> Map(clientTypeId -> prix)
+        for (VolTarrif tarrif : tarifs) {
+            Integer categorieId = tarrif.getSiegeCategorie().getIdSiegeCategorie();
+            
+            // Récupérer les remises pour ce tarif
+            List<VolTarrifRemise> remises = volTarrifRemiseRepository.findByVolTarrifIdVolTarrif(tarrif.getIdVolTarrif());
+            
+            if (!remises.isEmpty()) {
+                Map<Integer, BigDecimal> remisesParClientType = new HashMap<>();
+                for (VolTarrifRemise remise : remises) {
+                    // Stocker le prix réduit par type de client
+                    if (remise.getClientType() != null) {
+                        remisesParClientType.put(remise.getClientType().getIdClientType(), remise.getPrix());
+                    }
+                }
+                if (!remisesParClientType.isEmpty()) {
+                    result.put(categorieId.toString(), remisesParClientType);
+                }
+            }
+        }
+        
+        return result;
+    }
+    
+    /**
      * Crée une réservation avec les sièges sélectionnés
      */
     @Transactional
@@ -152,6 +206,87 @@ public class ReservationSaisieService {
             billet.setAvionSiege(siege);
             billet.setReservation(reservation);
             billet.setBilletStatut(billetStatut);
+            reservationBilletRepository.saveAndFlush(billet);
+        }
+        
+        // Créer le paiement associé (numero généré par trigger)
+        Paiement paiement = new Paiement();
+        paiement.setMontantTotal(montantTotal);
+        paiement.setRestePayer(montantTotal);
+        paiement.setReservation(reservation);
+        paiementRepository.saveAndFlush(paiement);
+        
+        return reservation;
+    }
+    
+    /**
+     * Crée une réservation avec les clients et prix spécifiques pour chaque billet
+     * @param volId ID du vol
+     * @param clientPrincipalId ID du client principal responsable de la réservation
+     * @param siegesData Map contenant pour chaque siège: {clientId, prix}
+     */
+    @Transactional
+    public Reservation creerReservationAvecClients(Integer volId, Integer clientPrincipalId, Map<Integer, Map<String, Object>> siegesData) {
+        Vol vol = volRepository.findById(volId)
+            .orElseThrow(() -> new IllegalArgumentException("Vol non trouvé"));
+        
+        // Récupérer le client principal
+        Client clientPrincipal = clientRepository.findById(clientPrincipalId)
+            .orElseThrow(() -> new IllegalArgumentException("Client principal non trouvé"));
+        
+        // Vérifier que les sièges ne sont pas déjà réservés
+        List<Integer> siegesReserves = getSiegesReservesIds(volId);
+        for (Integer siegeId : siegesData.keySet()) {
+            if (siegesReserves.contains(siegeId)) {
+                throw new IllegalStateException("Le siège " + siegeId + " est déjà réservé");
+            }
+        }
+        
+        // Récupérer le statut "En attente" ou le premier disponible
+        ReservationStatut statut = reservationStatutRepository.findAll().stream()
+            .filter(s -> s.getLibelle().toLowerCase().contains("attente"))
+            .findFirst()
+            .orElse(reservationStatutRepository.findAll().get(0));
+        
+        // Créer la réservation (le numero est généré par trigger PostgreSQL)
+        Reservation reservation = new Reservation();
+        reservation.setDateReservation(LocalDate.now());
+        reservation.setClient(clientPrincipal);
+        reservation.setVol(vol);
+        reservation.setReservationStatut(statut);
+        reservation = reservationRepository.saveAndFlush(reservation);
+        
+        // Récupérer le statut billet "Emis" ou le premier disponible
+        BilletStatut billetStatut = billetStatutRepository.findAll().stream()
+            .filter(s -> s.getLibelle().toLowerCase().contains("emis"))
+            .findFirst()
+            .orElse(billetStatutRepository.findAll().get(0));
+        
+        // Calculer le montant total
+        BigDecimal montantTotal = BigDecimal.ZERO;
+        
+        // Créer les billets pour chaque siège avec son client et prix spécifique
+        for (Map.Entry<Integer, Map<String, Object>> entry : siegesData.entrySet()) {
+            Integer siegeId = entry.getKey();
+            Map<String, Object> data = entry.getValue();
+            
+            Integer clientId = (Integer) data.get("clientId");
+            BigDecimal prix = (BigDecimal) data.get("prix");
+            
+            AvionSiege siege = avionSiegeRepository.findById(siegeId)
+                .orElseThrow(() -> new IllegalArgumentException("Siège non trouvé: " + siegeId));
+            
+            Client client = clientRepository.findById(clientId)
+                .orElseThrow(() -> new IllegalArgumentException("Client non trouvé: " + clientId));
+            
+            montantTotal = montantTotal.add(prix);
+            
+            ReservationBillet billet = new ReservationBillet();
+            billet.setPrix(prix);
+            billet.setAvionSiege(siege);
+            billet.setReservation(reservation);
+            billet.setBilletStatut(billetStatut);
+            billet.setClient(client); // Associer le client spécifique à ce billet
             reservationBilletRepository.saveAndFlush(billet);
         }
         

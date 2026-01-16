@@ -13,7 +13,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.itu.compagnie_aerienne.model.*;
+import com.itu.compagnie_aerienne.model.Avion;
+import com.itu.compagnie_aerienne.model.AvionSiege;
+import com.itu.compagnie_aerienne.model.Client;
+import com.itu.compagnie_aerienne.model.Reservation;
+import com.itu.compagnie_aerienne.model.SiegeCategorie;
+import com.itu.compagnie_aerienne.model.Vol;
 import com.itu.compagnie_aerienne.service.ReservationSaisieService;
 
 import lombok.RequiredArgsConstructor;
@@ -49,6 +54,9 @@ public class ReservationSaisieController {
         // Récupérer les tarifs par catégorie
         Map<Integer, BigDecimal> tarifs = reservationSaisieService.getTarifsByCategorie(volId);
         
+        // Récupérer les remises pour les tarifs (vol_tarrif_remise)
+        Map<String, Object> tarifRemises = reservationSaisieService.getTarifRemises(volId);
+        
         // Récupérer tous les clients
         List<Client> clients = reservationSaisieService.getAllClients();
         
@@ -71,6 +79,7 @@ public class ReservationSaisieController {
         model.addAttribute("siegesParCategorie", siegesParCategorie);
         model.addAttribute("clients", clients);
         model.addAttribute("tarifs", tarifs);
+        model.addAttribute("tarifRemises", tarifRemises);
         
         return "reservation-saisie";
     }
@@ -81,27 +90,42 @@ public class ReservationSaisieController {
     @PostMapping("/reservation-saisie")
     public String creerReservation(
             @RequestParam("volId") Integer volId,
-            @RequestParam("clientId") Integer clientId,
+            @RequestParam("clientId") Integer clientPrincipalId,
             @RequestParam Map<String, String> allParams,
             RedirectAttributes redirectAttributes) {
         
         try {
-            // Extraire les sièges sélectionnés
-            List<Integer> siegeIds = new ArrayList<>();
+            // Extraire les sièges sélectionnés avec leurs clients et prix
+            Map<Integer, Map<String, Object>> siegesData = new HashMap<>();
+            
             for (Map.Entry<String, String> entry : allParams.entrySet()) {
-                if (entry.getKey().startsWith("siege_") && "on".equals(entry.getValue())) {
-                    Integer siegeId = Integer.parseInt(entry.getKey().substring(6));
-                    siegeIds.add(siegeId);
+                String key = entry.getKey();
+                
+                // Format: billet_{siegeId}_clientId ou billet_{siegeId}_prix
+                if (key.startsWith("billet_")) {
+                    String[] parts = key.split("_");
+                    if (parts.length == 3) {
+                        Integer siegeId = Integer.parseInt(parts[1]);
+                        String field = parts[2]; // "clientId" ou "prix"
+                        
+                        siegesData.putIfAbsent(siegeId, new HashMap<>());
+                        
+                        if ("clientId".equals(field)) {
+                            siegesData.get(siegeId).put("clientId", Integer.parseInt(entry.getValue()));
+                        } else if ("prix".equals(field)) {
+                            siegesData.get(siegeId).put("prix", new BigDecimal(entry.getValue()));
+                        }
+                    }
                 }
             }
             
-            if (siegeIds.isEmpty()) {
+            if (siegesData.isEmpty()) {
                 redirectAttributes.addFlashAttribute("error", "Veuillez sélectionner au moins un siège");
                 return "redirect:/reservation-saisie?volId=" + volId;
             }
             
-            // Créer la réservation
-            Reservation reservation = reservationSaisieService.creerReservation(volId, clientId, siegeIds);
+            // Créer la réservation avec les nouvelles données
+            Reservation reservation = reservationSaisieService.creerReservationAvecClients(volId, clientPrincipalId, siegesData);
             
             redirectAttributes.addFlashAttribute("success", "Réservation créée avec succès! Numéro: " + reservation.getNumero());
             

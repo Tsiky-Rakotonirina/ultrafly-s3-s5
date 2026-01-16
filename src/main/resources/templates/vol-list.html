@@ -73,7 +73,7 @@
                                     <td th:text="${volData.vol.itineraire.aeroportArrive.nom}"></td>
                                     <td class="uf-table-cell-bold" th:text="${volData.vol.statutVol.libelle}"></td>
                                     <td class="uf-table-cell-bold" style="color: #28a745;">
-                                        <span th:text="${volData.chiffreAffaire}"></span> €
+                                        <span th:text="${volData.chiffreAffaire}"></span> Ar
                                     </td>
                                     <td>
                                         <a th:href="@{/reservation-saisie(volId=${volData.vol.idVol})}" class="uf-table-btn">Réserver</a>
@@ -93,8 +93,8 @@
                                     <th>Catégorie de Siège</th>
                                     <th class="sortable sortable-numeric">Sièges Pris</th>
                                     <th class="sortable sortable-numeric">Sièges Total</th>
-                                    <th class="sortable sortable-numeric">Tarif (€)</th>
-                                    <th class="sortable sortable-numeric">Recette Max (€)</th>
+                                    <th class="sortable sortable-numeric">Tarif (Ar)</th>
+                                    <th class="sortable sortable-numeric">Recette Max (Ar)</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -112,7 +112,7 @@
                                 <tr style="font-weight: bold; border-top: 2px solid #333;">
                                     <td colspan="4" style="text-align: right; padding-right: 20px;">RECETTE MAX TOTALE :</td>
                                     <td class="uf-table-cell-numeric" style="color: #007bff; font-size: 1.1em;">
-                                        <span th:text="${volData.recetteMaxTotal}"></span> €
+                                        <span th:text="${volData.recetteMaxTotal}"></span> Ar
                                     </td>
                                 </tr>
                             </tfoot>

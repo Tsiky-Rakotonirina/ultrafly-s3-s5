@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -85,10 +86,11 @@ public class VolService {
             SiegeCategorie siegeCategorie = entry.getKey();
             BigDecimal nbrSiege = entry.getValue();
 
-            VolTarrif volTarrif = volTarrifRepository.findByVolIdVolAndSiegeCategorieIdSiegeCategorie(volId, siegeCategorie.getIdSiegeCategorie());
+            Optional<VolTarrif> volTarrifOpt = volTarrifRepository.findByVolAndCategorie(volId, siegeCategorie.getIdSiegeCategorie());
             
             // Si aucun tarif n'est défini pour cette catégorie, on met 0
-            if (volTarrif != null) {
+            if (volTarrifOpt.isPresent()) {
+                VolTarrif volTarrif = volTarrifOpt.get();
                 BigDecimal tarrif = volTarrif.getPrix();
                 BigDecimal recetteMax = tarrif.multiply(nbrSiege);
                 recetteMaxParSiegeCategorie.put(siegeCategorie, recetteMax);
