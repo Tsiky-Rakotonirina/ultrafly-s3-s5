@@ -119,13 +119,13 @@ public class ReservationSaisieService {
     
     /**
      * Récupère les remises de tarifs (vol_tarrif_remise) pour le vol
-     * Retourne une structure: {categorieId: {clientTypeId: prixReduit}}
+     * Retourne une structure: {categorieId: {clientTypeId: {prix: X, pourcentage: Y}}}
      */
     public Map<String, Object> getTarifRemises(Integer volId) {
         List<VolTarrif> tarifs = volTarrifRepository.findAllByVolIdVol(volId);
         Map<String, Object> result = new HashMap<>();
         
-        // Structure: categorieId -> Map(clientTypeId -> prix)
+        // Structure: categorieId -> Map(clientTypeId -> {prix, pourcentage})
         for (VolTarrif tarrif : tarifs) {
             Integer categorieId = tarrif.getSiegeCategorie().getIdSiegeCategorie();
             
@@ -133,11 +133,14 @@ public class ReservationSaisieService {
             List<VolTarrifRemise> remises = volTarrifRemiseRepository.findByVolTarrifIdVolTarrif(tarrif.getIdVolTarrif());
             
             if (!remises.isEmpty()) {
-                Map<Integer, BigDecimal> remisesParClientType = new HashMap<>();
+                Map<Integer, Map<String, BigDecimal>> remisesParClientType = new HashMap<>();
                 for (VolTarrifRemise remise : remises) {
-                    // Stocker le prix réduit par type de client
+                    // Stocker le prix ET le pourcentage par type de client
                     if (remise.getClientType() != null) {
-                        remisesParClientType.put(remise.getClientType().getIdClientType(), remise.getPrix());
+                        Map<String, BigDecimal> remiseData = new HashMap<>();
+                        remiseData.put("prix", remise.getPrix());
+                        remiseData.put("pourcentage", remise.getPourcentage());
+                        remisesParClientType.put(remise.getClientType().getIdClientType(), remiseData);
                     }
                 }
                 if (!remisesParClientType.isEmpty()) {

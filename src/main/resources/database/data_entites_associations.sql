@@ -142,10 +142,7 @@ INSERT INTO personne (id_personne, nom, email, date_naissance, date_personne, pa
 INSERT INTO personne (id_personne, nom, email, date_naissance, date_personne, pays_id) VALUES (7, 'Andre Garcia', 'andre.garcia@email.com', '1979-06-19', '2025-01-01', 2);
 
 -- client
-INSERT INTO client (id_client, passeport, personne_id) VALUES (1, 'FA123456', 1);
-INSERT INTO client (id_client, passeport, personne_id) VALUES (2, 'M987654', 2);
-INSERT INTO client (id_client, passeport, personne_id) VALUES (3, 'F234567', 3);
-INSERT INTO client (id_client, passeport, personne_id) VALUES (4, 'M345678', 4);
+
 
 -- employe
 INSERT INTO employe (id_employe, poste_id, personne_id) VALUES (1, 1, 5);

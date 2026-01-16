@@ -334,14 +334,28 @@
             // Calculer le prix
             let prix = 0;
             const categorieId = seat.categorieId;
+            const prixDefaut = tarifs[categorieId] || 0;
             
             // Vérifier s'il y a une remise pour ce type de client et cette catégorie
             if (client.clientType && tarifRemises[categorieId] && tarifRemises[categorieId][client.clientType.idClientType]) {
-                // Prix avec remise
-                prix = tarifRemises[categorieId][client.clientType.idClientType];
-            } else if (tarifs[categorieId]) {
+                const remise = tarifRemises[categorieId][client.clientType.idClientType];
+                
+                // Si le pourcentage est défini, on l'utilise pour calculer le prix
+                if (remise.pourcentage != null && remise.pourcentage !== undefined) {
+                    // Prix = prixDefaut * (pourcentage / 100)
+                    prix = prixDefaut * (remise.pourcentage / 100);
+                } 
+                // Sinon, on utilise le prix fixe
+                else if (remise.prix != null && remise.prix !== undefined) {
+                    prix = remise.prix;
+                }
+                // Si ni prix ni pourcentage, utiliser le prix par défaut
+                else {
+                    prix = prixDefaut;
+                }
+            } else {
                 // Prix par défaut de la catégorie
-                prix = tarifs[categorieId];
+                prix = prixDefaut;
             }
             
             updateSeatPrix(siegeId, prix);

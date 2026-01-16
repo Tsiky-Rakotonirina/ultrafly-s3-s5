@@ -79,11 +79,7 @@ INSERT INTO poste_role (poste_id, role_id) VALUES (9, 3);
 -- Table client_type
 INSERT INTO client_type (libelle, description) VALUES ('Bebe', 'Passager de 0 à 1 an');
 INSERT INTO client_type (libelle, description) VALUES ('Enfant', 'Passager de 2 à 11 ans');
-INSERT INTO client_type (libelle, description) VALUES ('Adolescent', 'Passager de 12 à 17 ans');
 INSERT INTO client_type (libelle, description) VALUES ('Adulte', 'Passager de 18 à 64 ans');
-INSERT INTO client_type (libelle, description) VALUES ('Personne âgee', 'Passager de 65 ans et plus');
-INSERT INTO client_type (libelle, description) VALUES ('Personne handicapee', 'Passager à mobilite reduite');
-INSERT INTO client_type (libelle, description) VALUES ('Personne malade', 'Passager necessitant assistance medicale');
 
 -- Table reservation_statut
 INSERT INTO reservation_statut (libelle, description) VALUES ('En attente', 'Reservation en attente de paiement');
