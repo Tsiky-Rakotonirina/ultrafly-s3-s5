@@ -197,13 +197,13 @@
                                     <td th:text="${billet.numero}"></td>
                                     <td th:text="${billet.avionSiege.rangee + billet.avionSiege.colonne}"></td>
                                     <td th:text="${billet.avionSiege.siegeCategorie.libelle}"></td>
-                                    <td style="color: #28a745;" th:text="${billet.prix + ' €'}"></td>
+                                    <td style="color: #28a745;" th:text="${billet.prix + ' Ar'}"></td>
                                 </tr>
                             </tbody>
                         </table>
                         <div class="summary-row" style="margin-top: 15px;">
                             <span class="summary-label" style="font-size: 1.1em;">Montant Total</span>
-                            <span class="summary-value summary-total" th:text="${paiement.montantTotal + ' €'}"></span>
+                            <span class="summary-value summary-total" th:text="${paiement.montantTotal + ' Ar'}"></span>
                         </div>
                     </div>
                     
@@ -216,7 +216,7 @@
                                 <span th:text="${detail.devise.libelle}"></span> | 
                                 <span th:text="${detail.datePaiement}"></span>
                             </div>
-                            <span class="paiement-item-amount" th:text="${detail.montant + ' €'}"></span>
+                            <span class="paiement-item-amount" th:text="${detail.montant + ' Ar'}"></span>
                         </div>
                     </div>
                     
@@ -228,7 +228,7 @@
                     <div th:unless="${paiementComplet}">
                         <div style="text-align: center; margin: 20px 0;">
                             <span style="color: #888;">Reste à payer:</span>
-                            <div class="reste-badge" th:text="${resteAPayer + ' €'}"></div>
+                            <div class="reste-badge" th:text="${resteAPayer + ' Ar'}"></div>
                         </div>
                         
                         <!-- Formulaire de paiement -->
@@ -268,7 +268,7 @@
                                 <input type="number" name="montant" step="0.01" min="0.01" 
                                        th:max="${resteAPayer}" th:value="${resteAPayer}"
                                        class="uf-form-input" required>
-                                <small style="color: #888;">Maximum: <span th:text="${resteAPayer}"></span> €</small>
+                                <small style="color: #888;">Maximum: <span th:text="${resteAPayer}"></span> Ar</small>
                             </div>
                             
                             <div class="uf-separator"></div>

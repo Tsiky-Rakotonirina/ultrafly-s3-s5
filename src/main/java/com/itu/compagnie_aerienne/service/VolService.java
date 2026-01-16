@@ -1,15 +1,30 @@
 package com.itu.compagnie_aerienne.service;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
-import com.itu.compagnie_aerienne.model.*;
+import com.itu.compagnie_aerienne.model.AvionSiege;
+import com.itu.compagnie_aerienne.model.Paiement;
+import com.itu.compagnie_aerienne.model.PaiementDetail;
+import com.itu.compagnie_aerienne.model.Reservation;
+import com.itu.compagnie_aerienne.model.ReservationBillet;
 import com.itu.compagnie_aerienne.model.SiegeCategorie;
 import com.itu.compagnie_aerienne.model.Vol;
 import com.itu.compagnie_aerienne.model.VolDetail;
-import com.itu.compagnie_aerienne.repository.*;
+import com.itu.compagnie_aerienne.model.VolTarrif;
+import com.itu.compagnie_aerienne.repository.AvionSiegeRepository;
+import com.itu.compagnie_aerienne.repository.PaiementDetailRepository;
+import com.itu.compagnie_aerienne.repository.PaiementRepository;
+import com.itu.compagnie_aerienne.repository.ReservationBilletRepository;
+import com.itu.compagnie_aerienne.repository.ReservationRepository;
+import com.itu.compagnie_aerienne.repository.VolDetailRepository;
+import com.itu.compagnie_aerienne.repository.VolRepository;
+import com.itu.compagnie_aerienne.repository.VolTarrifRepository;
 
 @Service
 public class VolService {
@@ -173,5 +188,12 @@ public class VolService {
         return siegesPrisParCategorie;
     }
 
+    public List<Reservation> getAllByVolIdVol(Integer volId){
+        return reservationRepository.findAllByVolIdVol(volId);
+    }
+
+    public Paiement getPaiementByReservationId(Integer reservationId){
+        return paiementRepository.findByReservationIdReservation(reservationId).orElse(null);
+    }
     
 }

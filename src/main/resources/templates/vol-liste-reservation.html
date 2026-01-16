@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste des Réservations - UltraFly</title>
+    <link rel="icon" type="image/png" th:href="@{/image/logo.png}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" th:href="@{/css/template.css}">
+</head>
+<body>
+    <!-- Background Elements -->
+    <div class="bg-element bg-element-1"></div>
+    <div class="bg-element bg-element-2"></div>
+    
+    <div class="uf-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="uf-sidebar">
+            <div class="uf-sidebar-header">
+                <div class="uf-sidebar-logo">
+                    <span class="logo-ultra">Ultra</span><span class="logo-fly">Fly</span>
+                </div>
+                <button class="uf-sidebar-toggle">
+                    <span>←</span>
+                </button>
+            </div>
+            
+            <nav class="uf-sidebar-nav">
+                <a th:href="@{/}" class="uf-sidebar-item">
+                    <span class="uf-sidebar-icon">🏠</span>
+                    <span class="uf-sidebar-text">Accueil</span>
+                </a>
+                <a th:href="@{/vol-list}" class="uf-sidebar-item">
+                    <span class="uf-sidebar-icon">✈️</span>
+                    <span class="uf-sidebar-text">Vols</span>
+                </a>
+                <a href="#" class="uf-sidebar-item active">
+                    <span class="uf-sidebar-icon">📋</span>
+                    <span class="uf-sidebar-text">Réservations</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="uf-main">
+            <div class="uf-content">
+                <div class="uf-component-table">
+                    <h1 class="uf-subtitle">Liste des Réservations</h1>
+                    
+                    <div class="uf-table-container">
+                        <table class="uf-table">
+                            <thead>
+                                <tr>
+                                    <th>Numero de reservation</th>
+                                    <th class="sortable sortable-date">Date de reservation</th>
+                                    <th>Nom Client</th>
+                                    <th>Numero Vol</th>
+                                    <th class="sortable sortable-date">Heure Vol</th>
+                                    <th>Vol Type</th>
+                                    <th>Aeroport Depart</th>
+                                    <th>Aeroport Arrivee</th> 
+                                    <th class="sortable sortable-numeric">Montant Paiement</th>
+                                    <th class="sortable sortable-numeric">Reste a payer</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="entry : ${reservationPaiementMap}">
+                                    <td class="uf-table-cell-bold" th:text="${entry.key.numero}"></td>
+                                    <td class="uf-table-cell-date" th:text="${#temporals.format(entry.key.dateReservation, 'dd/MM/yyyy')}"></td>
+                                    <td th:text="${entry.key.client.personne.nom}"></td>
+                                    <td class="uf-table-cell-numeric" th:text="${entry.key.vol.numero}"></td>
+                                    <td class="uf-table-cell-date" th:text="${#temporals.format(entry.key.vol.heure, 'dd/MM/yyyy HH:mm')}"></td>
+                                    <td th:text="${entry.key.vol.volType.libelle}"></td>
+                                    <td th:text="${entry.key.vol.itineraire.aeroportDepart.nom}"></td>
+                                    <td th:text="${entry.key.vol.itineraire.aeroportArrive.nom}"></td>
+                                    <td class="uf-table-cell-numeric" th:text="${entry.value != null ? entry.value.montantTotal + ' Ar' : '-'}"></td>
+                                    <td class="uf-table-cell-numeric" th:text="${entry.value != null ? entry.value.restePayer + ' Ar' : '-'}"></td>
+                                    <td>
+                                        <a th:href="@{/paiement-saisie(reservationId=${entry.key.idReservation})}" class="uf-table-btn">Payer</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr style="font-weight: bold; border-top: 2px solid #333;">
+                                    <td colspan="10" style="text-align: right; padding-right: 20px;">TOTAL RÉSERVATIONS :</td>
+                                    <td class="uf-table-cell-numeric" colspan="2" style="color: #007bff; font-size: 1.1em;">
+                                        <span th:text="${reservationPaiementMap.size()}"></span>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script th:src="@{/js/template.js}"></script>
+</body>
+</html>
