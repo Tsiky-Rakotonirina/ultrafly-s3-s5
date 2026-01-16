@@ -356,14 +356,26 @@
             if (prixCell) {
                 prixCell.textContent = prix + ' Ar';
             }
+            
+            // Mettre à jour le prix dans selectedSeats
+            const seat = selectedSeats.find(s => s.id == siegeId);
+            if (seat) {
+                seat.prix = prix;
+            }
+            
             updateTotal();
         }
         
         function updateTotal() {
             let total = 0;
-            selectedSeats.forEach(seat => {
-                total += parseFloat(seat.prix) || 0;
+            
+            // Calculer le total à partir des cellules affichées dans le tableau
+            document.querySelectorAll('[id^="prix-"]').forEach(cell => {
+                const prixText = cell.textContent.replace(' Ar', '').trim();
+                const prix = parseFloat(prixText) || 0;
+                total += prix;
             });
+            
             document.getElementById('totalAmount').textContent = total.toFixed(2) + ' Ar';
         }
         
