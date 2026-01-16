@@ -1,0 +1,1 @@
+update vol_tarrif set prix = 800000 where siege_categorie_id = 1;

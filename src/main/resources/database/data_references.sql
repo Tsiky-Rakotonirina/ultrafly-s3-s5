@@ -5,9 +5,9 @@ INSERT INTO avion_statut (libelle, description) VALUES ('Hors service', 'Avion i
 INSERT INTO avion_statut (libelle, description) VALUES ('En attente', 'Avion en attente de validation');
 
 -- Table siege_categorie
-INSERT INTO siege_categorie (libelle, description) VALUES ('economique', 'Classe economique standard');
-INSERT INTO siege_categorie (libelle, description) VALUES ('Affaires', 'Classe affaires avec plus de confort');
-INSERT INTO siege_categorie (libelle, description) VALUES ('Première', 'Classe première avec services premium');
+INSERT INTO siege_categorie (libelle, description) VALUES ('Economique', 'Classe economique standard');
+INSERT INTO siege_categorie (libelle, description) VALUES ('Premiun', 'Classe premium avec plus de confort');
+INSERT INTO siege_categorie (libelle, description) VALUES ('Première Classe', 'Classe première avec services plus que premium');
 
 -- Table carburant
 INSERT INTO carburant (libelle, description) VALUES ('Jet A-1', 'Kerosène aviation standard');
