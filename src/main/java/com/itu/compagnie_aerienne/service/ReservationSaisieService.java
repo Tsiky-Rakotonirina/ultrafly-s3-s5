@@ -14,6 +14,7 @@ import com.itu.compagnie_aerienne.model.Avion;
 import com.itu.compagnie_aerienne.model.AvionSiege;
 import com.itu.compagnie_aerienne.model.BilletStatut;
 import com.itu.compagnie_aerienne.model.Client;
+import com.itu.compagnie_aerienne.model.ClientType;
 import com.itu.compagnie_aerienne.model.Paiement;
 import com.itu.compagnie_aerienne.model.Reservation;
 import com.itu.compagnie_aerienne.model.ReservationBillet;
@@ -25,6 +26,7 @@ import com.itu.compagnie_aerienne.model.VolTarrifRemise;
 import com.itu.compagnie_aerienne.repository.AvionSiegeRepository;
 import com.itu.compagnie_aerienne.repository.BilletStatutRepository;
 import com.itu.compagnie_aerienne.repository.ClientRepository;
+import com.itu.compagnie_aerienne.repository.ClientTypeRepository;
 import com.itu.compagnie_aerienne.repository.PaiementRepository;
 import com.itu.compagnie_aerienne.repository.ReservationBilletRepository;
 import com.itu.compagnie_aerienne.repository.ReservationRepository;
@@ -51,6 +53,7 @@ public class ReservationSaisieService {
     private final BilletStatutRepository billetStatutRepository;
     private final VolDetailRepository volDetailRepository;
     private final PaiementRepository paiementRepository;
+    private final ClientTypeRepository clientTypeRepository;
     
     /**
      * Récupère un vol par son ID
@@ -121,11 +124,11 @@ public class ReservationSaisieService {
      * Récupère les remises de tarifs (vol_tarrif_remise) pour le vol
      * Retourne une structure: {categorieId: {clientTypeId: {prix: X, pourcentage: Y}}}
      */
-    public Map<String, Object> getTarifRemises(Integer volId) {
+    public Map<String, Map<Integer, Map<String, Object>>> getTarifRemises(Integer volId) {
         List<VolTarrif> tarifs = volTarrifRepository.findAllByVolIdVol(volId);
-        Map<String, Object> result = new HashMap<>();
+        Map<String, Map<Integer, Map<String, Object>>> result = new HashMap<>();
         
-        // Structure: categorieId -> Map(clientTypeId -> {prix, pourcentage})
+        // Structure: categorieId (String) -> clientTypeId (Integer) -> {prix, pourcentage}
         for (VolTarrif tarrif : tarifs) {
             Integer categorieId = tarrif.getSiegeCategorie().getIdSiegeCategorie();
             
@@ -133,11 +136,11 @@ public class ReservationSaisieService {
             List<VolTarrifRemise> remises = volTarrifRemiseRepository.findByVolTarrifIdVolTarrif(tarrif.getIdVolTarrif());
             
             if (!remises.isEmpty()) {
-                Map<Integer, Map<String, BigDecimal>> remisesParClientType = new HashMap<>();
+                Map<Integer, Map<String, Object>> remisesParClientType = new HashMap<>();
                 for (VolTarrifRemise remise : remises) {
                     // Stocker le prix ET le pourcentage par type de client
                     if (remise.getClientType() != null) {
-                        Map<String, BigDecimal> remiseData = new HashMap<>();
+                        Map<String, Object> remiseData = new HashMap<>();
                         remiseData.put("prix", remise.getPrix());
                         remiseData.put("pourcentage", remise.getPourcentage());
                         remisesParClientType.put(remise.getClientType().getIdClientType(), remiseData);
@@ -301,5 +304,12 @@ public class ReservationSaisieService {
         paiementRepository.saveAndFlush(paiement);
         
         return reservation;
+    }
+
+    /**
+     * Récupère tous les types de clients
+     */
+    public List<ClientType> getAllClientTypes() {
+        return clientTypeRepository.findAll();
     }
 }

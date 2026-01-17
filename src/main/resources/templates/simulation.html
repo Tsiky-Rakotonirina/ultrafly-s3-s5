@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulation - Vol</title>
+    <link rel="icon" type="image/png" th:href="@{/image/logo.png}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" th:href="@{/css/template.css}">
+</head>
+<body>
+    <!-- Background Elements -->
+    <div class="bg-element bg-element-1"></div>
+    <div class="bg-element bg-element-2"></div>
+    
+    <div class="uf-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="uf-sidebar">
+            <div class="uf-sidebar-header">
+                <div class="uf-sidebar-logo">
+                    <span class="logo-ultra">Ultra</span><span class="logo-fly">Fly</span>
+                </div>
+                <button class="uf-sidebar-toggle">
+                    <span>←</span>
+                </button>
+            </div>
+            
+            <nav class="uf-sidebar-nav">
+                <a th:href="@{/vol-list}" class="uf-sidebar-item">
+                    <span class="uf-sidebar-icon">✈️</span>
+                    <span class="uf-sidebar-text">Vols</span>
+                </a>
+                <a href="#" class="uf-sidebar-item">
+                    <span class="uf-sidebar-icon">📋</span>
+                    <span class="uf-sidebar-text">Réservations</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="uf-main">
+            <div class="uf-content">
+                <!-- Titre principal -->
+                <h1 class="uf-title">Simulation Chiffre d'Affaires - Vol <span th:text="${vol.numero}"></span></h1>
+                <p style="color: var(--text-color-muted); margin-bottom: 30px;">Calculez le chiffre d'affaires en fonction des types de clients et des tarifs</p>
+
+                <!-- Informations du vol -->
+                <div class="uf-component-table" style="margin-bottom: 30px;">
+                    <h2 class="uf-subtitle">Détails du Vol</h2>
+                    <div class="uf-table-container">
+                        <table class="uf-table">
+                            <tbody>
+                                <tr>
+                                    <th style="width: 200px;">Numéro du vol:</th>
+                                    <td th:text="${vol.numero}"></td>
+                                </tr>
+                                <tr>
+                                    <th>Départ:</th>
+                                    <td th:text="${#temporals.format(vol.heure, 'dd/MM/yyyy HH:mm')}"></td>
+                                </tr>
+                                <tr>
+                                    <th>Aéroport départ:</th>
+                                    <td th:text="${vol.itineraire.aeroportDepart.nom}"></td>
+                                </tr>
+                                <tr>
+                                    <th>Aéroport arrivée:</th>
+                                    <td th:text="${vol.itineraire.aeroportArrive.nom}"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Table des Tarifs par Classe -->
+                <div class="uf-component-table" style="margin-bottom: 30px;">
+                    <h2 class="uf-subtitle">Tarifs par Classe</h2>
+                    <div class="uf-table-container">
+                        <table class="uf-table" id="tarifTable">
+                            <thead>
+                                <tr>
+                                    <th>Classe de Siège</th>
+                                    <th>Tarif Adulte</th>
+                                    <th>Remises Disponibles</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tarifTableBody">
+                                <tr th:each="entry : ${tarrifs}">
+                                    <td th:text="${entry.key.libelle}"></td>
+                                    <td class="uf-table-cell-numeric">
+                                        <span th:text="${#numbers.formatDecimal(entry.value, 0, 'DEFAULT', 0, 'DEFAULT')}"></span> 
+                                        <span style="color: var(--text-color-muted);">Ar</span>
+                                    </td>
+                                    <td>
+                                        <div th:if="${tarifRemises != null and tarifRemises.containsKey(#strings.toString(entry.key.idSiegeCategorie))}">
+                                            <small th:each="remise, stat : ${tarifRemises.get(#strings.toString(entry.key.idSiegeCategorie)).values()}" 
+                                                   style="background: var(--success-color); color: white; padding: 2px 8px; border-radius: 4px; margin-right: 5px; display: inline-block;">
+                                                <span th:text="${remise.keySet().stream().findFirst().orElse('N/A')}"></span>
+                                            </small>
+                                        </div>
+                                        <div th:unless="${tarifRemises != null and tarifRemises.containsKey(#strings.toString(entry.key.idSiegeCategorie))}" 
+                                             style="color: var(--text-color-muted);">
+                                            <small>Aucune remise</small>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Formulaire de Simulation -->
+                <div class="uf-component-table" style="margin-bottom: 30px;">
+                    <h2 class="uf-subtitle">Simulation - Nombre de Passagers par Classe et Type</h2>
+                    <form id="simulationForm" style="padding: 20px;">
+                        <input type="hidden" id="volId" th:value="${volId}">
+                        
+                        <!-- Table de simulation: Classe × Type de client -->
+                        <div class="uf-table-container">
+                            <table class="uf-table" id="simulationTable">
+                                <thead>
+                                    <tr>
+                                        <th>Classe de Siège</th>
+                                        <th>Tarif Adulte (Ar)</th>
+                                        <th th:each="clientType : ${clientTypes}" th:text="${clientType.libelle}"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="entry : ${tarrifs}">
+                                        <td style="font-weight: 600;" th:text="${entry.key.libelle}"></td>
+                                        <td class="uf-table-cell-numeric" 
+                                            th:data-siege-categorie-id="${entry.key.idSiegeCategorie}"
+                                            th:data-siege-categorie-libelle="${entry.key.libelle}"
+                                            th:data-tarif="${entry.value}">
+                                            <span th:text="${#numbers.formatDecimal(entry.value, 0, 'DEFAULT', 0, 'DEFAULT')}"></span>
+                                        </td>
+                                        <!-- Input pour chaque type de client -->
+                                        <td th:each="clientType : ${clientTypes}">
+                                            <input type="number" 
+                                                   class="clientInput" 
+                                                   th:id="'input_' + ${entry.key.idSiegeCategorie} + '_' + ${clientType.idClientType}"
+                                                   th:data-siege-id="${entry.key.idSiegeCategorie}"
+                                                   th:data-siege-libelle="${entry.key.libelle}"
+                                                   th:data-client-id="${clientType.idClientType}"
+                                                   th:data-client-libelle="${clientType.libelle}"
+                                                   th:data-tarif-base="${entry.value}"
+                                                   th:data-tarif-remise="${tarifRemises != null and tarifRemises.containsKey(entry.key.idSiegeCategorie.toString()) and tarifRemises.get(entry.key.idSiegeCategorie.toString()).containsKey(clientType.idClientType) ? tarifRemises.get(entry.key.idSiegeCategorie.toString()).get(clientType.idClientType).prix : ''}"
+                                                   th:data-pourcentage-remise="${tarifRemises != null and tarifRemises.containsKey(entry.key.idSiegeCategorie.toString()) and tarifRemises.get(entry.key.idSiegeCategorie.toString()).containsKey(clientType.idClientType) ? tarifRemises.get(entry.key.idSiegeCategorie.toString()).get(clientType.idClientType).pourcentage : ''}"
+                                                   min="0" 
+                                                   value="0"
+                                                   placeholder="0"
+                                                   style="width: 80px; padding: 6px 10px; border: 1px solid var(--border-color); border-radius: 4px; text-align: center; font-size: 14px;">
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Boutons d'action -->
+                        <div style="display: flex; gap: 10px; margin-top: 20px;">
+                            <button type="button" class="uf-table-btn" id="calculateBtn" style="padding: 12px 24px;">
+                                🧮 Calculer le Chiffre d'Affaires
+                            </button>
+                            <button type="reset" class="uf-table-btn" style="padding: 12px 24px; background: var(--text-color-muted);">
+                                🔄 Réinitialiser
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Résultats -->
+                <div class="uf-component-table" id="resultsSection" style="display: none; margin-bottom: 30px;">
+                    <h2 class="uf-subtitle">Résultats de la Simulation</h2>
+                    <div class="uf-table-container">
+                        <table class="uf-table" id="resultsTable">
+                            <thead>
+                                <tr>
+                                    <th>Classe de Siège</th>
+                                    <th>Type de Client</th>
+                                    <th>Quantité</th>
+                                    <th>Tarif/Remise</th>
+                                    <th>Montant</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resultsTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 30px; padding: 20px;">
+                        <div>
+                            <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 15px;">Détails par Classe</h3>
+                            <div id="classBreakdown"></div>
+                        </div>
+                        <div>
+                            <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 15px;">Résumé Total</h3>
+                            <div style="background: var(--surface-color); padding: 20px; border-radius: 8px; border: 2px solid var(--primary-color);">
+                                <p style="font-size: 16px; margin-bottom: 10px;">
+                                    Nombre total de passagers: <strong id="totalPassengers" style="color: var(--primary-color); font-size: 20px;">0</strong>
+                                </p>
+                                <p style="font-size: 16px; margin-bottom: 0;">
+                                    Chiffre d'affaires total: <strong id="totalRevenue" style="color: var(--success-color); font-size: 24px;">0 Ar</strong>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="padding: 0 20px 20px;">
+                        <button type="button" class="uf-table-btn" onclick="document.getElementById('resultsSection').style.display='none';" style="background: var(--text-color-muted);">
+                            ✕ Fermer
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script th:src="@{/js/template.js}"></script>
+    <script th:src="@{/js/simulation.js}"></script>
+</body>
+</html>

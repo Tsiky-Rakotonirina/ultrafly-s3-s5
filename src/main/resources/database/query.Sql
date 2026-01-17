@@ -1,0 +1,1 @@
+update vol_tarrif set prix = 900000 where id_vol_tarrif = 3;

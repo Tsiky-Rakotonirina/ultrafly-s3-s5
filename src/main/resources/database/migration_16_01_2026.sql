@@ -25,13 +25,7 @@ INSERT INTO client (id_client, passeport, personne_id,client_type_id) VALUES (3,
 
 -- Ajout d'une remise pour la catégorie Enfant
 -- Prix normal Economique: 700000.00 Ar -> Prix réduit Enfant: 500000.00 Ar
-INSERT INTO vol_tarrif_remise (vol_tarrif_id, client_type_id, prix, date_remise) 
-VALUES (
-    (SELECT id_vol_tarrif FROM vol_tarrif WHERE vol_id = 1 AND siege_categorie_id = (SELECT id_siege_categorie FROM siege_categorie WHERE libelle = 'Economique')),
-    (SELECT id_client_type FROM client_type WHERE libelle = 'Enfant'),
-    500000.00,
-    '2025-01-14'
-);
+
 
 INSERT INTO vol_tarrif_remise (vol_tarrif_id, client_type_id, pourcentage, date_remise) 
 VALUES (
@@ -56,3 +50,29 @@ VALUES (
     10.00,
     '2025-01-14'
 );
+
+
+INSERT INTO vol_tarrif_remise (vol_tarrif_id, client_type_id, prix, date_remise) 
+VALUES (
+    1,
+    (SELECT id_client_type FROM client_type WHERE libelle = 'Enfant'),
+    800000.00,
+    '2025-01-14'
+);
+
+INSERT INTO vol_tarrif_remise (vol_tarrif_id, client_type_id, prix, date_remise) 
+VALUES (
+    2,
+    (SELECT id_client_type FROM client_type WHERE libelle = 'Enfant'),
+    700000.00,
+    '2025-01-14'
+);
+
+INSERT INTO vol_tarrif_remise (vol_tarrif_id, client_type_id, prix, date_remise) 
+VALUES (
+    3,
+    (SELECT id_client_type FROM client_type WHERE libelle = 'Enfant'),
+    600000.00,
+    '2025-01-14'
+);
+

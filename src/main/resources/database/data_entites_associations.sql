@@ -172,9 +172,9 @@ INSERT INTO vol_detail (id_vol_detail, heure, vol_id, itineraire_escale_id, avio
 
 
 -- vol_tarrif
-INSERT INTO vol_tarrif (id_vol_tarrif, prix, siege_categorie_id, vol_id) VALUES (1, 1200000.00, 3, 1);
+INSERT INTO vol_tarrif (id_vol_tarrif, prix, siege_categorie_id, vol_id) VALUES (1, 2000000.00, 3, 1);
 INSERT INTO vol_tarrif (id_vol_tarrif, prix, siege_categorie_id, vol_id) VALUES (2, 1000000.00, 2, 1);
-INSERT INTO vol_tarrif (id_vol_tarrif, prix, siege_categorie_id, vol_id) VALUES (3, 700000.00, 1, 1);
+INSERT INTO vol_tarrif (id_vol_tarrif, prix, siege_categorie_id, vol_id) VALUES (3, 800000.00, 1, 1);
 
 -- reservation
 

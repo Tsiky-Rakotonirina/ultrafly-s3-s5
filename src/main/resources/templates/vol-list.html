@@ -75,9 +75,10 @@
                                     <td class="uf-table-cell-bold" style="color: #28a745;">
                                         <span th:text="${volData.chiffreAffaire}"></span> Ar
                                     </td>
-                                    <td>
-                                        <a th:href="@{/reservation-saisie(volId=${volData.vol.idVol})}" class="uf-table-btn">Réserver</a>
-                                        <a th:href="@{/vol-liste-reservation(volId=${volData.vol.idVol})}"  class="uf-table-btn">Liste des reservations</a>
+                                    <td style="white-space: nowrap;">
+                                        <a th:href="@{/reservation-saisie(volId=${volData.vol.idVol})}" class="uf-table-btn" style="margin-right: 8px;">Réserver</a>
+                                        <a th:href="@{/vol-liste-reservation(volId=${volData.vol.idVol})}"  class="uf-table-btn">Liste réservations</a>
+                                        <a th:href="@{/simulation(volId=${volData.vol.idVol})}" class="uf-table-btn" style="margin-left: 8px;">Simuler</a>  
                                     </td>
                                 </tr>
                             </tbody>
