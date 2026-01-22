@@ -98,98 +98,162 @@ public class DiffusionService {
 
     /**
      * Calcule le chiffre d'affaires et le nombre de diffusions
-     * @param moisAnnee Date du mois-année (format YYYY-MM-01). Si null, calcule pour tous les mois
+     * @param dateFiltre Date de référence. Si fournie, calcule le CA du mois complet (début à fin du mois) et le reste à payer jusqu'à cette date. Si null, calcule pour toutes les périodes
      * @return DiffusionStats contenant le CA total, nombre total et détails par société
      */
-    public DiffusionStats calculerStatsDiffusion(LocalDate moisAnnee) {
+    public DiffusionStats calculerStatsDiffusion(LocalDate dateFiltre) {
         DiffusionStats stats = new DiffusionStats();
         
-        // Calcul des totaux généraux
-        StringBuilder queryTotal = new StringBuilder();
-        queryTotal.append("SELECT COALESCE(SUM(pd.nombre * pt.cout), 0) as ca, COALESCE(SUM(pd.nombre), 0) as nb ");
-        queryTotal.append("FROM publicite_diffusion pd ");
-        queryTotal.append("LEFT JOIN LATERAL ( ");
-        queryTotal.append("  SELECT pt.cout ");
-        queryTotal.append("  FROM publicite_tarrif pt ");
-        queryTotal.append("  WHERE pt.date_tarrif <= pd.mois_annee ");
-        queryTotal.append("  ORDER BY pt.date_tarrif DESC ");
-        queryTotal.append("  LIMIT 1 ");
-        queryTotal.append(") pt ON true ");
-        queryTotal.append("WHERE 1=1 ");
-        
-        if (moisAnnee != null) {
-            queryTotal.append("AND pd.mois_annee = :moisAnnee ");
+        // Déterminer les dates de début et fin du mois si une date est fournie
+        LocalDate dateDebutMois = null;
+        LocalDate dateFinMois = null;
+        if (dateFiltre != null) {
+            dateDebutMois = dateFiltre.withDayOfMonth(1);
+            dateFinMois = dateFiltre.withDayOfMonth(dateFiltre.lengthOfMonth());
         }
         
-        var nativeQueryTotal = entityManager.createNativeQuery(queryTotal.toString());
-        if (moisAnnee != null) {
-            nativeQueryTotal.setParameter("moisAnnee", moisAnnee);
-        }
-        
-        Object[] resultTotal = (Object[]) nativeQueryTotal.getSingleResult();
-        stats.setChiffreAffaireTotal(resultTotal[0] != null ? new BigDecimal(resultTotal[0].toString()) : BigDecimal.ZERO);
-        stats.setNombreDiffusionTotal(resultTotal[1] != null ? Long.parseLong(resultTotal[1].toString()) : 0L);
+        // Calcul des totaux généraux (CA et nombre de diffusions)
+        Object[] resultatsGlobaux = calculerTotauxGlobaux(dateDebutMois, dateFinMois);
+        stats.setChiffreAffaireTotal(resultatsGlobaux[0] != null ? new BigDecimal(resultatsGlobaux[0].toString()) : BigDecimal.ZERO);
+        stats.setNombreDiffusionTotal(resultatsGlobaux[1] != null ? Long.parseLong(resultatsGlobaux[1].toString()) : 0L);
         
         // Calcul des détails par société
-        StringBuilder queryDetail = new StringBuilder();
-        queryDetail.append("SELECT s.id_societe, s.nom, COALESCE(SUM(pd.nombre), 0) as nb, COALESCE(SUM(pd.nombre * pt.cout), 0) as ca ");
-        queryDetail.append("FROM publicite_diffusion pd ");
-        queryDetail.append("JOIN societe s ON pd.societe_id = s.id_societe ");
-        queryDetail.append("LEFT JOIN LATERAL ( ");
-        queryDetail.append("  SELECT pt.cout ");
-        queryDetail.append("  FROM publicite_tarrif pt ");
-        queryDetail.append("  WHERE pt.date_tarrif <= pd.mois_annee ");
-        queryDetail.append("  ORDER BY pt.date_tarrif DESC ");
-        queryDetail.append("  LIMIT 1 ");
-        queryDetail.append(") pt ON true ");
-        queryDetail.append("WHERE 1=1 ");
+        List<Object[]> resultsDetail = calculerDetailsParSociete(dateDebutMois, dateFinMois);
         
-        if (moisAnnee != null) {
-            queryDetail.append("AND pd.mois_annee = :moisAnnee ");
-        }
-        
-        queryDetail.append("GROUP BY s.id_societe, s.nom ");
-        queryDetail.append("ORDER BY s.nom ");
-        
-        var nativeQueryDetail = entityManager.createNativeQuery(queryDetail.toString());
-        if (moisAnnee != null) {
-            nativeQueryDetail.setParameter("moisAnnee", moisAnnee);
-        }
-        
-        @SuppressWarnings("unchecked")
-        List<Object[]> resultsDetail = nativeQueryDetail.getResultList();
+        // Traitement des résultats par société
         List<DiffusionParSociete> detailsParSociete = new ArrayList<>();
         BigDecimal totalEncaisse = BigDecimal.ZERO;
         BigDecimal resteAPayerTotal = BigDecimal.ZERO;
         
         for (Object[] row : resultsDetail) {
-            Integer idSociete = row[0] != null ? Integer.parseInt(row[0].toString()) : null;
-            String nomSociete = (String) row[1];
-            Long nombreDiffusion = row[2] != null ? Long.parseLong(row[2].toString()) : 0L;
-            BigDecimal chiffreAffaire = row[3] != null ? new BigDecimal(row[3].toString()) : BigDecimal.ZERO;
-            
-            // Calcul des encaissements pour cette société
-            BigDecimal montantEncaisse = encaissementRepository.sumMontantBySocieteId(idSociete);
-            if (montantEncaisse == null) {
-                montantEncaisse = BigDecimal.ZERO;
-            }
-            
-            // Calcul du reste à payer pour cette société
-            BigDecimal resteAPayer = chiffreAffaire.subtract(montantEncaisse);
-            if (resteAPayer.compareTo(BigDecimal.ZERO) < 0) {
-                resteAPayer = BigDecimal.ZERO; // Pas de reste négatif
-            }
-            
-            totalEncaisse = totalEncaisse.add(montantEncaisse);
-            resteAPayerTotal = resteAPayerTotal.add(resteAPayer);
-            
-            detailsParSociete.add(new DiffusionParSociete(idSociete, nomSociete, nombreDiffusion, chiffreAffaire, montantEncaisse, resteAPayer));
+            DiffusionParSociete detail = traiterDetailSociete(row, dateFiltre);
+            detailsParSociete.add(detail);
+            totalEncaisse = totalEncaisse.add(detail.getMontantEncaisse());
+            resteAPayerTotal = resteAPayerTotal.add(detail.getResteAPayer());
         }
+        
         stats.setDetailsParSociete(detailsParSociete);
         stats.setTotalEncaisse(totalEncaisse);
         stats.setResteAPayerTotal(resteAPayerTotal);
         
         return stats;
+    }
+    
+    /**
+     * Calcule les totaux globaux (CA et nombre de diffusions)
+     * @param dateDebut Date de début de la période (null = depuis toujours)
+     * @param dateFin Date de fin de la période (null = jusqu'à maintenant)
+     * @return Tableau contenant [chiffre d'affaires, nombre de diffusions]
+     */
+    private Object[] calculerTotauxGlobaux(LocalDate dateDebut, LocalDate dateFin) {
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT COALESCE(SUM(pd.nombre * pt.cout), 0) as ca, COALESCE(SUM(pd.nombre), 0) as nb ");
+        query.append("FROM publicite_diffusion pd ");
+        query.append("LEFT JOIN LATERAL ( ");
+        query.append("  SELECT pt.cout ");
+        query.append("  FROM publicite_tarrif pt ");
+        query.append("  WHERE pt.date_tarrif <= pd.mois_annee ");
+        query.append("  ORDER BY pt.date_tarrif DESC ");
+        query.append("  LIMIT 1 ");
+        query.append(") pt ON true ");
+        query.append("WHERE 1=1 ");
+        
+        if (dateDebut != null && dateFin != null) {
+            query.append("AND pd.mois_annee >= :dateDebut AND pd.mois_annee <= :dateFin ");
+        }
+        
+        var nativeQuery = entityManager.createNativeQuery(query.toString());
+        if (dateDebut != null && dateFin != null) {
+            nativeQuery.setParameter("dateDebut", dateDebut);
+            nativeQuery.setParameter("dateFin", dateFin);
+        }
+        
+        return (Object[]) nativeQuery.getSingleResult();
+    }
+    
+    /**
+     * Calcule les détails par société (CA et nombre de diffusions)
+     * @param dateDebut Date de début de la période (null = depuis toujours)
+     * @param dateFin Date de fin de la période (null = jusqu'à maintenant)
+     * @return Liste des résultats par société
+     */
+    @SuppressWarnings("unchecked")
+    private List<Object[]> calculerDetailsParSociete(LocalDate dateDebut, LocalDate dateFin) {
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT s.id_societe, s.nom, COALESCE(SUM(pd.nombre), 0) as nb, COALESCE(SUM(pd.nombre * pt.cout), 0) as ca ");
+        query.append("FROM publicite_diffusion pd ");
+        query.append("JOIN societe s ON pd.societe_id = s.id_societe ");
+        query.append("LEFT JOIN LATERAL ( ");
+        query.append("  SELECT pt.cout ");
+        query.append("  FROM publicite_tarrif pt ");
+        query.append("  WHERE pt.date_tarrif <= pd.mois_annee ");
+        query.append("  ORDER BY pt.date_tarrif DESC ");
+        query.append("  LIMIT 1 ");
+        query.append(") pt ON true ");
+        query.append("WHERE 1=1 ");
+        
+        if (dateDebut != null && dateFin != null) {
+            query.append("AND pd.mois_annee >= :dateDebut AND pd.mois_annee <= :dateFin ");
+        }
+        
+        query.append("GROUP BY s.id_societe, s.nom ");
+        query.append("ORDER BY s.nom ");
+        
+        var nativeQuery = entityManager.createNativeQuery(query.toString());
+        if (dateDebut != null && dateFin != null) {
+            nativeQuery.setParameter("dateDebut", dateDebut);
+            nativeQuery.setParameter("dateFin", dateFin);
+        }
+        
+        return nativeQuery.getResultList();
+    }
+    
+    /**
+     * Traite les détails d'une société (calcul des encaissements et reste à payer)
+     * @param row Ligne de résultat [id_societe, nom, nombre_diffusions, chiffre_affaire]
+     * @param dateFiltre Date de référence pour le calcul des encaissements (null = tous)
+     * @return Objet DiffusionParSociete contenant tous les détails
+     */
+    private DiffusionParSociete traiterDetailSociete(Object[] row, LocalDate dateFiltre) {
+        Integer idSociete = row[0] != null ? Integer.parseInt(row[0].toString()) : null;
+        String nomSociete = (String) row[1];
+        Long nombreDiffusion = row[2] != null ? Long.parseLong(row[2].toString()) : 0L;
+        BigDecimal chiffreAffaire = row[3] != null ? new BigDecimal(row[3].toString()) : BigDecimal.ZERO;
+        
+        // Calcul des encaissements (jusqu'à la date de filtre si spécifiée)
+        BigDecimal montantEncaisse = calculerEncaissementSociete(idSociete, dateFiltre);
+        
+        // Calcul du reste à payer
+        BigDecimal resteAPayer = calculerResteAPayer(chiffreAffaire, montantEncaisse);
+        
+        return new DiffusionParSociete(idSociete, nomSociete, nombreDiffusion, chiffreAffaire, montantEncaisse, resteAPayer);
+    }
+    
+    /**
+     * Calcule le montant total encaissé pour une société
+     * @param idSociete ID de la société
+     * @param dateFiltre Date limite (null = tous les encaissements)
+     * @return Montant total encaissé
+     */
+    private BigDecimal calculerEncaissementSociete(Integer idSociete, LocalDate dateFiltre) {
+        BigDecimal montantEncaisse;
+        if (dateFiltre != null) {
+            montantEncaisse = encaissementRepository.sumMontantBySocieteIdAndDateBefore(idSociete, dateFiltre);
+        } else {
+            montantEncaisse = encaissementRepository.sumMontantBySocieteId(idSociete);
+        }
+        return montantEncaisse != null ? montantEncaisse : BigDecimal.ZERO;
+    }
+    
+    /**
+     * Calcule le reste à payer (CA - Encaissements)
+     * @param chiffreAffaire Chiffre d'affaires total
+     * @param montantEncaisse Montant déjà encaissé
+     * @return Reste à payer (minimum 0)
+     */
+    private BigDecimal calculerResteAPayer(BigDecimal chiffreAffaire, BigDecimal montantEncaisse) {
+        BigDecimal resteAPayer = chiffreAffaire.subtract(montantEncaisse);
+        return resteAPayer.compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ZERO : resteAPayer;
     }
 
     /**
@@ -241,6 +305,21 @@ public class DiffusionService {
                 .toString();
     }
 
-
+    /**
+     * Crée un nouvel encaissement pour une société
+     * @param societeId ID de la société
+     * @param dateEncaissement Date de l'encaissement
+     * @param montant Montant de l'encaissement
+     * @return L'encaissement créé
+     */
+    public String createEncaissement(Integer societeId, LocalDate dateEncaissement, BigDecimal montant) {
+        com.itu.compagnie_aerienne.model.Encaissement encaissement = new com.itu.compagnie_aerienne.model.Encaissement(
+                null,
+                societeRepository.findById(societeId).orElseThrow(),
+                dateEncaissement,
+                montant
+        );
+        return encaissementRepository.save(encaissement).toString();
+    }
 
 }

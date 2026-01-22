@@ -26,13 +26,14 @@ public class DiffusionController {
 
     @GetMapping("/diffusion-ca")
     public String diffusionCa(@RequestParam(name = "moisAnnee", required = false) String moisAnnee, Model model) {
-        LocalDate moisAnneeDate = null;
+        LocalDate dateFin = null;
         if (moisAnnee != null && !moisAnnee.isEmpty()) {
-            // Format attendu: YYYY-MM (depuis input type="month")
-            moisAnneeDate = LocalDate.parse(moisAnnee + "-01");
+            // Format attendu: YYYY-MM-DD (depuis input type="date")
+            // Si c'est une date, on l'utilise directement pour calculer le CA jusqu'à cette date
+            dateFin = LocalDate.parse(moisAnnee);
         }
 
-        DiffusionService.DiffusionStats stats = diffusionService.calculerStatsDiffusion(moisAnneeDate);
+        DiffusionService.DiffusionStats stats = diffusionService.calculerStatsDiffusion(dateFin);
 
         model.addAttribute("ca", stats.getChiffreAffaireTotal());
         model.addAttribute("nombreDiffusion", stats.getNombreDiffusionTotal());
@@ -53,14 +54,31 @@ public class DiffusionController {
         Integer nombreInt = (nombre != null && !nombre.isEmpty()) ? Integer.parseInt(nombre) : null;
         LocalDate moisAnneeDate = null;
         if (moisAnnee != null && !moisAnnee.isEmpty()) {
-            // Format attendu: YYYY-MM (depuis input type="month")
-            moisAnneeDate = LocalDate.parse(moisAnnee + "-01");
+            // Format attendu: YYYY-MM-DD (depuis input type="date")
+            moisAnneeDate = LocalDate.parse(moisAnnee);
         }
         BigDecimal dureeBigDecimal = (duree != null && !duree.isEmpty()) ? new BigDecimal(duree) : null;
         Integer societeId = (societe != null && !societe.isEmpty()) ? Integer.parseInt(societe) : null;
 
         String result = diffusionService.create(nombreInt, moisAnneeDate, dureeBigDecimal, societeId);
         System.out.println("Diffusion created with ID: " + result);
+
+        return "redirect:/diffusion-ca";
+    }
+
+    @PostMapping("/encaissement-saisie")
+    public String encaissementSaisie(@RequestParam(name = "societeEncaissement", required = false) String societeEncaissement,
+            @RequestParam(name = "dateEncaissement", required = false) String dateEncaissement,
+            @RequestParam(name = "montantEncaissement", required = false) String montantEncaissement) {
+        Integer societeId = (societeEncaissement != null && !societeEncaissement.isEmpty()) ? Integer.parseInt(societeEncaissement) : null;
+        LocalDate dateEncaissementDate = null;
+        if (dateEncaissement != null && !dateEncaissement.isEmpty()) {
+            dateEncaissementDate = LocalDate.parse(dateEncaissement);
+        }
+        BigDecimal montant = (montantEncaissement != null && !montantEncaissement.isEmpty()) ? new BigDecimal(montantEncaissement) : null;
+
+        String result = diffusionService.createEncaissement(societeId, dateEncaissementDate, montant);
+        System.out.println("Encaissement created with ID: " + result);
 
         return "redirect:/diffusion-ca";
     }

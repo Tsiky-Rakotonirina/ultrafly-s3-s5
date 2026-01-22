@@ -65,10 +65,10 @@
                 <h1 class="uf-subtitle">Filtre Diffusion Publicité</h1>
                 
                 <form th:action="@{/diffusion-ca}" method="get" class="uf-filtre">
-                    <!-- Input Mois-Année -->
+                    <!-- Input Date de fin -->
                     <div class="uf-form-group">
-                        <label class="uf-form-label">Mois-Année</label>
-                        <input type="month" name="moisAnnee" th:value="${moisAnnee}" class="uf-form-input" style="appearance: auto; -webkit-appearance: auto;" placeholder="2025-12">
+                        <label class="uf-form-label">Date de référence (CA du mois complet)</label>
+                        <input type="date" name="moisAnnee" th:value="${moisAnnee}" class="uf-form-input" style="appearance: auto; -webkit-appearance: auto;">
                     </div>
                     
                     <!-- Bouton Filtrer -->
@@ -101,7 +101,11 @@
                             </div>
                             <div class="uf-fiche-attr">
                                 <div class="uf-fiche-attr-label">Période</div>
-                                <div class="uf-fiche-attr-value" th:text="${moisAnnee != null ? moisAnnee : 'Toutes périodes'}">Toutes périodes</div>
+                                <div class="uf-fiche-attr-value">
+                                    <span th:if="${moisAnnee != null}">Mois complet contenant le </span>
+                                    <span th:if="${moisAnnee != null}" th:text="${moisAnnee}"></span>
+                                    <span th:if="${moisAnnee == null}">Toutes périodes</span>
+                                </div>
                             </div>
                             <div class="uf-fiche-attr">
                                 <div class="uf-fiche-attr-label">Total Encaissé</div>
@@ -181,7 +185,7 @@
                     <!-- Mois-Année -->
                     <div class="uf-form-group">
                         <label class="uf-form-label">Mois-Année</label>
-                        <input type="month" name="moisAnnee" class="uf-form-input" style="appearance: auto; -webkit-appearance: auto;" placeholder="2025-12" required>
+                        <input type="date" name="moisAnnee" class="uf-form-input" style="appearance: auto; -webkit-appearance: auto;" placeholder="2025-12" required>
                     </div>
                     
                     <!-- Durée -->
@@ -193,6 +197,40 @@
                     <!-- Bouton Submit -->
                     <div class="uf-form-group">
                         <button type="submit" class="uf-form-btn">Enregistrer</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Formulaire Encaissement -->
+            <div class="uf-component-form">
+                <h1 class="uf-subtitle">Nouvel Encaissement</h1>
+                
+                <form th:action="@{/encaissement-saisie}" method="post" class="uf-filtre">
+                    
+                    <!-- Société -->
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Société</label>
+                        <select name="societeEncaissement" class="uf-form-select" required>
+                            <option value="">-- Choisir une société --</option>
+                            <option th:each="s : ${societes}" th:value="${s.idSociete}" th:text="${s.nom}">Société</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Date Encaissement -->
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Date d'encaissement</label>
+                        <input type="date" name="dateEncaissement" class="uf-form-input" style="appearance: auto; -webkit-appearance: auto;" required>
+                    </div>
+                    
+                    <!-- Montant -->
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Montant (Ar)</label>
+                        <input type="number" name="montantEncaissement" step="0.01" placeholder="Ex: 2000000.00" class="uf-form-input" required min="0.01">
+                    </div>
+                    
+                    <!-- Bouton Submit -->
+                    <div class="uf-form-group">
+                        <button type="submit" class="uf-form-btn">Encaisser</button>
                     </div>
                 </form>
             </div>
