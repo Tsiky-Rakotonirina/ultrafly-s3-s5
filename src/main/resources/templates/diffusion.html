@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UltraFly - Dashboard Diffusion</title>
+    <link rel="icon" type="image/png" th:href="@{/image/logo.png}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" th:href="@{/css/template.css}">
+</head>
+<body>
+    <!-- Background Elements -->
+    <div class="bg-element bg-element-1"></div>
+    <div class="bg-element bg-element-2"></div>
+    
+    <div class="uf-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="uf-sidebar">
+            <!-- Sidebar Header avec Logo -->
+            <div class="uf-sidebar-header">
+                <div class="uf-sidebar-logo">
+                    <span class="logo-ultra">Ultra</span><span class="logo-fly">Fly</span>
+                </div>
+                <button class="uf-sidebar-toggle">
+                    <span>←</span>
+                </button>
+            </div>
+            
+            <!-- Navigation Menu -->
+            <nav class="uf-sidebar-nav">
+                <ul class="uf-sidebar-menu">
+                    <li class="uf-sidebar-item">
+                        <a th:href="@{/}" class="uf-sidebar-link">
+                            <span class="uf-sidebar-icon">🏠</span>
+                            <span class="uf-sidebar-text">Accueil</span>
+                        </a>
+                    </li>
+                    <li class="uf-sidebar-item">
+                        <a th:href="@{/avion}" class="uf-sidebar-link">
+                            <span class="uf-sidebar-icon">✈️</span>
+                            <span class="uf-sidebar-text">Avion</span>
+                        </a>
+                    </li>
+                    <li class="uf-sidebar-item">
+                        <a th:href="@{/vol}" class="uf-sidebar-link">
+                            <span class="uf-sidebar-icon">🛫</span>
+                            <span class="uf-sidebar-text">Vol</span>
+                        </a>
+                    </li>
+                    <li class="uf-sidebar-item">
+                        <a th:href="@{/dashboard}" class="uf-sidebar-link active">
+                            <span class="uf-sidebar-icon">📊</span>
+                            <span class="uf-sidebar-text">Dashboard</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <!-- Main Content Area -->
+        <main class="uf-main">
+            
+            <!-- Filtre par Mois-Année -->
+            <div class="uf-component-form">
+                <h1 class="uf-subtitle">Filtre Diffusion Publicité</h1>
+                
+                <form th:action="@{/diffusion-ca}" method="get" class="uf-filtre">
+                    <!-- Input Mois-Année -->
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Mois-Année</label>
+                        <input type="month" name="moisAnnee" th:value="${moisAnnee}" class="uf-form-input" style="appearance: auto; -webkit-appearance: auto;" placeholder="2025-12">
+                    </div>
+                    
+                    <!-- Bouton Filtrer -->
+                    <div class="uf-form-group">
+                        <button type="submit" class="uf-form-btn">Filtrer</button>
+                    </div>
+                    
+                    <!-- Bouton Reset -->
+                    <div class="uf-form-group">
+                        <a th:href="@{/diffusion-ca}" class="uf-form-btn">Réinitialiser</a>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Fiche Résumé Général -->
+            <div class="uf-component-fiche">
+                <h1 class="uf-subtitle">Résumé Général</h1>
+                <div class="uf-fiche">
+                    
+                    <!-- Section: Totaux -->
+                    <div class="uf-fiche-section">
+                        <div class="uf-fiche-attrs">
+                            <div class="uf-fiche-attr">
+                                <div class="uf-fiche-attr-label">Chiffre d'Affaires Total</div>
+                                <div class="uf-fiche-attr-value" th:text="${#numbers.formatDecimal(ca, 1, 'COMMA', 2, 'POINT')} + ' Ar'">0 Ar</div>
+                            </div>
+                            <div class="uf-fiche-attr">
+                                <div class="uf-fiche-attr-label">Nombre de Diffusions Total</div>
+                                <div class="uf-fiche-attr-value" th:text="${nombreDiffusion}">0</div>
+                            </div>
+                            <div class="uf-fiche-attr">
+                                <div class="uf-fiche-attr-label">Période</div>
+                                <div class="uf-fiche-attr-value" th:text="${moisAnnee != null ? moisAnnee : 'Toutes périodes'}">Toutes périodes</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>   
+            </div>
+
+            <!-- Tableau Détails par Société -->
+            <div class="uf-component-table">
+                <h1 class="uf-subtitle">Détails par Société</h1>
+                
+                <div class="uf-table-container">
+                    <table class="uf-table">
+                        <thead>
+                            <tr>
+                                <th>Société</th>
+                                <th class="sortable sortable-numeric">Nombre de Diffusions</th>
+                                <th class="sortable sortable-numeric">Chiffre d'Affaires</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="detail : ${detailsParSociete}">
+                                <td th:text="${detail.nomSociete}">---</td>
+                                <td class="uf-table-cell-numeric" th:text="${detail.nombreDiffusion}">0</td>
+                                <td class="uf-table-cell-numeric" th:text="${#numbers.formatDecimal(detail.chiffreAffaire, 1, 'COMMA', 2, 'POINT')} + ' Ar'">0 Ar</td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(detailsParSociete)}">
+                                <td colspan="3" style="text-align: center;">Aucune donnée disponible</td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr style="font-weight: bold; background: rgba(0, 212, 255, 0.1);">
+                                <td>TOTAL</td>
+                                <td class="uf-table-cell-numeric" th:text="${nombreDiffusion}">0</td>
+                                <td class="uf-table-cell-numeric" th:text="${#numbers.formatDecimal(ca, 1, 'COMMA', 2, 'POINT')} + ' Ar'">0 Ar</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Formulaire Saisie Nouvelle Diffusion -->
+            <div class="uf-component-form">
+                <h1 class="uf-subtitle">Nouvelle Diffusion</h1>
+                
+                <form th:action="@{/diffusion-saisie}" method="post" class="uf-filtre">
+                    
+                    <!-- Société -->
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Société</label>
+                        <select name="societe" class="uf-form-select" required>
+                            <option value="">-- Choisir une société --</option>
+                            <option th:each="s : ${societes}" th:value="${s.idSociete}" th:text="${s.nom}">Société</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Nombre -->
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Nombre de diffusions</label>
+                        <input type="number" name="nombre" placeholder="Ex: 10" class="uf-form-input" required min="1">
+                    </div>
+                    
+                    <!-- Mois-Année -->
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Mois-Année</label>
+                        <input type="month" name="moisAnnee" class="uf-form-input" style="appearance: auto; -webkit-appearance: auto;" placeholder="2025-12" required>
+                    </div>
+                    
+                    <!-- Durée -->
+                    <div class="uf-form-group">
+                        <label class="uf-form-label">Durée (minutes)</label>
+                        <input type="number" name="duree" step="0.01" placeholder="Ex: 1.5" class="uf-form-input">
+                    </div>
+                    
+                    <!-- Bouton Submit -->
+                    <div class="uf-form-group">
+                        <button type="submit" class="uf-form-btn">Enregistrer</button>
+                    </div>
+                </form>
+            </div>
+            
+        </main>
+    </div>
+
+    <script th:src="@{/js/template.js}"></script>
+</body>
+</html>
