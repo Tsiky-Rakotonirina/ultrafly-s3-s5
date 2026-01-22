@@ -36,6 +36,8 @@ public class DiffusionController {
 
         model.addAttribute("ca", stats.getChiffreAffaireTotal());
         model.addAttribute("nombreDiffusion", stats.getNombreDiffusionTotal());
+        model.addAttribute("totalEncaisse", stats.getTotalEncaisse());
+        model.addAttribute("resteAPayerTotal", stats.getResteAPayerTotal());
         model.addAttribute("detailsParSociete", stats.getDetailsParSociete());
         model.addAttribute("moisAnnee", moisAnnee);
         model.addAttribute("societes", diffusionService.getAllSocietes());

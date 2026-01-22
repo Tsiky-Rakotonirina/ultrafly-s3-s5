@@ -99,7 +99,8 @@
     
     <div class="uf-layout">
         <!-- Sidebar Navigation -->
-        <aside class="uf-sidebar">
+                <aside class="uf-sidebar">
+            <!-- Sidebar Header avec Logo -->
             <div class="uf-sidebar-header">
                 <div class="uf-sidebar-logo">
                     <span class="logo-ultra">Ultra</span><span class="logo-fly">Fly</span>
@@ -109,15 +110,34 @@
                 </button>
             </div>
             
+            <!-- Navigation Menu -->
             <nav class="uf-sidebar-nav">
-                <a th:href="@{/vol-list}" class="uf-sidebar-item">
-                    <span class="uf-sidebar-icon">✈️</span>
-                    <span class="uf-sidebar-text">Vols</span>
-                </a>
-                <a href="#" class="uf-sidebar-item active">
-                    <span class="uf-sidebar-icon">🎫</span>
-                    <span class="uf-sidebar-text">Réservation</span>
-                </a>
+                <ul class="uf-sidebar-menu">
+                    <li class="uf-sidebar-item">
+                        <a th:href="@{/}" class="uf-sidebar-link">
+                            <span class="uf-sidebar-icon">🏠</span>
+                            <span class="uf-sidebar-text">Accueil</span>
+                        </a>
+                    </li>
+                    <li class="uf-sidebar-item">
+                        <a th:href="@{/avion}" class="uf-sidebar-link">
+                            <span class="uf-sidebar-icon">✈️</span>
+                            <span class="uf-sidebar-text">Avion</span>
+                        </a>
+                    </li>
+                    <li class="uf-sidebar-item">
+                        <a th:href="@{/vol-list}" class="uf-sidebar-link">
+                            <span class="uf-sidebar-icon">🛫</span>
+                            <span class="uf-sidebar-text">Vol</span>
+                        </a>
+                    </li>
+                    <li class="uf-sidebar-item">
+                        <a th:href="@{/dashboard}" class="uf-sidebar-link active">
+                            <span class="uf-sidebar-icon">📊</span>
+                            <span class="uf-sidebar-text">Dashboard</span>
+                        </a>
+                    </li>
+                </ul>
             </nav>
         </aside>
 

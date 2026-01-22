@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.itu.compagnie_aerienne.model.PubliciteDiffusion;
 import com.itu.compagnie_aerienne.model.PubliciteTarrif;
 import com.itu.compagnie_aerienne.model.Societe;
+import com.itu.compagnie_aerienne.repository.EncaissementRepository;
 import com.itu.compagnie_aerienne.repository.PubliciteDiffusionRepository;
 import com.itu.compagnie_aerienne.repository.PubliciteTarrifRepository;
 import com.itu.compagnie_aerienne.repository.PubliciteTypeRepository;
@@ -26,6 +27,7 @@ public class DiffusionService {
     private final PubliciteDiffusionRepository publiciteDiffusionRepository;
     private final PubliciteTarrifRepository publiciteTarrifRepository;
     private final PubliciteTypeRepository publiciteTypeRepository;
+    private final EncaissementRepository encaissementRepository;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -44,6 +46,8 @@ public class DiffusionService {
     public static class DiffusionStats {
         private BigDecimal chiffreAffaireTotal;
         private Long nombreDiffusionTotal;
+        private BigDecimal totalEncaisse;
+        private BigDecimal resteAPayerTotal;
         private List<DiffusionParSociete> detailsParSociete;
 
         public DiffusionStats() {
@@ -55,6 +59,10 @@ public class DiffusionService {
         public void setChiffreAffaireTotal(BigDecimal chiffreAffaireTotal) { this.chiffreAffaireTotal = chiffreAffaireTotal; }
         public Long getNombreDiffusionTotal() { return nombreDiffusionTotal; }
         public void setNombreDiffusionTotal(Long nombreDiffusionTotal) { this.nombreDiffusionTotal = nombreDiffusionTotal; }
+        public BigDecimal getTotalEncaisse() { return totalEncaisse; }
+        public void setTotalEncaisse(BigDecimal totalEncaisse) { this.totalEncaisse = totalEncaisse; }
+        public BigDecimal getResteAPayerTotal() { return resteAPayerTotal; }
+        public void setResteAPayerTotal(BigDecimal resteAPayerTotal) { this.resteAPayerTotal = resteAPayerTotal; }
         public List<DiffusionParSociete> getDetailsParSociete() { return detailsParSociete; }
         public void setDetailsParSociete(List<DiffusionParSociete> detailsParSociete) { this.detailsParSociete = detailsParSociete; }
     }
@@ -63,20 +71,29 @@ public class DiffusionService {
      * Classe pour stocker les détails par société
      */
     public static class DiffusionParSociete {
+        private Integer idSociete;
         private String nomSociete;
         private Long nombreDiffusion;
         private BigDecimal chiffreAffaire;
+        private BigDecimal montantEncaisse;
+        private BigDecimal resteAPayer;
 
-        public DiffusionParSociete(String nomSociete, Long nombreDiffusion, BigDecimal chiffreAffaire) {
+        public DiffusionParSociete(Integer idSociete, String nomSociete, Long nombreDiffusion, BigDecimal chiffreAffaire, BigDecimal montantEncaisse, BigDecimal resteAPayer) {
+            this.idSociete = idSociete;
             this.nomSociete = nomSociete;
             this.nombreDiffusion = nombreDiffusion;
             this.chiffreAffaire = chiffreAffaire;
+            this.montantEncaisse = montantEncaisse;
+            this.resteAPayer = resteAPayer;
         }
 
         // Getters
+        public Integer getIdSociete() { return idSociete; }
         public String getNomSociete() { return nomSociete; }
         public Long getNombreDiffusion() { return nombreDiffusion; }
         public BigDecimal getChiffreAffaire() { return chiffreAffaire; }
+        public BigDecimal getMontantEncaisse() { return montantEncaisse; }
+        public BigDecimal getResteAPayer() { return resteAPayer; }
     }
 
     /**
@@ -115,7 +132,7 @@ public class DiffusionService {
         
         // Calcul des détails par société
         StringBuilder queryDetail = new StringBuilder();
-        queryDetail.append("SELECT s.nom, COALESCE(SUM(pd.nombre), 0) as nb, COALESCE(SUM(pd.nombre * pt.cout), 0) as ca ");
+        queryDetail.append("SELECT s.id_societe, s.nom, COALESCE(SUM(pd.nombre), 0) as nb, COALESCE(SUM(pd.nombre * pt.cout), 0) as ca ");
         queryDetail.append("FROM publicite_diffusion pd ");
         queryDetail.append("JOIN societe s ON pd.societe_id = s.id_societe ");
         queryDetail.append("LEFT JOIN LATERAL ( ");
@@ -142,13 +159,35 @@ public class DiffusionService {
         @SuppressWarnings("unchecked")
         List<Object[]> resultsDetail = nativeQueryDetail.getResultList();
         List<DiffusionParSociete> detailsParSociete = new ArrayList<>();
+        BigDecimal totalEncaisse = BigDecimal.ZERO;
+        BigDecimal resteAPayerTotal = BigDecimal.ZERO;
+        
         for (Object[] row : resultsDetail) {
-            String nomSociete = (String) row[0];
-            Long nombreDiffusion = row[1] != null ? Long.parseLong(row[1].toString()) : 0L;
-            BigDecimal chiffreAffaire = row[2] != null ? new BigDecimal(row[2].toString()) : BigDecimal.ZERO;
-            detailsParSociete.add(new DiffusionParSociete(nomSociete, nombreDiffusion, chiffreAffaire));
+            Integer idSociete = row[0] != null ? Integer.parseInt(row[0].toString()) : null;
+            String nomSociete = (String) row[1];
+            Long nombreDiffusion = row[2] != null ? Long.parseLong(row[2].toString()) : 0L;
+            BigDecimal chiffreAffaire = row[3] != null ? new BigDecimal(row[3].toString()) : BigDecimal.ZERO;
+            
+            // Calcul des encaissements pour cette société
+            BigDecimal montantEncaisse = encaissementRepository.sumMontantBySocieteId(idSociete);
+            if (montantEncaisse == null) {
+                montantEncaisse = BigDecimal.ZERO;
+            }
+            
+            // Calcul du reste à payer pour cette société
+            BigDecimal resteAPayer = chiffreAffaire.subtract(montantEncaisse);
+            if (resteAPayer.compareTo(BigDecimal.ZERO) < 0) {
+                resteAPayer = BigDecimal.ZERO; // Pas de reste négatif
+            }
+            
+            totalEncaisse = totalEncaisse.add(montantEncaisse);
+            resteAPayerTotal = resteAPayerTotal.add(resteAPayer);
+            
+            detailsParSociete.add(new DiffusionParSociete(idSociete, nomSociete, nombreDiffusion, chiffreAffaire, montantEncaisse, resteAPayer));
         }
         stats.setDetailsParSociete(detailsParSociete);
+        stats.setTotalEncaisse(totalEncaisse);
+        stats.setResteAPayerTotal(resteAPayerTotal);
         
         return stats;
     }

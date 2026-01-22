@@ -42,7 +42,7 @@
                         </a>
                     </li>
                     <li class="uf-sidebar-item">
-                        <a th:href="@{/vol}" class="uf-sidebar-link">
+                        <a th:href="@{/vol-list}" class="uf-sidebar-link">
                             <span class="uf-sidebar-icon">🛫</span>
                             <span class="uf-sidebar-text">Vol</span>
                         </a>
@@ -103,6 +103,14 @@
                                 <div class="uf-fiche-attr-label">Période</div>
                                 <div class="uf-fiche-attr-value" th:text="${moisAnnee != null ? moisAnnee : 'Toutes périodes'}">Toutes périodes</div>
                             </div>
+                            <div class="uf-fiche-attr">
+                                <div class="uf-fiche-attr-label">Total Encaissé</div>
+                                <div class="uf-fiche-attr-value" style="color: #00d4ff;" th:text="${#numbers.formatDecimal(totalEncaisse, 1, 'COMMA', 2, 'POINT')} + ' Ar'">0 Ar</div>
+                            </div>
+                            <div class="uf-fiche-attr">
+                                <div class="uf-fiche-attr-label">Reste à Payer Total</div>
+                                <div class="uf-fiche-attr-value" style="color: #ff6b6b;" th:text="${#numbers.formatDecimal(resteAPayerTotal, 1, 'COMMA', 2, 'POINT')} + ' Ar'">0 Ar</div>
+                            </div>
                         </div>
                     </div>
                     
@@ -120,6 +128,8 @@
                                 <th>Société</th>
                                 <th class="sortable sortable-numeric">Nombre de Diffusions</th>
                                 <th class="sortable sortable-numeric">Chiffre d'Affaires</th>
+                                <th class="sortable sortable-numeric">Montant Encaissé</th>
+                                <th class="sortable sortable-numeric">Reste à Payer</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -127,9 +137,11 @@
                                 <td th:text="${detail.nomSociete}">---</td>
                                 <td class="uf-table-cell-numeric" th:text="${detail.nombreDiffusion}">0</td>
                                 <td class="uf-table-cell-numeric" th:text="${#numbers.formatDecimal(detail.chiffreAffaire, 1, 'COMMA', 2, 'POINT')} + ' Ar'">0 Ar</td>
+                                <td class="uf-table-cell-numeric" style="color: #00d4ff;" th:text="${#numbers.formatDecimal(detail.montantEncaisse, 1, 'COMMA', 2, 'POINT')} + ' Ar'">0 Ar</td>
+                                <td class="uf-table-cell-numeric" th:style="${detail.resteAPayer > 0 ? 'color: #ff6b6b;' : 'color: #00ff88;'}" th:text="${#numbers.formatDecimal(detail.resteAPayer, 1, 'COMMA', 2, 'POINT')} + ' Ar'">0 Ar</td>
                             </tr>
                             <tr th:if="${#lists.isEmpty(detailsParSociete)}">
-                                <td colspan="3" style="text-align: center;">Aucune donnée disponible</td>
+                                <td colspan="5" style="text-align: center;">Aucune donnée disponible</td>
                             </tr>
                         </tbody>
                         <tfoot>
@@ -137,6 +149,8 @@
                                 <td>TOTAL</td>
                                 <td class="uf-table-cell-numeric" th:text="${nombreDiffusion}">0</td>
                                 <td class="uf-table-cell-numeric" th:text="${#numbers.formatDecimal(ca, 1, 'COMMA', 2, 'POINT')} + ' Ar'">0 Ar</td>
+                                <td class="uf-table-cell-numeric" style="color: #00d4ff;" th:text="${#numbers.formatDecimal(totalEncaisse, 1, 'COMMA', 2, 'POINT')} + ' Ar'">0 Ar</td>
+                                <td class="uf-table-cell-numeric" style="color: #ff6b6b;" th:text="${#numbers.formatDecimal(resteAPayerTotal, 1, 'COMMA', 2, 'POINT')} + ' Ar'">0 Ar</td>
                             </tr>
                         </tfoot>
                     </table>

@@ -56,4 +56,19 @@ INSERT INTO publicite_diffusion (societe_id, mois_annee, nombre) VALUES (
     '2025-12-01',
     10
 );
+update vol_tarrif set prix = 900000 where id_vol_tarrif = 3;
 
+
+create table encaissement (
+    id_encaissement SERIAL PRIMARY KEY,
+    societe_id INTEGER NOT NULL,
+    date_encaissement DATE NOT NULL,
+    montant NUMERIC(10,2) NOT NULL,
+    FOREIGN KEY (societe_id) REFERENCES societe(id_societe)
+);
+
+INSERT INTO encaissement (societe_id, date_encaissement, montant) VALUES (
+    (SELECT id_societe FROM societe WHERE nom = 'Vaniala'),
+    '2025-12-15',
+    1000000.00
+);
