@@ -10,8 +10,10 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 import com.itu.compagnie_aerienne.model.AvionSiege;
+import com.itu.compagnie_aerienne.model.Encaissement;
 import com.itu.compagnie_aerienne.model.Paiement;
 import com.itu.compagnie_aerienne.model.PaiementDetail;
+import com.itu.compagnie_aerienne.model.PubliciteDiffusionVol;
 import com.itu.compagnie_aerienne.model.Reservation;
 import com.itu.compagnie_aerienne.model.ReservationBillet;
 import com.itu.compagnie_aerienne.model.SiegeCategorie;
@@ -19,8 +21,10 @@ import com.itu.compagnie_aerienne.model.Vol;
 import com.itu.compagnie_aerienne.model.VolDetail;
 import com.itu.compagnie_aerienne.model.VolTarrif;
 import com.itu.compagnie_aerienne.repository.AvionSiegeRepository;
+import com.itu.compagnie_aerienne.repository.EncaissementRepository;
 import com.itu.compagnie_aerienne.repository.PaiementDetailRepository;
 import com.itu.compagnie_aerienne.repository.PaiementRepository;
+import com.itu.compagnie_aerienne.repository.PubliciteDiffusionVolRepository;
 import com.itu.compagnie_aerienne.repository.ReservationBilletRepository;
 import com.itu.compagnie_aerienne.repository.ReservationRepository;
 import com.itu.compagnie_aerienne.repository.VolDetailRepository;
@@ -37,8 +41,10 @@ public class VolService {
     private final PaiementRepository paiementRepository;
     private final PaiementDetailRepository paiementDetailRepository;
     private final ReservationBilletRepository reservationBilletRepository;
+    private final PubliciteDiffusionVolRepository publiciteDiffusionVolRepository;
+    private final EncaissementRepository encaissementRepository;
 
-    public VolService(VolRepository volRepository, VolDetailRepository volDetailRepository, AvionSiegeRepository avionSiegeRepository, VolTarrifRepository volTarrifRepository, ReservationRepository reservationRepository, PaiementRepository paiementRepository, PaiementDetailRepository paiementDetailRepository, ReservationBilletRepository reservationBilletRepository) {
+    public VolService(VolRepository volRepository, VolDetailRepository volDetailRepository, AvionSiegeRepository avionSiegeRepository, VolTarrifRepository volTarrifRepository, ReservationRepository reservationRepository, PaiementRepository paiementRepository, PaiementDetailRepository paiementDetailRepository, ReservationBilletRepository reservationBilletRepository, PubliciteDiffusionVolRepository publiciteDiffusionVolRepository, EncaissementRepository encaissementRepository) {
         this.volRepository = volRepository;
         this.volDetailRepository = volDetailRepository;
         this.avionSiegeRepository = avionSiegeRepository;
@@ -47,6 +53,8 @@ public class VolService {
         this.paiementRepository = paiementRepository;
         this.paiementDetailRepository = paiementDetailRepository;
         this.reservationBilletRepository = reservationBilletRepository;
+        this.publiciteDiffusionVolRepository = publiciteDiffusionVolRepository;
+        this.encaissementRepository = encaissementRepository;
     }
 
     public List<Vol> getAllVol(){
@@ -196,6 +204,33 @@ public class VolService {
 
     public Paiement getPaiementByReservationId(Integer reservationId){
         return paiementRepository.findByReservationIdReservation(reservationId).orElse(null);
+    }
+
+    /**
+     * Calcule le chiffre d'affaires des publicités pour un vol donné
+     * CA Publicité = Somme(Montant - Reste à payer) pour tous les encaissements liés aux publicités diffusées sur ce vol
+     */
+    public BigDecimal chiffreAffairePublicite(Integer volId) {
+        BigDecimal chiffreAffairePublicite = BigDecimal.ZERO;
+        
+        // 1. Récupérer toutes les publicités diffusées pour ce vol
+        List<PubliciteDiffusionVol> publiciteDiffusionVols = publiciteDiffusionVolRepository.findByVolIdVol(volId);
+        
+        // 2. Pour chaque publicité diffusée, récupérer les encaissements
+        for (PubliciteDiffusionVol pdv : publiciteDiffusionVols) {
+            Integer publiciteDiffusionId = pdv.getPubliciteDiffusion().getIdPubliciteDiffusion();
+            
+            // 3. Récupérer tous les encaissements pour cette publicité
+            List<Encaissement> encaissements = encaissementRepository.findByPubliciteDiffusionIdPubliciteDiffusion(publiciteDiffusionId);
+            
+            for (Encaissement encaissement : encaissements) {
+                // Calculer le montant encaissé = montant - reste à payer
+                BigDecimal montantEncaisse = encaissement.getMontant().subtract(encaissement.getResteAPayer());
+                chiffreAffairePublicite = chiffreAffairePublicite.add(montantEncaisse);
+            }
+        }
+        
+        return chiffreAffairePublicite;
     }
     
 }

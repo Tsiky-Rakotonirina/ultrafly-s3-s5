@@ -55,7 +55,7 @@ public class ReservationSaisieController {
         Map<Integer, BigDecimal> tarifs = reservationSaisieService.getTarifsByCategorie(volId);
         
         // Récupérer les remises pour les tarifs (vol_tarrif_remise)
-        Map<String, Object> tarifRemises = reservationSaisieService.getTarifRemises(volId);
+        Map<String, Map<Integer, Map<String, Object>>> tarifRemises = reservationSaisieService.getTarifRemises(volId);
         
         // Récupérer tous les clients
         List<Client> clients = reservationSaisieService.getAllClients();

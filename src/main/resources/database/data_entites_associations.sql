@@ -1,5 +1,5 @@
 -- avion
-INSERT INTO avion (id_avion, modele, constructeur, consommation, vitesse, capacite, date_possession, carburant_id) VALUES (1, 'Boeing 737-800', 'Boeing', 2500.00, 910.00, 189, '2015-06-20', 1);
+INSERT INTO avion (id_avion, modele, constructeur, consommation, vitesse, capacite, date_possession, carburant_id) VALUES (1, 'ATR-045', 'ATR', 2500.00, 910.00, 189, '2015-06-20', 1);
 
 -- avion_siege
 INSERT INTO avion_siege (id_avion_siege, colonne, rangee, avion_id, siege_categorie_id) VALUES (1, 'A', 1, 1, 3);
@@ -164,21 +164,31 @@ INSERT INTO equipage_membre (id_equipage_membre, ordre, equipage_id, employe_id,
 INSERT INTO equipage_membre (id_equipage_membre, ordre, equipage_id, employe_id, role_id) VALUES (6, 1, 3, 1, 1);
 
 -- vol
-INSERT INTO vol (id_vol, heure, vol_type_id, itineraire_id, statut_vol_id) VALUES (1, '2025-01-15 08:00:00', 1, 1, 1);
-
+INSERT INTO vol (id_vol, heure, vol_type_id, itineraire_id, statut_vol_id) VALUES (1, '2026-01-20 10:00:00', 1, 1, 1);
+INSERT INTO vol (id_vol, heure, vol_type_id, itineraire_id, statut_vol_id) VALUES (2, '2026-01-21 10:00:00', 1, 1, 1);
+INSERT INTO vol (id_vol, heure, vol_type_id, itineraire_id, statut_vol_id) VALUES (3, '2026-01-21 15:00:00', 1, 1, 1);
 
 -- vol_detail
-INSERT INTO vol_detail (id_vol_detail, heure, vol_id, itineraire_escale_id, avion_id, equipage_id) VALUES (1, '2025-01-15 08:00:00', 1, 1, 1, 1);
-
+INSERT INTO vol_detail (id_vol_detail, heure, vol_id, itineraire_escale_id, avion_id, equipage_id) VALUES (1, '2026-01-20 10:00:00', 1, 1, 1, 1);
+INSERT INTO vol_detail (id_vol_detail, heure, vol_id, itineraire_escale_id, avion_id, equipage_id) VALUES (2, '2026-01-21 10:00:00', 2, 1, 1, 1);
+INSERT INTO vol_detail (id_vol_detail, heure, vol_id, itineraire_escale_id, avion_id, equipage_id) VALUES (3, '2026-01-21 15:00:00', 3, 1, 1, 1);
 
 -- vol_tarrif
 INSERT INTO vol_tarrif (id_vol_tarrif, prix, siege_categorie_id, vol_id) VALUES (1, 2000000.00, 3, 1);
 INSERT INTO vol_tarrif (id_vol_tarrif, prix, siege_categorie_id, vol_id) VALUES (2, 1000000.00, 2, 1);
 INSERT INTO vol_tarrif (id_vol_tarrif, prix, siege_categorie_id, vol_id) VALUES (3, 800000.00, 1, 1);
 
+INSERT INTO vol_tarrif (id_vol_tarrif, prix, siege_categorie_id, vol_id) VALUES (4, 2000000.00, 3, 2);
+INSERT INTO vol_tarrif (id_vol_tarrif, prix, siege_categorie_id, vol_id) VALUES (5, 1000000.00, 2, 2);
+INSERT INTO vol_tarrif (id_vol_tarrif, prix, siege_categorie_id, vol_id) VALUES (6, 800000.00, 1, 2);
+
+INSERT INTO vol_tarrif (id_vol_tarrif, prix, siege_categorie_id, vol_id) VALUES (7, 2000000.00, 3, 3);
+INSERT INTO vol_tarrif (id_vol_tarrif, prix, siege_categorie_id, vol_id) VALUES (8, 1000000.00, 2, 3);
+INSERT INTO vol_tarrif (id_vol_tarrif, prix, siege_categorie_id, vol_id) VALUES (9, 800000.00, 1, 3);
+
 -- reservation
 
--- avion_historique
+-- avion_historiqueINSERT INTO vol_detail (id_vol_detail, heure, vol_id, itineraire_escale_id, avion_id, equipage_id) VALUES (1, '2025-01-15 08:00:00', 1, 1, 1, 1);
 
 
 -- avion_carburant

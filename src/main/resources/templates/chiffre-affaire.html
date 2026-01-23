@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chiffre d'Affaires - UltraFly</title>
+    <link rel="icon" type="image/png" th:href="@{/image/logo.png}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" th:href="@{/css/template.css}">
+</head>
+<body>
+    <!-- Background Elements -->
+    <div class="bg-element bg-element-1"></div>
+    <div class="bg-element bg-element-2"></div>
+    
+    <div class="uf-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="uf-sidebar">
+            <!-- Sidebar Header avec Logo -->
+            <div class="uf-sidebar-header">
+                <div class="uf-sidebar-logo">
+                    <span class="logo-ultra">Ultra</span><span class="logo-fly">Fly</span>
+                </div>
+                <button class="uf-sidebar-toggle">
+                    <span>←</span>
+                </button>
+            </div>
+            
+            <!-- Navigation Menu -->
+            <nav class="uf-sidebar-nav">
+                <ul class="uf-sidebar-menu">
+                    <li class="uf-sidebar-item">
+                        <a th:href="@{/}" class="uf-sidebar-link">
+                            <span class="uf-sidebar-icon">🏠</span>
+                            <span class="uf-sidebar-text">Accueil</span>
+                        </a>
+                    </li>
+                    <li class="uf-sidebar-item">
+                        <a th:href="@{/avion}" class="uf-sidebar-link">
+                            <span class="uf-sidebar-icon">✈️</span>
+                            <span class="uf-sidebar-text">Avion</span>
+                        </a>
+                    </li>
+                    <li class="uf-sidebar-item">
+                        <a th:href="@{/vol-list}" class="uf-sidebar-link">
+                            <span class="uf-sidebar-icon">🛫</span>
+                            <span class="uf-sidebar-text">Vol</span>
+                        </a>
+                    </li>
+                    <li class="uf-sidebar-item">
+                        <a th:href="@{/reservation}" class="uf-sidebar-link">
+                            <span class="uf-sidebar-icon">🎫</span>
+                            <span class="uf-sidebar-text">Réservation</span>
+                        </a>
+                    </li>
+                    <li class="uf-sidebar-item">
+                        <a th:href="@{/chiffre-affaire}" class="uf-sidebar-link active">
+                            <span class="uf-sidebar-icon">💰</span>
+                            <span class="uf-sidebar-text">Chiffre d'Affaires</span>
+                        </a>
+                    </li>
+                    <li class="uf-sidebar-item">
+                        <a th:href="@{/dashboard}" class="uf-sidebar-link">
+                            <span class="uf-sidebar-icon">📊</span>
+                            <span class="uf-sidebar-text">Dashboard</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <!-- Main Content Area -->
+        <main class="uf-main">
+            <div class="uf-content">
+                <!-- Table Chiffre d'Affaires -->
+                <div class="uf-component-table">
+
+                    <h1 class="uf-subtitle">Chiffre d'Affaires par Vol</h1>
+                    
+                    <div class="uf-table-container">
+                        <table class="uf-table">
+                            <thead>
+                                <tr>
+                                    <!-- Numéro de Vol -->
+                                    <th class="sortable sortable-numeric">N° Vol</th>
+                                    
+                                    <!-- Aéroport Départ -->
+                                    <th>Aéroport Départ</th>
+                                    
+                                    <!-- Aéroport Arrivée -->
+                                    <th>Aéroport Arrivée</th>
+                                    
+                                    <!-- Avion -->
+                                    <th>Avion</th>
+                                    
+                                    <!-- Date Départ -->
+                                    <th class="sortable sortable-date">Date Départ</th>
+                                    
+                                    <!-- Heure Départ -->
+                                    <th>Heure Départ</th>
+                                    
+                                    <!-- Montant Tickets -->
+                                    <th class="sortable sortable-numeric">CA Tickets (Ar)</th>
+                                    
+                                    <!-- Montant Publicité -->
+                                    <th class="sortable sortable-numeric">CA Publicité (Ar)</th>
+                                    
+                                    <!-- Chiffre d'Affaire Total -->
+                                    <th class="sortable sortable-numeric">CA Total (Ar)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Ligne de données avec Thymeleaf -->
+                                <tr th:each="ca : ${chiffresAffaires}">
+                                    <!-- Numéro de Vol -->
+                                    <td class="uf-table-cell-numeric" th:text="${ca.numeroVol}">VOL001</td>
+                                    
+                                    <!-- Aéroport Départ -->
+                                    <td th:text="${ca.aeroportDepart}">Paris CDG</td>
+                                    
+                                    <!-- Aéroport Arrivée -->
+                                    <td th:text="${ca.aeroportArrivee}">New York JFK</td>
+                                    
+                                    <!-- Avion -->
+                                    <td th:text="${ca.avion}">Boeing 777</td>
+                                    
+                                    <!-- Date Départ -->
+                                    <td class="uf-table-cell-date" th:text="${#temporals.format(ca.dateDepart, 'dd/MM/yyyy')}">23/01/2026</td>
+                                    
+                                    <!-- Heure Départ -->
+                                    <td th:text="${#temporals.format(ca.dateDepart, 'HH:mm')}">14:30</td>
+                                    
+                                    <!-- CA Tickets -->
+                                    <td class="uf-table-cell-numeric" th:text="${#numbers.formatDecimal(ca.montantTickets, 0, 'POINT', 2, 'COMMA')}">1,250,000.00</td>
+                                    
+                                    <!-- CA Publicité -->
+                                    <td class="uf-table-cell-numeric" th:text="${#numbers.formatDecimal(ca.montantPublicite, 0, 'POINT', 2, 'COMMA')}">180,000.00</td>
+                                    
+                                    <!-- CA Total -->
+                                    <td class="uf-table-cell-bold uf-table-cell-numeric" style="color: #28a745;" th:text="${#numbers.formatDecimal(ca.montantTotal, 0, 'POINT', 2, 'COMMA')}">1,430,000.00</td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr style="background-color: rgba(255, 255, 255, 0.1); font-weight: bold;">
+                                    <td colspan="6" style="text-align: right; padding-right: 20px;">TOTAL GÉNÉRAL</td>
+                                    <td class="uf-table-cell-numeric" th:text="${#numbers.formatDecimal(totalTickets, 0, 'POINT', 2, 'COMMA')}">-</td>
+                                    <td class="uf-table-cell-numeric" th:text="${#numbers.formatDecimal(totalPublicite, 0, 'POINT', 2, 'COMMA')}">-</td>
+                                    <td class="uf-table-cell-bold uf-table-cell-numeric" style="color: #28a745; font-size: 1.1em;" th:text="${#numbers.formatDecimal(totalGeneral, 0, 'POINT', 2, 'COMMA')}">-</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script th:src="@{/js/template.js}"></script>
+</body>
+</html>

@@ -95,9 +95,17 @@ public class VolController {
                 }
                 volData.put("recetteMaxTotal", recetteMaxTotal);
 
-                // Chiffre d'affaire actuel
-                BigDecimal chiffreAffaire = volService.chiffreAffaire(vol.getIdVol());
-                volData.put("chiffreAffaire", chiffreAffaire);
+                // Chiffre d'affaire actuel des tickets
+                BigDecimal chiffreAffaireTicket = volService.chiffreAffaire(vol.getIdVol());
+                volData.put("chiffreAffaireTicket", chiffreAffaireTicket);
+
+                // Chiffre d'affaire des publicités
+                BigDecimal chiffreAffairePublicite = volService.chiffreAffairePublicite(vol.getIdVol());
+                volData.put("chiffreAffairePublicite", chiffreAffairePublicite);
+
+                // Chiffre d'affaire total (tickets + publicités)
+                BigDecimal chiffreAffaireTotal = chiffreAffaireTicket.add(chiffreAffairePublicite);
+                volData.put("chiffreAffaireTotal", chiffreAffaireTotal);
 
                 volsData.add(volData);
             }
