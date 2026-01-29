@@ -29,8 +29,8 @@ public class Encaissement {
     private Integer idEncaissement;
     
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "publicite_diffusion_id")
-    private PubliciteDiffusion publiciteDiffusion;
+    @JoinColumn(name = "publicite_diffusion_vol_id")
+    private PubliciteDiffusionVol publiciteDiffusionVol;
     
     @Column(name = "date_encaissement", nullable = false)
     private LocalDate dateEncaissement;

@@ -218,10 +218,10 @@ public class VolService {
         
         // 2. Pour chaque publicité diffusée, récupérer les encaissements
         for (PubliciteDiffusionVol pdv : publiciteDiffusionVols) {
-            Integer publiciteDiffusionId = pdv.getPubliciteDiffusion().getIdPubliciteDiffusion();
+            Integer publiciteDiffusionVolId = pdv.getIdPubliciteDiffusionVol();
             
-            // 3. Récupérer tous les encaissements pour cette publicité
-            List<Encaissement> encaissements = encaissementRepository.findByPubliciteDiffusionIdPubliciteDiffusion(publiciteDiffusionId);
+            // 3. Récupérer tous les encaissements pour cette publicité diffusion vol
+            List<Encaissement> encaissements = encaissementRepository.findByPubliciteDiffusionVolIdPubliciteDiffusionVol(publiciteDiffusionVolId);
             
             for (Encaissement encaissement : encaissements) {
                 // Calculer le montant encaissé = montant - reste à payer
@@ -231,6 +231,44 @@ public class VolService {
         }
         
         return chiffreAffairePublicite;
+    }
+    
+    /**
+     * Calcule le montant total des publicités à payer pour un vol (toutes sociétés confondues)
+     */
+    public BigDecimal getMontantTotalPubliciteParVol(Integer volId) {
+        BigDecimal montantTotal = BigDecimal.ZERO;
+        
+        List<PubliciteDiffusionVol> publiciteDiffusionVols = publiciteDiffusionVolRepository.findByVolIdVol(volId);
+        
+        for (PubliciteDiffusionVol pdv : publiciteDiffusionVols) {
+            List<Encaissement> encaissements = encaissementRepository.findByPubliciteDiffusionVolIdPubliciteDiffusionVol(pdv.getIdPubliciteDiffusionVol());
+            
+            for (Encaissement encaissement : encaissements) {
+                montantTotal = montantTotal.add(encaissement.getMontant());
+            }
+        }
+        
+        return montantTotal;
+    }
+    
+    /**
+     * Calcule le reste à payer des publicités pour un vol (toutes sociétés confondues)
+     */
+    public BigDecimal getResteAPayerPubliciteParVol(Integer volId) {
+        BigDecimal resteAPayer = BigDecimal.ZERO;
+        
+        List<PubliciteDiffusionVol> publiciteDiffusionVols = publiciteDiffusionVolRepository.findByVolIdVol(volId);
+        
+        for (PubliciteDiffusionVol pdv : publiciteDiffusionVols) {
+            List<Encaissement> encaissements = encaissementRepository.findByPubliciteDiffusionVolIdPubliciteDiffusionVol(pdv.getIdPubliciteDiffusionVol());
+            
+            for (Encaissement encaissement : encaissements) {
+                resteAPayer = resteAPayer.add(encaissement.getResteAPayer());
+            }
+        }
+        
+        return resteAPayer;
     }
     
 }

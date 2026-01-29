@@ -107,6 +107,14 @@ public class VolController {
                 BigDecimal chiffreAffaireTotal = chiffreAffaireTicket.add(chiffreAffairePublicite);
                 volData.put("chiffreAffaireTotal", chiffreAffaireTotal);
 
+                // Montant total publicités à payer par vol (toutes sociétés)
+                BigDecimal montantTotalPublicite = volService.getMontantTotalPubliciteParVol(vol.getIdVol());
+                volData.put("montantTotalPublicite", montantTotalPublicite);
+
+                // Reste à payer publicités par vol (toutes sociétés)
+                BigDecimal resteAPayerPublicite = volService.getResteAPayerPubliciteParVol(vol.getIdVol());
+                volData.put("resteAPayerPublicite", resteAPayerPublicite);
+
                 volsData.add(volData);
             }
         }

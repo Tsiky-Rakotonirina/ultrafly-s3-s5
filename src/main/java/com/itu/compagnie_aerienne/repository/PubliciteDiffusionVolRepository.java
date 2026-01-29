@@ -10,4 +10,6 @@ import com.itu.compagnie_aerienne.model.PubliciteDiffusionVol;
 @Repository
 public interface PubliciteDiffusionVolRepository extends JpaRepository<PubliciteDiffusionVol, Integer> {
     List<PubliciteDiffusionVol> findByVolIdVol(Integer volId);
+    
+    List<PubliciteDiffusionVol> findByPubliciteDiffusionSocieteIdSociete(Integer societeId);
 }

@@ -9,5 +9,7 @@ import com.itu.compagnie_aerienne.model.Encaissement;
 
 @Repository
 public interface EncaissementRepository extends JpaRepository<Encaissement, Integer> {
-    List<Encaissement> findByPubliciteDiffusionIdPubliciteDiffusion(Integer publiciteDiffusionId);
+    List<Encaissement> findByPubliciteDiffusionVolIdPubliciteDiffusionVol(Integer publiciteDiffusionVolId);
+    
+    List<Encaissement> findByPubliciteDiffusionVolPubliciteDiffusionSocieteIdSociete(Integer societeId);
 }

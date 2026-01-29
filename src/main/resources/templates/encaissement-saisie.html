@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encaissement Publicité - UltraFly</title>
+    <link rel="icon" type="image/png" th:href="@{/image/logo.png}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" th:href="@{/css/template.css}">
+    <link rel="stylesheet" th:href="@{/template/container.html}">
+    <link rel="stylesheet" th:href="@{/template/form.html}">
+    <link rel="stylesheet" th:href="@{/template/table.html}">
+</head>
+
+<body class="uf-body">
+    <!-- Background elements -->
+    <div class="bg-element bg-element-1"></div>
+    <div class="bg-element bg-element-2"></div>
+
+    <div class="uf-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="uf-sidebar">
+            <div class="uf-sidebar-header">
+                <div class="uf-sidebar-logo">
+                    <span class="logo-ultra">Ultra</span><span class="logo-fly">Fly</span>
+                </div>
+                <button class="uf-sidebar-toggle">
+                    <span>←</span>
+                </button>
+            </div>
+
+            <nav class="uf-sidebar-nav">
+                <a th:href="@{/vol-list}" class="uf-sidebar-item">
+                    <span class="uf-sidebar-icon">✈️</span>
+                    <span class="uf-sidebar-text">Vols</span>
+                </a>
+                <a th:href="@{/encaissement-saisie}" class="uf-sidebar-item active">
+                    <span class="uf-sidebar-icon">💰</span>
+                    <span class="uf-sidebar-text">Encaissement Pub</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="uf-main">
+            <div class="uf-content">
+                <div class="uf-component-table">
+                    <h1 class="uf-subtitle">💰 Encaissement Publicité</h1>
+                    
+                    <!-- Messages -->
+                    <div th:if="${success}" class="alert alert-success" role="alert" 
+                         style="background: rgba(40, 167, 69, 0.2); border: 1px solid #28a745; color: #28a745; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                        <span th:text="${success}"></span>
+                    </div>
+                    <div th:if="${error}" class="alert alert-danger" role="alert"
+                         style="background: rgba(220, 53, 69, 0.2); border: 1px solid #dc3545; color: #dc3545; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                        <span th:text="${error}"></span>
+                    </div>
+
+                    <!-- Formulaire de sélection société -->
+                    <div class="uf-form-container" style="margin-bottom: 30px;">
+                        <form th:action="@{/encaissement-saisie}" method="get" class="uf-form">
+                            <div class="uf-form-group">
+                                <label class="uf-form-label">📋 Sélectionner une société</label>
+                                <select name="societeId" class="uf-form-select" onchange="this.form.submit()">
+                                    <option value="">-- Choisir une société --</option>
+                                    <option th:each="societe : ${societes}" 
+                                            th:value="${societe.idSociete}"
+                                            th:text="${societe.nomSociete}"
+                                            th:selected="${selectedSocieteId != null && selectedSocieteId == societe.idSociete}">
+                                    </option>
+                                </select>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Détails de la société sélectionnée -->
+                    <div th:if="${encaissementInfo != null}">
+                        
+                        <!-- Informations société -->
+                        <div class="uf-card" style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                            <h3 style="color: #fff; margin-bottom: 15px;">
+                                🏢 <span th:text="${encaissementInfo.societe.nomSociete}"></span>
+                            </h3>
+                            <p style="color: #aaa; font-size: 1.1em;">
+                                Montant total restant à payer : 
+                                <strong style="color: #ffc107; font-size: 1.3em;" th:text="${encaissementInfo.montantTotalRestant + ' Ar'}"></strong>
+                            </p>
+                        </div>
+
+                        <!-- Liste des publicités impayées -->
+                        <div th:if="${encaissementInfo.details != null && !encaissementInfo.details.isEmpty()}" 
+                             class="uf-table-container" style="margin-bottom: 30px;">
+                            <h4 style="color: #fff; margin-bottom: 15px;">📊 Publicités impayées</h4>
+                            <table class="uf-table">
+                                <thead>
+                                    <tr>
+                                        <th>Vol</th>
+                                        <th>Publicité</th>
+                                        <th>Nombre diffusions</th>
+                                        <th>Durée</th>
+                                        <th>Montant Total</th>
+                                        <th>Reste à payer</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="detail : ${encaissementInfo.details}">
+                                        <td th:text="${detail.pdv.vol.numero}"></td>
+                                        <td th:text="${'Pub #' + detail.pdv.publiciteDiffusion.idPubliciteDiffusion}"></td>
+                                        <td class="uf-table-cell-numeric" th:text="${detail.pdv.nombre}"></td>
+                                        <td class="uf-table-cell-numeric" th:text="${detail.pdv.publiciteDiffusion.duree + ' min'}"></td>
+                                        <td class="uf-table-cell-numeric" style="color: #28a745;" th:text="${detail.montantTotal + ' Ar'}"></td>
+                                        <td class="uf-table-cell-numeric" style="color: #ffc107; font-weight: bold;" th:text="${detail.resteAPayer + ' Ar'}"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Message si aucune publicité impayée -->
+                        <div th:if="${encaissementInfo.details == null || encaissementInfo.details.isEmpty()}"
+                             style="background: rgba(40, 167, 69, 0.1); border: 1px solid #28a745; padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 20px;">
+                            <span style="color: #28a745; font-size: 1.2em;">✅ Cette société n'a aucune publicité impayée</span>
+                        </div>
+
+                        <!-- Formulaire d'encaissement -->
+                        <div th:if="${encaissementInfo.details != null && !encaissementInfo.details.isEmpty()}" 
+                             class="uf-form-container" style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 25px;">
+                            <h4 style="color: #fff; margin-bottom: 20px;">💳 Effectuer un encaissement</h4>
+                            
+                            <form th:action="@{/encaissement-saisie}" method="post" class="uf-form">
+                                <input type="hidden" name="societeId" th:value="${selectedSocieteId}">
+                                
+                                <div class="uf-form-group">
+                                    <label class="uf-form-label">💵 Montant à encaisser (Ar)</label>
+                                    <input type="number" name="montant" class="uf-form-input" 
+                                           step="0.01" min="0.01" 
+                                           th:max="${encaissementInfo.montantTotalRestant}"
+                                           placeholder="Entrez le montant" required>
+                                    <small style="color: #888; display: block; margin-top: 5px;">
+                                        Maximum : <span th:text="${encaissementInfo.montantTotalRestant}"></span> Ar
+                                    </small>
+                                </div>
+                                
+                                <div class="uf-form-group">
+                                    <label class="uf-form-label">📅 Date d'encaissement</label>
+                                    <input type="date" name="dateEncaissement" class="uf-form-input" 
+                                           th:value="${dateJour}" required>
+                                </div>
+                                
+                                <div class="uf-separator" style="margin: 20px 0;"></div>
+                                
+                                <div style="background: rgba(255,193,7,0.1); border: 1px solid #ffc107; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                                    <p style="color: #ffc107; margin: 0; font-size: 0.9em;">
+                                        ℹ️ Le montant sera réparti proportionnellement entre toutes les publicités impayées de cette société.
+                                    </p>
+                                </div>
+                                
+                                <div class="uf-form-group" style="display: flex; gap: 15px;">
+                                    <a th:href="@{/vol-list}" class="uf-form-submit" 
+                                       style="background: #6c757d; text-decoration: none; text-align: center;">
+                                        Retour aux vols
+                                    </a>
+                                    <button type="submit" class="uf-form-submit">
+                                        Valider l'encaissement
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Message si aucune société sélectionnée -->
+                    <div th:if="${encaissementInfo == null}" 
+                         style="text-align: center; padding: 50px; color: #888;">
+                        <p style="font-size: 1.2em;">👆 Veuillez sélectionner une société pour voir les publicités à encaisser</p>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script th:src="@{/js/index.js}"></script>
+
+</html>

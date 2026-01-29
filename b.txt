@@ -1,0 +1,5 @@
+dans /templates, cree encaissement-saisie.html, accessible depuis le sidebar. 
+cree un controller dans dashboard correspondant a cette page.
+Le formulaire comprend: un dropdown de encaissement avec les info necessaire dont societe et publicite diffusion
+Le montant a entrer et la date
+Cree une fonction dans un service correspondant qui va inserer dans encaissementDetail. 
