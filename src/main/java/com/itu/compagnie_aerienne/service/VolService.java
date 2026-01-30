@@ -61,6 +61,10 @@ public class VolService {
         return volRepository.findAll();
     }
 
+    public List<Vol> getVolsByDateRange(java.time.LocalDateTime dateDebut, java.time.LocalDateTime dateFin){
+        return volRepository.findByHeureBetween(dateDebut, dateFin);
+    }
+
     public List<VolDetail> getVolDetailsByVolId(Integer volId){
         return volDetailRepository.findByVolIdVol(volId);
     }

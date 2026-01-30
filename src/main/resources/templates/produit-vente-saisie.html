@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vente de Produits - UltraFly</title>
+    <link rel="icon" type="image/png" th:href="@{/image/logo.png}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" th:href="@{/css/template.css}">
+</head>
+
+<body>
+    <!-- Background Elements -->
+    <div class="bg-element bg-element-1"></div>
+    <div class="bg-element bg-element-2"></div>
+
+    <div class="uf-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="uf-sidebar">
+            <div class="uf-sidebar-header">
+                <div class="uf-sidebar-logo">
+                    <span class="logo-ultra">Ultra</span><span class="logo-fly">Fly</span>
+                </div>
+                <button class="uf-sidebar-toggle">
+                    <span>←</span>
+                </button>
+            </div>
+
+            <nav class="uf-sidebar-nav">
+                <a th:href="@{/vol-list}" class="uf-sidebar-item">
+                    <span class="uf-sidebar-icon">✈️</span>
+                    <span class="uf-sidebar-text">Vols</span>
+                </a>
+                <a th:href="@{/encaissement-saisie}" class="uf-sidebar-item">
+                    <span class="uf-sidebar-icon">💰</span>
+                    <span class="uf-sidebar-text">Encaissement Pub</span>
+                </a>
+                <a th:href="@{/produit-vente-saisie}" class="uf-sidebar-item active">
+                    <span class="uf-sidebar-icon">🛒</span>
+                    <span class="uf-sidebar-text">Vente Produits</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="uf-main">
+            <div class="uf-content">
+                <!-- Formulaire de saisie -->
+                <div class="uf-component-table">
+                    <h1 class="uf-subtitle">Saisir une vente de produit</h1>
+                    
+                    <form th:action="@{/produit-vente}" method="post" style="padding: 30px;">
+                        <div style="max-width: 600px; margin: 0 auto;">
+                            
+                            <!-- Sélection du produit -->
+                            <div style="margin-bottom: 25px;">
+                                <label for="produitId" style="display: block; margin-bottom: 10px; font-weight: 600; color: #e0e0e0; font-size: 14px;">
+                                    Produit :
+                                </label>
+                                <select id="produitId" 
+                                        name="produitId" 
+                                        required
+                                        style="width: 100%; padding: 12px 15px; border: 1px solid #444; border-radius: 8px; background-color: #2a2a3e; color: #e0e0e0; font-size: 15px; cursor: pointer;">
+                                    <option value="">-- Sélectionnez un produit --</option>
+                                    <option th:each="produit : ${produits}" 
+                                            th:value="${produit.idProduit}" 
+                                            th:text="${produit.nomProduit + ' - ' + #numbers.formatDecimal(produit.prixUnitaire, 0, 'POINT', 2, 'COMMA') + ' Ar'}">
+                                        Produit
+                                    </option>
+                                </select>
+                            </div>
+
+                            <!-- Date de vente -->
+                            <div style="margin-bottom: 25px;">
+                                <label for="dateVente" style="display: block; margin-bottom: 10px; font-weight: 600; color: #e0e0e0; font-size: 14px;">
+                                    Date de vente :
+                                </label>
+                                <input type="date" 
+                                       name="dateVente" 
+                                       id="dateVente" 
+                                       required
+                                       style="width: 100%; padding: 12px 15px; border: 1px solid #444; border-radius: 8px; background-color: #2a2a3e; color: #e0e0e0; font-size: 15px;">
+                            </div>
+
+                            <!-- Quantité -->
+                            <div style="margin-bottom: 30px;">
+                                <label for="quantite" style="display: block; margin-bottom: 10px; font-weight: 600; color: #e0e0e0; font-size: 14px;">
+                                    Quantité :
+                                </label>
+                                <input type="number" 
+                                       id="quantite" 
+                                       name="quantite" 
+                                       min="1" 
+                                       required
+                                       style="width: 100%; padding: 12px 15px; border: 1px solid #444; border-radius: 8px; background-color: #2a2a3e; color: #e0e0e0; font-size: 15px;">
+                            </div>
+
+                            <!-- Bouton de soumission -->
+                            <div style="text-align: center;">
+                                <button type="submit" 
+                                        class="uf-table-btn"
+                                        style="padding: 14px 40px; font-size: 16px; min-width: 200px;">
+                                    Enregistrer la vente
+                                </button>
+                            </div>
+
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script th:src="@{/js/template.js}"></script>
+</body>
+
+</html>

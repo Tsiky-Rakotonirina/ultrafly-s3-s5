@@ -1,5 +1,6 @@
 package com.itu.compagnie_aerienne.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,5 +11,7 @@ import com.itu.compagnie_aerienne.model.Vol;
 @Repository
 public interface VolRepository extends JpaRepository<Vol, Integer> {
     public List<Vol> findAll();
+    
+    public List<Vol> findByHeureBetween(LocalDateTime dateDebut, LocalDateTime dateFin);
 
 }

@@ -36,12 +36,51 @@
                     <span class="uf-sidebar-icon">💰</span>
                     <span class="uf-sidebar-text">Encaissement Pub</span>
                 </a>
+                <a th:href="@{/produit-vente-saisie}" class="uf-sidebar-item">
+                    <span class="uf-sidebar-icon">🏪</span>
+                    <span class="uf-sidebar-text">Vente</span>
+                </a>
             </nav>
         </aside>
 
         <!-- Main Content -->
         <main class="uf-main">
             <div class="uf-content">
+                <!-- Filtre par date -->
+                <div class="uf-component-table" style="margin-bottom: 30px;">
+                    <h1 class="uf-subtitle">Filtrer par période</h1>
+                    
+                    <form th:action="@{/vol-list}" method="get" style="padding: 20px;">
+                        <div style="display: flex; gap: 20px; align-items: flex-end; flex-wrap: wrap;">
+                            <div style="flex: 1; min-width: 200px;">
+                                <label for="dateDebut" style="display: block; margin-bottom: 8px; font-weight: 500; color: #333;">Date début :</label>
+                                <input type="date" 
+                                       id="dateDebut" 
+                                       name="dateDebut" 
+                                       th:value="${dateDebut}"
+                                       style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
+                            </div>
+                            
+                            <div style="flex: 1; min-width: 200px;">
+                                <label for="dateFin" style="display: block; margin-bottom: 8px; font-weight: 500; color: #333;">Date fin :</label>
+                                <input type="date" 
+                                       id="dateFin" 
+                                       name="dateFin" 
+                                       th:value="${dateFin}"
+                                       style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
+                            </div>
+                            
+                            <div>
+                                <button type="submit" 
+                                        class="uf-table-btn"
+                                        style="padding: 10px 30px; font-size: 14px;">
+                                    Filtrer
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
                 <!-- Liste des vols -->
                 <div th:each="volData : ${volsData}" class="uf-component-table" style="margin-bottom: 40px;">
 
@@ -101,7 +140,7 @@
                                             style="margin-left: 8px;">Simuler</a>
                                     </td>
                                 </tr>
-                            </tbody>
+                            </tbody> 
                         </table>
                     </div>
 
@@ -140,6 +179,50 @@
                         </table>
                     </div> -->
 
+                </div>
+
+                <!-- Totaux généraux -->
+                <div class="uf-component-table" style="margin-top: 40px;">
+                    <h1 class="uf-subtitle">Totaux Chiffre d'Affaires</h1>
+                    
+                    <div class="uf-table-container">
+                        <table class="uf-table">
+                            <thead>
+                                <tr>
+                                    <th>Type de CA</th>
+                                    <th class="uf-table-cell-bold">Montant (Ar)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="uf-table-cell-bold">Total CA Ticket</td>
+                                    <td class="uf-table-cell-bold uf-table-cell-numeric" style="color: #28a745; font-size: 1.1em;">
+                                        <span th:text="${#numbers.formatDecimal(totalCaTicket, 0, 'POINT', 2, 'COMMA')}"></span> Ar
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uf-table-cell-bold">Total CA Publicité</td>
+                                    <td class="uf-table-cell-bold uf-table-cell-numeric" style="color: #28a745; font-size: 1.1em;">
+                                        <span th:text="${#numbers.formatDecimal(totalCaPublicite, 0, 'POINT', 2, 'COMMA')}"></span> Ar
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uf-table-cell-bold">Total CA Produit</td>
+                                    <td class="uf-table-cell-bold uf-table-cell-numeric" style="color: #28a745; font-size: 1.1em;">
+                                        <span th:text="${#numbers.formatDecimal(caProduit, 0, 'POINT', 2, 'COMMA')}"></span> Ar
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr style="font-weight: bold; border-top: 2px solid #333;">
+                                    <td style="text-align: left; padding-left: 20px; font-size: 1.2em;">TOTAL CA GÉNÉRAL</td>
+                                    <td class="uf-table-cell-numeric" style="color: #007bff; font-size: 1.3em; font-weight: bold;">
+                                        <span th:text="${#numbers.formatDecimal(totalCaGeneral, 0, 'POINT', 2, 'COMMA')}"></span> Ar
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
                 </div>
             </div>
         </main>

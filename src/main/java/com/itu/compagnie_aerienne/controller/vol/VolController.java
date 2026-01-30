@@ -1,6 +1,9 @@
 package com.itu.compagnie_aerienne.controller.vol;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.itu.compagnie_aerienne.model.ClientType;
 import com.itu.compagnie_aerienne.model.Paiement;
@@ -17,6 +21,7 @@ import com.itu.compagnie_aerienne.model.Reservation;
 import com.itu.compagnie_aerienne.model.SiegeCategorie;
 import com.itu.compagnie_aerienne.model.Vol;
 import com.itu.compagnie_aerienne.model.VolDetail;
+import com.itu.compagnie_aerienne.service.ProduitVenteService;
 import com.itu.compagnie_aerienne.service.ReservationSaisieService;
 import com.itu.compagnie_aerienne.service.VolService;
 
@@ -25,10 +30,13 @@ public class VolController {
 
     private final VolService volService;
     private final ReservationSaisieService reservationSaisieService;
+    private final ProduitVenteService produitVenteService;
 
-    public VolController(VolService volService, ReservationSaisieService reservationSaisieService) {
+    public VolController(VolService volService, ReservationSaisieService reservationSaisieService,
+                         ProduitVenteService produitVenteService) {
         this.volService = volService;
         this.reservationSaisieService = reservationSaisieService;
+        this.produitVenteService = produitVenteService;
     }
 
     @GetMapping("/vol")
@@ -37,9 +45,34 @@ public class VolController {
     }
 
     @GetMapping("/vol-list")
-    public String volList(Model model) {
-        // Récupérer tous les vols
-        List<Vol> vols = volService.getAllVol();
+    public String volList(Model model,
+                          @RequestParam(required = false) String dateDebut,
+                          @RequestParam(required = false) String dateFin) {
+        
+        // Initialiser les dates par défaut si non fournies
+        LocalDate debut;
+        LocalDate fin;
+        
+        if (dateDebut == null || dateDebut.isEmpty()) {
+            debut = LocalDate.of(2026, 1, 1);
+            dateDebut = "2026-01-01";
+        } else {
+            debut = LocalDate.parse(dateDebut);
+        }
+        
+        if (dateFin == null || dateFin.isEmpty()) {
+            fin = LocalDate.of(2026, 1, 31);
+            dateFin = "2026-01-31";
+        } else {
+            fin = LocalDate.parse(dateFin);
+        }
+        
+        // Convertir en LocalDateTime pour la comparaison (début de journée et fin de journée)
+        LocalDateTime dateTimeDebut = debut.atStartOfDay();
+        LocalDateTime dateTimeFin = fin.atTime(LocalTime.MAX);
+        
+        // Récupérer les vols filtrés par date
+        List<Vol> vols = volService.getVolsByDateRange(dateTimeDebut, dateTimeFin);
 
         // Créer une liste pour stocker les données de chaque vol
         List<Map<String, Object>> volsData = new ArrayList<>();
@@ -119,7 +152,41 @@ public class VolController {
             }
         }
 
+        // Calculer les totaux
+        BigDecimal totalCaTicket = BigDecimal.ZERO;
+        BigDecimal totalCaPublicite = BigDecimal.ZERO;
+        BigDecimal totalCaTotal = BigDecimal.ZERO;
+
+        for (Map<String, Object> volData : volsData) {
+            BigDecimal caTicket = (BigDecimal) volData.get("chiffreAffaireTicket");
+            BigDecimal caPublicite = (BigDecimal) volData.get("chiffreAffairePublicite");
+            BigDecimal caTotal = (BigDecimal) volData.get("chiffreAffaireTotal");
+
+            if (caTicket != null) {
+                totalCaTicket = totalCaTicket.add(caTicket);
+            }
+            if (caPublicite != null) {
+                totalCaPublicite = totalCaPublicite.add(caPublicite);
+            }
+            if (caTotal != null) {
+                totalCaTotal = totalCaTotal.add(caTotal);
+            }
+        }
+
+        // Calculer le CA produit pour la période
+        BigDecimal caProduit = produitVenteService.calculateCaProduit(debut, fin);
+
+        // Calculer le total général incluant le CA produit
+        BigDecimal totalCaGeneral = totalCaTotal.add(caProduit);
+
         model.addAttribute("volsData", volsData);
+        model.addAttribute("totalCaTicket", totalCaTicket);
+        model.addAttribute("totalCaPublicite", totalCaPublicite);
+        model.addAttribute("totalCaTotal", totalCaTotal);
+        model.addAttribute("caProduit", caProduit);
+        model.addAttribute("totalCaGeneral", totalCaGeneral);
+        model.addAttribute("dateDebut", dateDebut);
+        model.addAttribute("dateFin", dateFin);
 
         return "vol-list";
     }
